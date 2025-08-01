@@ -10,29 +10,29 @@ The hold is a rectangular, flat area with an Input/Output port (IOPort). The are
 
 In the picture above:
 
-The slots depict the hold storage areas, when they are ocuupied by product containes
-The slots5 area is permanentely occupied, while the other slots are initially empty
-The sensor put in front of the IOPort is a sonar used to detect the presence of a product container, when it measures a distance D, such that D < DFREE/2, during a reasonable time (e.g. 3 secs).
+- The slots depict the hold storage areas, when they are ocuupied by product containes
+- The slots5 area is permanentely occupied, while the other slots are initially empty
+- The sensor put in front of the IOPort is a sonar used to detect the presence of a product container, when it measures a distance D, such that D < DFREE/2, during a reasonable time (e.g. 3 secs).
 
 
 # Requirements
 
 The company asks us to build a software systems (named cargoservice) that:
 
-is able to receive the request to load on the cargo a product container already registered in the productservice.
+1. is able to receive the request to load on the cargo a product container already registered in the productservice.
 
 The request is rejected when:
 
-the product-weight is evaluated too high, since the ship can carry a maximum load of MaxLoad>0  kg.
-the hold is already full, i.e. the 4 slots are alrready occupied.
+- the product-weight is evaluated too high, since the ship can carry a maximum load of MaxLoad>0  kg.
+- the hold is already full, i.e. the 4 slots are alrready occupied.
 If the request is accepted, the cargoservice associates a slot to the product PID and returns the name of the reserved slot. Afttwerds, it waits that the product container is delivered to the ioport. In the meantime, other requests are not elaborated.
 
-is able to detect (by means of the sonar sensor) the presence of the product container at the ioport
+2. is able to detect (by means of the sonar sensor) the presence of the product container at the ioport
 
-is able to ensure that the product container is placed by the cargorobot within its reserved slot. At the end of the work:
+3. is able to ensure that the product container is placed by the cargorobot within its reserved slot. At the end of the work:
 
-the cargorobot should returns to its HOME location.
-the cargoservice can process another load-request
-is able to show the current state of the hold, by mesans of a dynamically updated web-gui.
+- the cargorobot should returns to its HOME location.
+- the cargoservice can process another load-request
+4. is able to show the current state of the hold, by mesans of a dynamically updated web-gui.
 
-interrupts any activity and turns on a led if the sonar sensor measures a distance D > DFREE for at least 3 secs (perhaps a sonar failure). The service continues its activities as soon as the sonar measures a distance D <= DFREE.
+5. interrupts any activity and turns on a led if the sonar sensor measures a distance D > DFREE for at least 3 secs (perhaps a sonar failure). The service continues its activities as soon as the sonar measures a distance D <= DFREE.

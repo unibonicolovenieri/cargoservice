@@ -2,20 +2,19 @@
 
 ## Indice
 
-- [Obiettivi](#obiettivi)
-- [Requisiti](#requisiti)
-- [Vocabolario](#vocabolario)
-- [Macrocomponenti](#macrocomponenti)
-- [Architettura di Riferimento](#architettura-di-riferimento)
-- [Piano di Test](#piano-di-test)
-- [Piano di Lavoro](#piano-di-lavoro)
-- [Team di Lavoro e Attività Specifiche](#team-di-lavoro-e-attività-specifiche)
+- [Obiettivi](#obiettivi) ✅
+- [Analisi dei Requisiti](#analisi-dei-requisiti) ❌    
+- [Macrocomponenti](#macrocomponenti) ❌
+- [Architettura di Riferimento](#architettura-di-riferimento) ❌
+- [Piano di Test](#piano-di-test) ❌
+- [Piano di Lavoro](#piano-di-lavoro) ❌
 
 ## Obiettivi
 In questo sprint0 i nostri obiettivi sono di analizzare e individuare sottoinsiemi di requisiti forniti dal committente e definire il nostro problema, per poi in futurio suddividere i sottoinsiemi in successivi sprint da eseguire eventualmente anche in parallelo, improntare le componenti della nostra archiettura (macrocomponenti principali & interazioni tra loro sotto forma di messaggi). Il sistema è distribuito?
+
 ## Analisi dei requisiti
-- Tutti i requisiti analizzati fanno riferimento ai [requisiti del commitente](#requisitidelcommittente) visualizzabili nel documento
-## Vocabolario 
+- Tutti i requisiti analizzati fanno riferimento ai [requisiti del commitente](../requirements/README.md)
+
 Si elencano le nomenclature utilizzate del problema
 ### Hold
 ### Cargorobot
@@ -38,7 +37,10 @@ Si elencano le nomenclature utilizzate del problema
 # Componenti fornite dal committente
 # gui
 # test
-## Piano di lavoro
+
+## Piano di Test
+
+## Piano di Lavoro
 Successivi allo sprint0 si distinuguono i seguenti sprint operativi del nostro processo Scrum
 
 1. Sprint 1
@@ -54,13 +56,13 @@ Successivi allo sprint0 si distinuguono i seguenti sprint operativi del nostro p
 
 Divisione Temporale e Data inizio e fine e Lavoro
 
-## Team di Lavoro e Attività Specifiche
-Tabella con le foto
+
 
 
 ## Gruppi di Requisiti
 come dividere il lavoro? 
 cargoservice
+holddddddd()???
 sonar
 gui 
 ? 

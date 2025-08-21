@@ -14,8 +14,8 @@
 ## Obiettivi
 In questo sprint0 i nostri obiettivi sono di analizzare e individuare sottoinsiemi di requisiti forniti dal committente e definire il nostro problema, per poi in futurio suddividere i sottoinsiemi in successivi sprint da eseguire eventualmente anche in parallelo, improntare le componenti della nostra archiettura (macrocomponenti principali & interazioni tra loro sotto forma di messaggi). Il sistema è distribuito?
 ## Analisi dei requisiti
-
-## Vocabolario
+- Tutti i requisiti analizzati fanno riferimento ai [requisiti del commitente](#requisitidelcommittente) visualizzabili nel documento
+## Vocabolario 
 Si elencano le nomenclature utilizzate del problema
 ### Hold
 ### Cargorobot

@@ -3,7 +3,8 @@
 ## Indice
 
 - [Obiettivi](#obiettivi) ✅
-- [Analisi dei Requisiti](#analisi-dei-requisiti) ❌    
+- [Analisi dei Requisiti](#analisi-dei-requisiti) ❌ 
+- [Dizionario](#dizionario) ✅   
 - [Macrocomponenti](#macrocomponenti) ❌
 - [Architettura di Riferimento](#architettura-di-riferimento) ❌
 - [Piano di Test](#piano-di-test) ❌
@@ -15,7 +16,8 @@ In questo sprint0 i nostri obiettivi sono di analizzare e individuare sottoinsie
 # Analisi dei requisiti
 - Tutti i requisiti analizzati fanno riferimento ai [requisiti del commitente](../requirements/README.md)
 
-Si elencano le nomenclature utilizzate del problema
+# Dizionario 
+
 ### Hold
 È la stiva della nave, cioè l’area interna e piatta dove vengono caricati i container con i prodotti. In questo progetto è una zona rettangolare con degli slot e una porta di ingresso/uscita (IOPort).
 ### Cargorobot

@@ -9,7 +9,7 @@
     - [Area di Lavoro](#area-di-lavoro) ✅
     - [Plain Old Java Objects (POJO)](#plain-old-java-objects) ✅
     - [Attori](#attori) ✅
-    - [Area di Lavoro](#area-di-lavoro) ✅
+    - [QAK](#qak) ✅
 
 
 - [Macrocomponenti](#macrocomponenti) ❌
@@ -24,7 +24,7 @@ In questo sprint0 i nostri obiettivi sono di analizzare e individuare sottoinsie
 [requisiti del commitente](../requirements/README.md)
 
 # Analisi dei requisiti
-
+## 
 ### Hold
 È la stiva della nave, cioè l’[area di lavoro](#area-di-lavoro) e piatta dove vengono caricati i container con i prodotti. In questo progetto è una zona rettangolare con degli slot e una porta di ingresso/uscita (IOPort).
 ### Cargorobot
@@ -44,7 +44,6 @@ Il peso del prodotto/container. Serve per verificare che non venga superato il l
 
 ### DDR Differential Drive Robot
 È il tipo di robot mobile con due ruote motrici indipendenti. Si muove facendo girare le ruote a velocità diverse (come i robot aspirapolvere), ed è quello usato come cargorobot.
-
 
 ## Componenti fornite dal committente
 Si elencano di seguito le componenti software fornite dal committente
@@ -131,19 +130,20 @@ In questa prima fase i test servono a controllare che i prototipi dei componenti
 - sonar rileva carico
 - controllare che il carico sia posizionato nel suo posto, il robot torni alla home e torna disponibile ad accettare una nuova richiesta
 - controllo status
+- quando il sonar è attivo si ferma tutto(?)
 
 # Piano di Lavoro
 Successivi allo sprint0 si distinuguono i seguenti sprint operativi del nostro processo Scrum
 
-1. Sprint 1
+1. Sprint 1 (30h)
     - Cargoservice (core buisness del sistema)
     - Cargorobot
-2. Sprint 2
+2. Sprint 2(20h)
     - Hold
-3. Sprint 3
+3. Sprint 3(20h)
     - Sonar
     - Led
-4. Sprint 4
+4. Sprint 4(10h)
     - Web Gui
 
 Divisione Temporale e Data inizio e fine e Lavoro

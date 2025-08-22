@@ -11,8 +11,7 @@
     - [Attori](#attori) ✅
     - [QAK](#qak) ✅
 
-
-- [Macrocomponenti](#macrocomponenti) ❌
+- [Macrocomponenti](#macrocomponenti)❌
 - [Architettura di Riferimento](#architettura-di-riferimento) ❌
 - [Piano di Test](#piano-di-test) ❌
 - [Piano di Lavoro](#piano-di-lavoro) ❌
@@ -120,7 +119,8 @@ Qak (o Qak Actors) è un linguaggio specifico del dominio (DSL) pensato per l'an
 - **Distinzione tra Interazioni H2M e M2M:** Riconoscimento delle differenze tra interazioni Uomo-Macchina e Macchina-Macchina, per progettare interfacce, protocolli e strategie di test adeguate.
 
 ### [Link alla documentazione ufficiale Qak](https://github.com/anatali/issLab2025/blob/main/iss25Material/docs/_build/html/QakActors25Linguaggio.html)
-
+# Macrocomponenti
+In aggiunta alle [Componenti del committente](#componenti-fornite-dal-committente), si svilupperanno i seguenti Macrocomponenti:
 # Piano di Test
 In questa prima fase i test servono a controllare che i prototipi dei componenti interagiscano come richiesto dal committente.
 

@@ -120,14 +120,33 @@ Qak (o Qak Actors) è un linguaggio specifico del dominio (DSL) pensato per l'an
 
 ### [Link alla documentazione ufficiale Qak](https://github.com/anatali/issLab2025/blob/main/iss25Material/docs/_build/html/QakActors25Linguaggio.html)
 # Macrocomponenti
+Gli attori consentono di gestire la distribuzione o la concentrazione dei componenti sui nodi della struttura. In questa fase dello sviluppo non siamo ancora nella condizione tale da poter stabilire il grado di distribuzione di tutta l'archiettura.
+
+Le componenti che rappresentano l'entità fisica sappiamo gia che risiederanno sul nodo dedicato (`Sonar` & `Led`). Stessa cosa vale per il componente che sostituirà `Basicrobot`.
+
 In aggiunta alle [Componenti del committente](#componenti-fornite-dal-committente), si svilupperanno i seguenti Macrocomponenti:
 
 ### cargoservice
+### cargorobot
+### sonar
+### led
+### hold
+### web-gui
 
+# Architettura di Riferimento
+## Modello di comunicazione a Messaggi
+Il modello ad attori sfrutta la comunicazione tramite messaggi e dai requisiti forniti siamo in grado di comprendere alcune delle interazioni che avvengo tra gli attori. Si indicano di seguito i messaggi che sono in grado di scambiarsi tra di loro. 
+
+INSERIRE CODICE CON I MESSAGGI
+
+Serviranno sccessive decisioni per la modellazione e l'implementazioni di messaggi tra attori per ulteriori funzionalità.
+
+# Schema dell'architettura
 # Piano di Test
 In questa prima fase i test servono a controllare che i prototipi dei componenti interagiscano come richiesto dal committente.
 
 - Tentativo accettato di carico
+
 - tentativo rifiutato di carico per troppo peso
 - tentativo rifiutato per mancanza di slot
 - sonar rileva carico

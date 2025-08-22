@@ -3,8 +3,15 @@
 ## Indice
 
 - [Obiettivi](#obiettivi) ✅
+- [Requisiti forniti dal Commitente](#requisiti-del-commitente) ✅
 - [Analisi dei Requisiti](#analisi-dei-requisiti) ❌ 
-- [Dizionario](#dizionario) ✅   
+    - [Componenti fornite dal Committente](#componenti-fornite-dal-committente) ✅   
+    - [Area di Lavoro](#area-di-lavoro) ✅
+    - [Plain Old Java Objects (POJO)](#plain-old-java-objects) ✅
+    - [Attori](#attori) ✅
+    - [Area di Lavoro](#area-di-lavoro) ✅
+
+
 - [Macrocomponenti](#macrocomponenti) ❌
 - [Architettura di Riferimento](#architettura-di-riferimento) ❌
 - [Piano di Test](#piano-di-test) ❌
@@ -13,13 +20,13 @@
 # Obiettivi
 In questo sprint0 i nostri obiettivi sono di analizzare e individuare sottoinsiemi di requisiti forniti dal committente e definire il nostro problema, per poi in futurio suddividere i sottoinsiemi in successivi sprint da eseguire eventualmente anche in parallelo, improntare le componenti della nostra archiettura (macrocomponenti principali & interazioni tra loro sotto forma di messaggi). Il sistema è distribuito?
 
-# Analisi dei requisiti
-- Tutti i requisiti analizzati fanno riferimento ai [requisiti del commitente](../requirements/README.md)
+# Requisiti del commitente
+[requisiti del commitente](../requirements/README.md)
 
-# Dizionario 
+# Analisi dei requisiti
 
 ### Hold
-È la stiva della nave, cioè l’area interna e piatta dove vengono caricati i container con i prodotti. In questo progetto è una zona rettangolare con degli slot e una porta di ingresso/uscita (IOPort).
+È la stiva della nave, cioè l’[area di lavoro](#area-di-lavoro) e piatta dove vengono caricati i container con i prodotti. In questo progetto è una zona rettangolare con degli slot e una porta di ingresso/uscita (IOPort).
 ### Cargorobot
 È il robot a guida differenziale (Differential Drive Robot) incaricato di spostare i container dentro la stiva e piazzarli nello slot assegnato. Dopo il lavoro torna sempre alla sua posizione “HOME”.
 ### Products
@@ -37,11 +44,18 @@ Il peso del prodotto/container. Serve per verificare che non venga superato il l
 
 ### DDR Differential Drive Robot
 È il tipo di robot mobile con due ruote motrici indipendenti. Si muove facendo girare le ruote a velocità diverse (come i robot aspirapolvere), ed è quello usato come cargorobot.
+
+
+## Componenti fornite dal committente
+Si elencano di seguito le componenti software fornite dal committente
+### BasicRobot
+Componente software che esegue i comandi di movimento del DDR-robot. Non è a conoscenza della tecnologia con il quale il robot è stato implementato.
+### SonarLed2025 
+Software per la misurazione della distanza dal sonar (componente hardware) e per accendere un LED
 ### WENV
 WENV è un ambiente di simulazione software (“Web Environment”) usato per testare il sistema, mostrare la stiva, lo stato degli slot e i movimenti del robot tramite un’interfaccia grafica web.
-
-
-# Attori vs POJO (come modelleremo i vari componenti?)
+## Area di Lavoro
+![](../images/tf25sceneAnnotated.jpg)
 ## Plain Old Java Objects (POJO)
 I POJO sono essenziali per costruire il modello di dominio in DDD.  
 Sono usati per:  
@@ -51,8 +65,7 @@ Sono usati per:
 • Incapsulare logica di business passiva e stateless  
   
 I POJO sono passivi, non gestiscono il loro stato in autonomia nel tempo in risposta a eventi esterni e non hanno code di messaggi proprie
-
-## Attori (es. Qak Actors)
+## Attori
 Il modello ad Attori si basa su entità autonome che comunicano tramite messaggi. Un Attore Qak è un componente attivo con un proprio flusso di controllo autonomo e uno stato interno.  
 
 Le loro caratteristiche principali includono:  
@@ -70,7 +83,6 @@ La scelta dipende dalla necessità di comportamento autonomo e stateful (Attori)
 • I POJO sono ottimi per le strutture dati e le regole di business fondamentali che operano su tali dati, fungendo da "mattoni" all'interno di un servizio o di un Attore  
 • Gli Attori sono ideali per gestire processi complessi e stateful, orchestrazioni e comunicazioni asincrone in ambienti distribuiti  
 In pratica, un sistema moderno userà spesso entrambi: gli Attori possono utilizzare i POJO per strutturare i dati che gestiscono internamente o che scambiano tramite messaggi. Questo approccio ibrido consente di beneficiare sia di una modellazione robusta del dominio sia dei vantaggi della computazione distribuita basata su messaggi.
-
 ## QAK
 Qak (o Qak Actors) non è un linguaggio di programmazione generico, ma piuttosto un linguaggio di modellazione eseguibile (*DSL - Domain Specific Language*) specificamente progettato per l'analisi e la progettazione di prototipi di sistemi distribuiti. La "Q" in Qak sta per "quasi" ("quasi" un attore), indicando che è un'astrazione che mira a colmare l'abstraction gap tra i concetti di alto livello e la loro implementazione. La "k" aggiunta (Qak) si riferisce alla sua implementazione in Kotlin, senza l'uso di supporti.  
 
@@ -108,15 +120,17 @@ Qak (o Qak Actors) è un linguaggio specifico del dominio (DSL) pensato per l'an
 - **Progettazione Top-Down:** Si parte dall’analisi dei requisiti e del problema, progredendo verso progettazione e implementazione, per affrontare la complessità in modo sistematico.
 - **Distinzione tra Interazioni H2M e M2M:** Riconoscimento delle differenze tra interazioni Uomo-Macchina e Macchina-Macchina, per progettare interfacce, protocolli e strategie di test adeguate.
 
-### Link alla documentazione ufficiale Qak
-# interazione del cargorobot (come parla, con che messaggi e cosa è capace di fare)
-# come si muove il robot in hold
-# sonar
-# Componenti fornite dal committente
-# gui
-# test
+### [Link alla documentazione ufficiale Qak](https://github.com/anatali/issLab2025/blob/main/iss25Material/docs/_build/html/QakActors25Linguaggio.html)
 
 # Piano di Test
+In questa prima fase i test servono a controllare che i prototipi dei componenti interagiscano come richiesto dal committente.
+
+- Tentativo accettato di carico
+- tentativo rifiutato di carico per troppo peso
+- tentativo rifiutato per mancanza di slot
+- sonar rileva carico
+- controllare che il carico sia posizionato nel suo posto, il robot torni alla home e torna disponibile ad accettare una nuova richiesta
+- controllo status
 
 # Piano di Lavoro
 Successivi allo sprint0 si distinuguono i seguenti sprint operativi del nostro processo Scrum
@@ -133,15 +147,3 @@ Successivi allo sprint0 si distinuguono i seguenti sprint operativi del nostro p
     - Web Gui
 
 Divisione Temporale e Data inizio e fine e Lavoro
-
-
-
-
-## Gruppi di Requisiti
-come dividere il lavoro? 
-cargoservice
-holddddddd()???
-sonar
-gui 
-? 
-alternative? se li dividessimo in 4 sprint cosa potremmo sviluppare in parallelo?

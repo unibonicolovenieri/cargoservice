@@ -90,11 +90,11 @@ QActor cargoservice context ctxcargoservice {
 		}
 	}
 	Transition t1
-		whenReply	getProductAnswer	->	getproductanswered
+		whenReply	addedProduct	->	addedProduct
 		whenMsg		goToWait			->	wait
 		
-	State getproductanswered {
-		onMsg(getProductAnswer : getProductAnswer(Name)) {
+	State addedProduct {
+		onMsg(addedProduct : addedProduct(Name)) {
 			[# var name = payloadArg(0) #]
 			
 			if [# name.equals("NOTFOUND") #] {
@@ -215,7 +215,7 @@ QActor dbwrapper context ctxcargoservice {
 				}
 			#]
 			
-			replyTo getProduct with getProductAnswer : getProductAnswer($Name)
+			replyTo getProduct with addedProduct : addedProduct($Name)
 		}
 	}
 	Goto wait

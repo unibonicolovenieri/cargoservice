@@ -132,7 +132,7 @@ eclipse {
 application {
     //Define the main class for the application.
     //mainClassName    = 'main.java.domain.Product'
-    mainClassName    = 'it.unibo.ctxMyFirstContext.MainCtxMyFirstContextKt'
+    mainClassName    = 'it.unibo.ctx_cargoservice.MainCtx_cargoserviceKt'
 }
  
  jar {

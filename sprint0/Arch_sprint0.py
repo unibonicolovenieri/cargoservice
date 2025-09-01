@@ -25,6 +25,6 @@ with Diagram('sprint0Arch', show=False, outformat='png', graph_attr=graphattr) a
   with Cluster('env'):
      sys = Custom('','./qakicons/system.png')
 ### see https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/HTML-like/index
-     with Cluster('ctxMyFirstContext', graph_attr=nodeattr):
-          introactor=Custom('introactor','./qakicons/symActorWithobjSmall.png')
+     with Cluster('ctx_cargoservice', graph_attr=nodeattr):
+          cargoservice=Custom('cargoservice','./qakicons/symActorWithobjSmall.png')
 diag

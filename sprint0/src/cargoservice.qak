@@ -1,24 +1,28 @@
 System sprint0
-// Define a context where our actor will run.
-// For Sprint 0, 'localhost' is often sufficient for initial prototyping.
-Context ctxMyFirstContext ip [host="localhost" port=8080]
+//Richieste e Scambi di messaggi - Inseriamo qui tutti i messaggi che scambieranno gli attori
+Request load_product  : load_product(PID) 			    	 //la richiesta di carico di un container che arriva a cargoservice: contiene il PID del prodotto"
+Reply   load_accepted : load_accepted(SLOT) for load_product 	//"la richiesta di carico può essere accettata, con restituzione dello slot assegnato al container"
+Reply   load_refused  : load_refused(CAUSA) for load_product 	//"la richiesta di carico può essere rifiutata per vari motivi (peso, slot occupati, PID inesistente)"
 
-// Define a QActor named 'introActor' within 'ctxMyFirstContext'.
-QActor introactor context ctxMyFirstContext {
-    // The initial state of the actor.
+
+//Contesti
+Context ctx_cargoservice	ip [host="localhost" port=8000]
+Context ctx_iodev			ip [host="localhost" port=8001]
+Context ctx_client			ip [host="localhost" port=8002]
+Context ctx_test			ip [host="localhost" port=9000]
+
+
+//Scheletro attore
+QActor cargoservice context ctx_cargoservice {
+   
     State s0 initial {
-        // Actions to perform when entering this state.
-        // 'println' is used for logging/output.
-        println("introActor starts in state s0!") color blue
+        println("Cargoservice starts in state s0!") color blue
     }
-    // A transition from s0 to s1 after a delay of 1000 milliseconds (1 second).
     Transition t0 whenTime 1000 -> s1
 
-    // A second state.
     State s1 {
-        // Actions for state s1.
-        println("introActor is now in state s1.") color green
-        // An optional action to terminate the actor after some time or a condition.
-        // For simplicity, we can let it just stay here or add another transition to end.
+        
+        println("Cargoservice is now in state s1.") color green
+
     }
 }

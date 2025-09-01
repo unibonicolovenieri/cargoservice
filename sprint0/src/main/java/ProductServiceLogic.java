@@ -1,8 +1,6 @@
-package main.java.domain;
+package src.main.java;
 
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import cli.System.String;
 import unibo.basicomm23.utils.CommUtils;
 
 public class ProductServiceLogic {

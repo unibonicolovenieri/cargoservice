@@ -20,7 +20,8 @@ import org.json.simple.JSONObject
 
 //User imports JAN2024
 
-class Testcargo ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : ActorBasicFsm( name, scope, confined=isconfined ){
+class Testcargo ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdynamic: Boolean=false ) : 
+          ActorBasicFsm( name, scope, confined=isconfined, dynamically=isdynamic ){
 
 	override fun getInitialState() : String{
 		return "init"

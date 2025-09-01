@@ -4,14 +4,14 @@
 
 - [Obiettivi](#obiettivi) ✅
 - [Requisiti forniti dal Commitente](#requisiti-del-commitente) ✅
-- [Analisi dei Requisiti](#analisi-dei-requisiti) ❌ 
+- [Analisi dei Requisiti](#analisi-dei-requisiti) ✅ 
     - [Componenti fornite dal Committente](#componenti-fornite-dal-committente) ✅   
     - [Area di Lavoro](#area-di-lavoro) ✅
     - [Plain Old Java Objects (POJO)](#plain-old-java-objects) ✅
     - [Attori](#attori) ✅
     - [QAK](#qak) ✅
 
-- [Macrocomponenti](#macrocomponenti)❌
+- [Macrocomponenti](#macrocomponenti)✅
 - [Architettura di Riferimento](#architettura-di-riferimento) ❌
 - [Piano di Test](#piano-di-test) ❌
 - [Piano di Lavoro](#piano-di-lavoro) ❌
@@ -82,7 +82,7 @@ La scelta dipende dalla necessità di comportamento autonomo e stateful (Attori)
 • Gli Attori sono ideali per gestire processi complessi e stateful, orchestrazioni e comunicazioni asincrone in ambienti distribuiti  
 In pratica, un sistema moderno userà spesso entrambi: gli Attori possono utilizzare i POJO per strutturare i dati che gestiscono internamente o che scambiano tramite messaggi. Questo approccio ibrido consente di beneficiare sia di una modellazione robusta del dominio sia dei vantaggi della computazione distribuita basata su messaggi.
 ## QAK
-Qak (o Qak Actors) non è un linguaggio di programmazione generico, ma piuttosto un linguaggio di modellazione eseguibile (*DSL - Domain Specific Language*) specificamente progettato per l'analisi e la progettazione di prototipi di sistemi distribuiti. La "Q" in Qak sta per "quasi" ("quasi" un attore), indicando che è un'astrazione che mira a colmare l'abstraction gap tra i concetti di alto livello e la loro implementazione. La "k" aggiunta (Qak) si riferisce alla sua implementazione in Kotlin, senza l'uso di supporti.  
+Qak (o Qak Actors) non è un linguaggio di programmazione generico, ma piuttosto un linguaggio di modellazione eseguibile (*DSL - Domain Specific Language*) specificamente progettato per l'analisi e la progettazione di prototipi di sistemi distribuiti. 
 
 Il cuore di un sistema Qak è il modello ad attori, un paradigma computazionale ispirato alla fisica, in cui ogni componente del sistema è un attore autonomo che comunica tramite lo scambio di messaggi. Un attore Qak è un componente attivo con un nome univoco e un flusso di controllo autonomo. Si comporta come un automa a stati finiti (FSM), gestendo i messaggi ricevuti in relazione al suo stato corrente e alle transizioni definite. Ogni attore possiede una coda di messaggi locale (msgQueue) per elaborare i messaggi sequenzialmente, garantendo che "altre richieste non siano elaborate" mentre una è in corso.  
 
@@ -127,32 +127,42 @@ Le componenti che rappresentano l'entità fisica sappiamo gia che risiederanno s
 In aggiunta alle [Componenti del committente](#componenti-fornite-dal-committente), si svilupperanno i seguenti Macrocomponenti:
 
 ### cargoservice
+Questo macrocomponente sarà il cuore della logica di business principale legata al processo di carico/scarico. All'interno di un'architettura a microservizi e Domain-Driven Design (DDD), potrebbe corrispondere al "Contesto Gestione Carico" (Loading Management / Cargo Process). Le sue responsabilità includeranno la ricezione e la validazione delle richieste di carico (es. controllo del peso e della disponibilità degli slot), l'associazione di un PID a uno slot riservato, e la gestione dello stato del processo di carico per una specifica richiesta. Un attore Qak è particolarmente adatto a modellare questo componente, poiché può gestire un flusso sequenziale di operazioni, mantenere uno stato interno e reagire a eventi esterni, orchestrando le interazioni con altri contesti.
 ### cargorobot
+Questo componente gestirà le funzionalità di movimento e posizionamento del robot DDR all'interno del cargo navale. Sarà progettato per operare in modo indipendente dalla tecnologia specifica del robot (sia esso virtuale o reale). Le sue funzioni includeranno l'esecuzione di comandi di movimento elementari, movimenti a step per un tempo dato, esecuzione di sequenze di movimento (piani) e posizionamento del robot in una cella data della mappa. Internamente, delegherà l'ingaggio a un engager, l'esecuzione dei piani a un `planexec` e il posizionamento a un robotpos. Da una prospettiva DDD, rientrerebbe nel "Contesto Interazione Fisica/Sensori", controllando il robot fisico e interagendo con i sensori per rilevare la presenza dei container.
 ### sonar
+Il macrocomponente `sonar` sarà responsabile della rilevazione delle distanze nell'ambiente e della generazione di eventi significativi per il sistema. Sarà modellato come un attore Qak capace di ricevere comandi di `sonarstart` e `sonarstop`. I dati di distanza rilevati da un dispositivo di basso livello (`sonardevice`) verranno filtrati e poi emessi come eventi (`sonardata:distance(D)`). In caso di rilevamento di ostacoli, potrà generare eventi come `obstacle:obstacle(D)`. Questo componente può essere distribuito su un Raspberry Pi e pubblicare i dati via MQTT.
 ### led
+Il componente `led` controllerà un LED per fornire feedback visivo in base alle interazioni del sistema o alle condizioni ambientali. Ad esempio, potrebbe accendersi se il sonar rileva una distanza inferiore a un limite prefissato. Sarà implementato come un attore Qak in grado di gestire i Dispatch `turnOn` e `turnOff` per accendere/spegnere un LED, emettendo vari tipi di eventi Qak.
 ### hold
+Il macrocomponente `hold` gestirà lo stato logico e fisico della stiva del cargo. Rientra nel "Contesto Inventario Stiva" (Hold Inventory / Slot Management) in un approccio DDD. Sarà responsabile di tenere traccia degli slot disponibili e occupati, di quale prodotto (identificato dal PID) si trova in quale slot, e di fornire informazioni sull'occupazione complessiva della stiva. La sua principale responsabilità è mantenere un modello accurato e coerente della stiva, assicurando la consistenza interna dei dati relativi agli slot.
 ### web-gui
+La web-gui fornirà l'interfaccia utente per l'interazione uomo-macchina (*Human-Computer Interaction*) con il sistema di carico/scarico. Sarà una pagina HTML dinamica, probabilmente fornita da un Web-server e capace di interagire tramite WebSocket o MQTT. In un'architettura a microservizi, la GUI può essere un microservizio a sé stante, separato dalla logica di business principale. Dal punto di vista DDD, costituirebbe il "Contesto Visualizzazione Stiva" (Hold Visualization / Reporting), ottimizzato per la presentazione dei dati e la lettura, separato dal contesto che gestisce lo stato transazionale dell'inventario. Permetterà agli utenti di visualizzare lo stato della stiva e inviare comandi di gestione del carico/scarico.
 
 # Architettura di Riferimento
 ## Modello di comunicazione a Messaggi
 Il modello ad attori sfrutta la comunicazione tramite messaggi e dai requisiti forniti siamo in grado di comprendere alcune delle interazioni che avvengo tra gli attori. Si indicano di seguito i messaggi che sono in grado di scambiarsi tra di loro. 
 
-INSERIRE CODICE CON I MESSAGGI
+```
+Request load_product  : load_product(PID) 
+Reply   load_accepted : load_accepted(SLOT) for load_product
+Reply   load_refused  : load_refused(CAUSA) for load_product 
+```
 
-Serviranno sccessive decisioni per la modellazione e l'implementazioni di messaggi tra attori per ulteriori funzionalità.
+Serviranno successive decisioni per la modellazione e l'implementazioni di messaggi tra attori per ulteriori funzionalità.
 
-# Schema dell'architettura
+## Schema dell'architettura
+XXX
 # Piano di Test
 In questa prima fase i test servono a controllare che i prototipi dei componenti interagiscano come richiesto dal committente.
 
 - Tentativo accettato di carico
-
-- tentativo rifiutato di carico per troppo peso
-- tentativo rifiutato per mancanza di slot
-- sonar rileva carico
-- controllare che il carico sia posizionato nel suo posto, il robot torni alla home e torna disponibile ad accettare una nuova richiesta
-- controllo status
-- quando il sonar è attivo si ferma tutto(?)
+- Tentativo rifiutato di carico per troppo peso
+- Tentativo rifiutato per mancanza di slot
+- Sonar rileva carico
+- Controllare che il carico sia posizionato nel suo posto, il robot torni alla home e torna disponibile ad accettare una nuova richiesta
+- Controllo status
+- Quando il sonar è attivo si ferma tutto(?)
 
 # Piano di Lavoro
 Successivi allo sprint0 si distinuguono i seguenti sprint operativi del nostro processo Scrum

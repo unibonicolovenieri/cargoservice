@@ -26,3 +26,61 @@ QActor cargoservice context ctx_cargoservice {
 
     }
 }
+
+QActor webgui context ctx_cargoservice {
+    State s0 initial {
+        println("webgui starts in state s0 [Initial State]!") color blue
+    }
+
+    State s1 {
+        
+        println("webgui is now in state s1.") color green
+
+    }
+}
+
+QActor client context ctx_client {
+    State s0 initial {
+        println("client starts in state s0 [Initial State]!") color blue
+    }
+
+    State s1 {
+        
+        println("client is now in state s1.") color green
+
+    }
+}
+
+QActor sonar context ctx_iodev {
+   
+    State s0 initial {
+        println("sonar starts in state s0 [Initial State]!") color blue
+    }
+
+}
+QActor led context ctx_iodev {
+   
+    State s0 initial {
+        println("led starts in state s0 [Initial State]!") color blue
+    }
+
+    State s1 {
+        
+        println("led is now in state s1.") color green
+
+    }
+}
+
+QActor cargotest context ctx_test {
+   
+    State s0 initial {
+        println("cargotest starts in state s0 [Initial State]!") color blue
+
+    }
+
+    State s1 {
+        println("cargotest is now in state s1.") color green
+    }
+}
+
+

@@ -1,0 +1,56 @@
+System sprint0
+//Richieste e Scambi di messaggi - Inseriamo qui tutti i messaggi che scambieranno gli attori
+Request load_product  : load_product(PID) 			    	    //richiesta di carico di un prodotto con PID
+Reply   load_accepted : load_accepted(SLOT) for load_product 	//restituisce lo slot assegnato
+Reply   load_refused  : load_refused(CAUSA) for load_product 	//ritorna la causa del mancato carico
+
+
+//Contesti
+Context ctx_cargoservice	ip [host="localhost" port=8010]
+Context ctx_iodev			ip [host="localhost" port=8001]
+Context ctx_client			ip [host="localhost" port=8002]
+Context ctx_test			ip [host="localhost" port=9000]
+
+ExternalQActor cargoservice context ctx_cargoservice
+QActor cargotest context ctx_test{
+	   
+    State start initial {
+        println("[cargotest] Inizia") color yellow
+    }
+    Goto richiesta
+
+    State richiesta {
+       println("[cargotest] Invia una nuova richiesta") color yellow
+        //Invio della richiesta
+        request cargoservice -m load_product:load_product(1) 
+        }
+		Transition t0
+        whenReply load_accepted -> loadAccepted
+         whenReply load_refused -> loadRefused
+        
+    State loadAccepted{
+   	printCurrentMessage
+    onMsg( load_accepted : load_accepted(slot) ){
+		    println("[cargoservice] risposta arrivata") color blue
+		    
+           [#
+       val msg=payloadArg(0).toInt()        #]
+   	println("[cargotest] $msg ") color yellow
+   }}
+
+    State loadRefused{
+   	printCurrentMessage
+   	 onMsg( load_accepted : load_accepted(slot) ){
+        [#
+       val msg=payloadArg(0).toInt()
+       #]
+           	println("[cargotest] $msg ") color yellow
+    }
+
+
+}
+
+
+}
+
+

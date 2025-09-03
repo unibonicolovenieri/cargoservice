@@ -23,17 +23,3 @@ package-lock.json
 docker/
 /.metadata/
 /src-gen/
-
-# Gradle
-.gradle/
-**/build/
-!gradle-wrapper.jar
-
-# Eclipse
-.settings/
-.classpath
-.project
-
-# OS
-*.lock
-

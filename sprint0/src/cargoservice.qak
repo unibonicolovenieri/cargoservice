@@ -1,44 +1,60 @@
 System sprint0
 //Richieste e Scambi di messaggi - Inseriamo qui tutti i messaggi che scambieranno gli attori
-Request load_product  : load_product(PID) 			    	 //la richiesta di carico di un container che arriva a cargoservice: contiene il PID del prodotto"
-Reply   load_accepted : load_accepted(SLOT) for load_product 	//"la richiesta di carico può essere accettata, con restituzione dello slot assegnato al container"
-Reply   load_refused  : load_refused(CAUSA) for load_product 	//"la richiesta di carico può essere rifiutata per vari motivi (peso, slot occupati, PID inesistente)"
+Request load_product  : load_product(PID) 			    	    //richiesta di carico di un prodotto con PID
+Reply   load_accepted : load_accepted(SLOT) for load_product 	//restituisce lo slot assegnato
+Reply   load_refused  : load_refused(CAUSA) for load_product 	//ritorna la causa del mancato carico
 
 
 //Contesti
-Context ctx_cargoservice	ip [host="localhost" port=8000]
+Context ctx_cargoservice	ip [host="localhost" port=8010]
 Context ctx_iodev			ip [host="localhost" port=8001]
 Context ctx_client			ip [host="localhost" port=8002]
 Context ctx_test			ip [host="localhost" port=9000]
 
+// -------- Attore di test "import" ---------
+ExternalQActor cargotest context ctx_test
 
-//Scheletro attore
+//Sprint0 Sviluppo cargoservice
 QActor cargoservice context ctx_cargoservice {
    
-    State s0 initial {
-        println("Cargoservice starts in state s0!") color blue
+    State start initial {
+        println("[cargoservice] Inizia ") color blue
     }
-    Transition t0 whenTime 1000 -> s1
-
-    State s1 {
-        
-        println("Cargoservice is now in state s1.") color green
-
+    Goto waiting_for_request
+    State waiting_for_request{
+        println("[cargoservice]'s Sta aspettando richieste")color blue
     }
+    Transition t0
+    	whenRequest load_product -> handleRequest
+
+    State handleRequest {
+        printCurrentMessage color blue
+		    onMsg( load_product : load_product(PID) ){
+		    println("[cargoservice] Riceve richiesta di caricamento") color blue
+		    }
+		    
+		    replyTo load_product with load_accepted : load_accepted(5)
+		 
+	}
+		
 }
 
+
+
+
+
+// ---------------- prossimi sprint ------------
 QActor webgui context ctx_cargoservice {
     State s0 initial {
-        println("webgui starts in state s0 [Initial State]!") color blue
+        println("[webgui] starts in state s0 [Initial State]!") color blue
     }
 
     State s1 {
         
-        println("webgui is now in state s1.") color green
+        println("[webgui] is now in state s1.") color green
 
     }
 }
-
 QActor client context ctx_client {
     State s0 initial {
         println("client starts in state s0 [Initial State]!") color blue
@@ -50,13 +66,11 @@ QActor client context ctx_client {
 
     }
 }
-
 QActor sonar context ctx_iodev {
    
     State s0 initial {
         println("sonar starts in state s0 [Initial State]!") color blue
     }
-
 }
 QActor led context ctx_iodev {
    
@@ -70,17 +84,7 @@ QActor led context ctx_iodev {
 
     }
 }
+// ---------------- prossimi sprint ------------
 
-QActor cargotest context ctx_test {
-   
-    State s0 initial {
-        println("cargotest starts in state s0 [Initial State]!") color blue
-
-    }
-
-    State s1 {
-        println("cargotest is now in state s1.") color green
-    }
-}
 
 

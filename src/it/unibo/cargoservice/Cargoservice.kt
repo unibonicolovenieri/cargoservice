@@ -24,123 +24,41 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
           ActorBasicFsm( name, scope, confined=isconfined, dynamically=isdynamic ){
 
 	override fun getInitialState() : String{
-		return "init"
+		return "start"
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name» = actor.withobj.method»ENDIF
-		
-					val MAX_LOAD = 100
-					
-					var totalWeigth = 0.0
 		return { //this:ActionBasciFsm
-				state("init") { //this:State
+				state("start") { //this:State
 					action { //it:State
-						CommUtils.outblue("$name: STARTING...")
-						CommUtils.outblue("$name: initialization complete")
+						CommUtils.outblue("[cargoservice] Inizia ")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="wait", cond=doswitch() )
+					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
 				}	 
-				state("wait") { //this:State
+				state("waiting_for_request") { //this:State
 					action { //it:State
-						CommUtils.outblue("$name: waiting for requests...")
+						CommUtils.outblue("[cargoservice]'s Sta aspettando richieste")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="loadproduct",cond=whenRequest("loadProduct"))
-					transition(edgeName="t01",targetState="stop",cond=whenEvent("stop"))
+					 transition(edgeName="t00",targetState="handleRequest",cond=whenRequest("load_product"))
 				}	 
-				state("loadproduct") { //this:State
+				state("handleRequest") { //this:State
 					action { //it:State
 						CommUtils.outblue("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
-						if( checkMsgContent( Term.createTerm("loadProduct(PID,Weigth)"), Term.createTerm("loadProduct(PID,Weigth)"), 
+						if( checkMsgContent( Term.createTerm("load_product(PID)"), Term.createTerm("load_product(PID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								if(  totalWeigth < MAX_LOAD  
-								 ){
-													val PID = payloadArg(0).toInt()
-													val weigth = payloadArg(1).toDouble()
-													totalWeigth = totalWeigth + weigth
-								request("getProduct", "getProduct($PID)" ,"dbwrapper" )  
-								}
-								else
-								 { var Message = "Too heavy"  
-								 answer("loadProduct", "loadRefused", "loadRefused($Message)"   )  
-								 CommUtils.outblue("$name: load refused: too heavy")
-								 forward("goToWait", "goToWait(1)" ,name ) 
-								 }
+								CommUtils.outblue("[cargoservice] Riceve richiesta di caricamento")
 						}
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition(edgeName="t12",targetState="addedProduct",cond=whenReply("addedProduct"))
-					transition(edgeName="t13",targetState="wait",cond=whenDispatch("goToWait"))
-				}	 
-				state("addedProduct") { //this:State
-					action { //it:State
-						if( checkMsgContent( Term.createTerm("product(Name)"), Term.createTerm("addedProduct(Name)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								 var name = payloadArg(0)  
-								if(  name.equals("NOTFOUND")  
-								 ){ var Message = "Not found"  
-								answer("loadProduct", "loadRefused", "loadRefused($Message)"   )  
-								CommUtils.outblue("$name: load refused: product does not exist")
-								}
-								else
-								 {answer("loadProduct", "loadAccepted", "loadAccepted(1)"   )  
-								 CommUtils.outblue("$name: load accepted")
-								 }
-						}
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition( edgeName="goto",targetState="wait", cond=doswitch() )
-				}	 
-				state("stop") { //this:State
-					action { //it:State
-						CommUtils.outblue("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
-						CommUtils.outblack("$name: STOPPED")
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition(edgeName="t14",targetState="rejectRequestWhileStopped",cond=whenRequest("loadProduct"))
-					transition(edgeName="t15",targetState="resume",cond=whenEvent("resume"))
-				}	 
-				state("rejectRequestWhileStopped") { //this:State
-					action { //it:State
-						CommUtils.outblue("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
-						if( checkMsgContent( Term.createTerm("loadProduct(PID,Weigth)"), Term.createTerm("loadProduct(PID,Weigth)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								answer("loadProduct", "loadRefused", "loadRefused("System is stopped")"   )  
-								CommUtils.outblack("$name: system stopped, request refused")
-						}
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition( edgeName="goto",targetState="stop", cond=doswitch() )
-				}	 
-				state("resume") { //this:State
-					action { //it:State
-						CommUtils.outblue("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
-						CommUtils.outblue("$name: RESUME")
-						returnFromInterrupt(interruptedStateTransitions)
+						answer("load_product", "load_accepted", "load_accepted(5)"   )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

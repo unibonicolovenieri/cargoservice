@@ -24,27 +24,41 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
           ActorBasicFsm( name, scope, confined=isconfined, dynamically=isdynamic ){
 
 	override fun getInitialState() : String{
-		return "s0"
+		return "start"
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name» = actor.withobj.method»ENDIF
 		return { //this:ActionBasciFsm
-				state("s0") { //this:State
+				state("start") { //this:State
 					action { //it:State
-						CommUtils.outblue("Cargoservice starts in state s0!")
+						CommUtils.outblue("[cargoservice] Inizia ")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
-				 	 		stateTimer = TimerActor("timer_s0", 
-				 	 					  scope, context!!, "local_tout_"+name+"_s0", 1000.toLong() )  //OCT2023
 					}	 	 
-					 transition(edgeName="t00",targetState="s1",cond=whenTimeout("local_tout_"+name+"_s0"))   
+					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
 				}	 
-				state("s1") { //this:State
+				state("waiting_for_request") { //this:State
 					action { //it:State
-						CommUtils.outgreen("Cargoservice is now in state s1.")
+						CommUtils.outblue("[cargoservice]'s Sta aspettando richieste")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t00",targetState="handleRequest",cond=whenRequest("load_product"))
+				}	 
+				state("handleRequest") { //this:State
+					action { //it:State
+						CommUtils.outblue("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						if( checkMsgContent( Term.createTerm("load_product(PID)"), Term.createTerm("load_product(PID)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								CommUtils.outblue("[cargoservice] Riceve richiesta di caricamento")
+						}
+						answer("load_product", "load_accepted", "load_accepted(5)"   )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

@@ -37,8 +37,10 @@ class Cargotest ( name: String, scope: CoroutineScope, isconfined: Boolean=false
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
+				 	 		stateTimer = TimerActor("timer_start", 
+				 	 					  scope, context!!, "local_tout_"+name+"_start", 1000.toLong() )  //OCT2023
 					}	 	 
-					 transition( edgeName="goto",targetState="richiesta", cond=doswitch() )
+					 transition(edgeName="t01",targetState="richiesta",cond=whenTimeout("local_tout_"+name+"_start"))   
 				}	 
 				state("richiesta") { //this:State
 					action { //it:State
@@ -49,20 +51,15 @@ class Cargotest ( name: String, scope: CoroutineScope, isconfined: Boolean=false
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="loadAccepted",cond=whenReply("load_accepted"))
-					transition(edgeName="t01",targetState="loadRefused",cond=whenReply("load_refused"))
+					 transition(edgeName="t02",targetState="loadAccepted",cond=whenReply("load_accepted"))
+					transition(edgeName="t03",targetState="loadRefused",cond=whenReply("load_refused"))
 				}	 
 				state("loadAccepted") { //this:State
 					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
-						if( checkMsgContent( Term.createTerm("load_accepted(SLOT)"), Term.createTerm("load_accepted(slot)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								CommUtils.outblue("[cargoservice] risposta arrivata")
-								
-								       val msg=payloadArg(0).toInt()         
-								CommUtils.outyellow("[cargotest] $msg ")
-						}
+						CommUtils.outblue("[cargoservice] risposta arrivata")
+						
+						       val msg=payloadArg(0).toInt()        
+						CommUtils.outyellow("[cargotest] $msg ")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -71,14 +68,9 @@ class Cargotest ( name: String, scope: CoroutineScope, isconfined: Boolean=false
 				}	 
 				state("loadRefused") { //this:State
 					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
-						if( checkMsgContent( Term.createTerm("load_accepted(SLOT)"), Term.createTerm("load_accepted(slot)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								
-								       val msg=payloadArg(0).toInt()
-								CommUtils.outyellow("[cargotest] $msg ")
-						}
+						
+						       val msg=payloadArg(0).toInt()
+						CommUtils.outyellow("[cargotest] $msg ")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

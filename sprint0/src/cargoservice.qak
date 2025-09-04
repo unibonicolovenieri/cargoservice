@@ -12,7 +12,7 @@ Context ctx_client			ip [host="localhost" port=8002]
 Context ctx_test			ip [host="localhost" port=9000]
 
 // -------- Attore di test "import" ---------
-ExternalQActor cargotest context ctx_test
+
 
 //Sprint0 Sviluppo cargoservice
 QActor cargoservice context ctx_cargoservice {
@@ -20,27 +20,30 @@ QActor cargoservice context ctx_cargoservice {
     State start initial {
         println("[cargoservice] Inizia ") color blue
     }
+    
     Goto waiting_for_request
+    
     State waiting_for_request{
         println("[cargoservice]'s Sta aspettando richieste")color blue
     }
+    
     Transition t0
     	whenRequest load_product -> handleRequest
 
     State handleRequest {
-        printCurrentMessage color blue
-		    onMsg( load_product : load_product(PID) ){
-		    println("[cargoservice] Riceve richiesta di caricamento") color blue
-		    }
 		    
-		    replyTo load_product with load_accepted : load_accepted(5)
+		    println("[cargoservice] Riceve richiesta di caricamento") color blue
+		    
+		    [#
+		    	val Reserved_slot = 5		    	
+		    #]
+		    
+		    
+		    replyTo load_product with load_accepted : load_accepted($Reserved_slot)
 		 
 	}
 		
 }
-
-
-
 
 
 // ---------------- prossimi sprint ------------
@@ -55,6 +58,7 @@ QActor webgui context ctx_cargoservice {
 
     }
 }
+
 QActor client context ctx_client {
     State s0 initial {
         println("client starts in state s0 [Initial State]!") color blue
@@ -66,12 +70,14 @@ QActor client context ctx_client {
 
     }
 }
+
 QActor sonar context ctx_iodev {
    
     State s0 initial {
         println("sonar starts in state s0 [Initial State]!") color blue
     }
 }
+
 QActor led context ctx_iodev {
    
     State s0 initial {
@@ -84,7 +90,42 @@ QActor led context ctx_iodev {
 
     }
 }
+
+QActor cargotest context ctx_cargoservice{
+	   
+    State start initial {
+        println("[cargotest] Inizia") color yellow
+    }
+    
+    Transition t0
+    whenTime 1000 -> richiesta
+
+    State richiesta {
+       println("[cargotest] Invia una nuova richiesta") color yellow
+        //Invio della richiesta
+        request cargoservice -m load_product:load_product(1) 
+        }
+		Transition t0
+        whenReply load_accepted -> loadAccepted
+         whenReply load_refused -> loadRefused
+        
+    State loadAccepted{  	
+    
+		    println("[cargoservice] risposta arrivata") color blue
+		    
+           [#
+       val msg=payloadArg(0).toInt()       #]
+   	println("[cargotest] $msg ") color yellow
+   }
+
+    State loadRefused{
+   	 
+        [#
+       val msg=payloadArg(0).toInt()
+       #]
+           	println("[cargotest] $msg ") color yellow
+    
+}
+
+}
 // ---------------- prossimi sprint ------------
-
-
-

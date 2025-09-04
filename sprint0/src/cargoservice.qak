@@ -1,0 +1,90 @@
+System sprint0
+//Richieste e Scambi di messaggi - Inseriamo qui tutti i messaggi che scambieranno gli attori
+Request load_product  : load_product(PID) 			    	    //richiesta di carico di un prodotto con PID
+Reply   load_accepted : load_accepted(SLOT) for load_product 	//restituisce lo slot assegnato
+Reply   load_refused  : load_refused(CAUSA) for load_product 	//ritorna la causa del mancato carico
+
+
+//Contesti
+Context ctx_cargoservice	ip [host="localhost" port=8010]
+Context ctx_iodev			ip [host="localhost" port=8001]
+Context ctx_client			ip [host="localhost" port=8002]
+Context ctx_test			ip [host="localhost" port=9000]
+
+// -------- Attore di test "import" ---------
+ExternalQActor cargotest context ctx_test
+
+//Sprint0 Sviluppo cargoservice
+QActor cargoservice context ctx_cargoservice {
+   
+    State start initial {
+        println("[cargoservice] Inizia ") color blue
+    }
+    Goto waiting_for_request
+    State waiting_for_request{
+        println("[cargoservice]'s Sta aspettando richieste")color blue
+    }
+    Transition t0
+    	whenRequest load_product -> handleRequest
+
+    State handleRequest {
+        printCurrentMessage color blue
+		    onMsg( load_product : load_product(PID) ){
+		    println("[cargoservice] Riceve richiesta di caricamento") color blue
+		    }
+		    
+		    replyTo load_product with load_accepted : load_accepted(5)
+		 
+	}
+		
+}
+
+
+
+
+
+// ---------------- prossimi sprint ------------
+QActor webgui context ctx_cargoservice {
+    State s0 initial {
+        println("[webgui] starts in state s0 [Initial State]!") color blue
+    }
+
+    State s1 {
+        
+        println("[webgui] is now in state s1.") color green
+
+    }
+}
+QActor client context ctx_client {
+    State s0 initial {
+        println("client starts in state s0 [Initial State]!") color blue
+    }
+
+    State s1 {
+        
+        println("client is now in state s1.") color green
+
+    }
+}
+QActor sonar context ctx_iodev {
+   
+    State s0 initial {
+        println("sonar starts in state s0 [Initial State]!") color blue
+    }
+}
+QActor led context ctx_iodev {
+   
+    State s0 initial {
+        println("led starts in state s0 [Initial State]!") color blue
+    }
+
+    State s1 {
+        
+        println("led is now in state s1.") color green
+
+    }
+}
+// ---------------- prossimi sprint ------------
+
+
+

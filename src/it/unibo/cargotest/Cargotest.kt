@@ -44,7 +44,7 @@ class Cargotest ( name: String, scope: CoroutineScope, isconfined: Boolean=false
 				}	 
 				state("richiesta") { //this:State
 					action { //it:State
-						CommUtils.outyellow("[cargotest] Invia una nuova richiesta")
+						CommUtils.outyellow("[cargotest] Invia una nuova nuova richiesta")
 						request("load_product", "load_product(1)" ,"cargoservice" )  
 						//genTimer( actor, state )
 					}
@@ -58,7 +58,7 @@ class Cargotest ( name: String, scope: CoroutineScope, isconfined: Boolean=false
 					action { //it:State
 						CommUtils.outblue("[cargoservice] risposta arrivata")
 						
-						       val msg=payloadArg(0).toString()         
+						       val msg=payloadArg(0).toInt()        
 						CommUtils.outyellow("[cargotest] $msg ")
 						//genTimer( actor, state )
 					}

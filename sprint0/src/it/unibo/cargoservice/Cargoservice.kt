@@ -29,6 +29,10 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name» = actor.withobj.method»ENDIF
+		
+		           	var Taken_slot=arrayListOf("true","true","true","false","true")
+		        	val MAX_LOAD=2
+		        	var CURRENT_LOAD=0
 		return { //this:ActionBasciFsm
 				state("start") { //this:State
 					action { //it:State
@@ -42,7 +46,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 				}	 
 				state("waiting_for_request") { //this:State
 					action { //it:State
-						CommUtils.outblue("[cargoservice]'s Sta aspettando richieste")
+						CommUtils.outblue("[cargoservice] Sta aspettando richieste")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -54,13 +58,34 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					action { //it:State
 						CommUtils.outblue("[cargoservice] Riceve richiesta di caricamento")
 						
-								    	val Reserved_slot = 5		    	
-						answer("load_product", "load_accepted", "load_accepted($Reserved_slot)"   )  
+								    		
+								    var Causa="MAX_LOADreached"	 
+								    var Reserved_slot=0   	
+								    
+								    if( CURRENT_LOAD<MAX_LOAD) {
+								   	Causa="Nessuno_slot_libero"
+								    for(i in 0..4){
+								    if (Taken_slot[i]=="false") {
+								    CURRENT_LOAD=CURRENT_LOAD+1
+								    Reserved_slot = i+1
+								    Taken_slot[i]="true"
+								    break;
+								    	
+								    }
+								    }
+								    } 
+						if( Reserved_slot!=0 
+						 ){answer("load_product", "load_accepted", "load_accepted($Reserved_slot)"   )  
+						}
+						else
+						 {answer("load_product", "load_refused", "load_refused($Causa)"   )  
+						 }
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
 				}	 
 			}
 		}

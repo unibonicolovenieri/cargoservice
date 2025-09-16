@@ -37,45 +37,61 @@ class Cargotest ( name: String, scope: CoroutineScope, isconfined: Boolean=false
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
-				 	 		stateTimer = TimerActor("timer_start", 
-				 	 					  scope, context!!, "local_tout_"+name+"_start", 1000.toLong() )  //OCT2023
 					}	 	 
-					 transition(edgeName="t01",targetState="richiesta",cond=whenTimeout("local_tout_"+name+"_start"))   
+					 transition( edgeName="goto",targetState="richiesta", cond=doswitch() )
 				}	 
 				state("richiesta") { //this:State
 					action { //it:State
 						CommUtils.outyellow("[cargotest] Invia una nuova richiesta")
+						request("load_product", "load_product(1)" ,"cargoservice" )  
+						request("load_product", "load_product(1)" ,"cargoservice" )  
 						request("load_product", "load_product(1)" ,"cargoservice" )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t02",targetState="loadAccepted",cond=whenReply("load_accepted"))
-					transition(edgeName="t03",targetState="loadRefused",cond=whenReply("load_refused"))
+					 transition( edgeName="goto",targetState="waiting_for_response", cond=doswitch() )
+				}	 
+				state("waiting_for_response") { //this:State
+					action { //it:State
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t01",targetState="loadAccepted",cond=whenReply("load_accepted"))
+					transition(edgeName="t02",targetState="loadRefused",cond=whenReply("load_refused"))
 				}	 
 				state("loadAccepted") { //this:State
 					action { //it:State
-						CommUtils.outblue("[cargoservice] risposta arrivata")
-						
-						       val msg=payloadArg(0).toInt()        
-						CommUtils.outyellow("[cargotest] $msg ")
+						CommUtils.outblue("[cargotest] risposta arrivata")
+						if( checkMsgContent( Term.createTerm("load_accepted(SLOT)"), Term.createTerm("load_accepted(SLOT)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								val Msg=payloadArg(0).toInt()         
+								CommUtils.outyellow("[cargotest] Richiesta accettata, slot n. $Msg ")
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 transition( edgeName="goto",targetState="waiting_for_response", cond=doswitch() )
 				}	 
 				state("loadRefused") { //this:State
 					action { //it:State
-						
-						       val msg=payloadArg(0).toInt()
-						CommUtils.outyellow("[cargotest] $msg ")
+						if( checkMsgContent( Term.createTerm("load_refused(CAUSA)"), Term.createTerm("load_refused(CAUSA)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								
+								       var Msg=payloadArg(0)
+								CommUtils.outyellow("[cargotest] Richiesta rifiutata causa : $Msg ")
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 transition( edgeName="goto",targetState="waiting_for_response", cond=doswitch() )
 				}	 
 			}
 		}

@@ -6,25 +6,30 @@ Reply   load_refused  : load_refused(CAUSA) for load_product 	//ritorna la causa
 
 
 //Contesti
-Context ctx_cargoservice	ip [host="localhost" port=8010]
-Context ctx_iodev			ip [host="localhost" port=8001]
-Context ctx_client			ip [host="localhost" port=8002]
-Context ctx_test			ip [host="localhost" port=9000]
+Context ctx_cargoservice	ip [host="localhost" port=10000]
+Context ctx_iodev			ip [host="localhost" port=10001]
+Context ctx_test			ip [host="localhost" port=10002]
 
-// -------- Attore di test "import" ---------
-
+// --------  Attore di test "import" ---------
+ 
 
 //Sprint0 Sviluppo cargoservice
 QActor cargoservice context ctx_cargoservice {
-   
+           [#
+           	var Taken_slot=arrayListOf("true","true","true","false","true")
+        	val MAX_LOAD=2
+        	var CURRENT_LOAD=0
+        	#
+        ]
     State start initial {
         println("[cargoservice] Inizia ") color blue
+
     }
     
     Goto waiting_for_request
     
     State waiting_for_request{
-        println("[cargoservice]'s Sta aspettando richieste")color blue
+        println("[cargoservice] Sta aspettando richieste")color blue
     }
     
     Transition t0
@@ -35,13 +40,35 @@ QActor cargoservice context ctx_cargoservice {
 		    println("[cargoservice] Riceve richiesta di caricamento") color blue
 		    
 		    [#
-		    	val Reserved_slot = 5		    	
-		    #]
+		    		
+		    var Causa="MAX_LOADreached"	 
+		    var Reserved_slot=0   	
 		    
+		    if( CURRENT_LOAD<MAX_LOAD) {
+		   	Causa="Nessuno_slot_libero"
+		    for(i in 0..4){
+		    if (Taken_slot[i]=="false") {
+		    CURRENT_LOAD=CURRENT_LOAD+1
+		    Reserved_slot = i+1
+		    Taken_slot[i]="true"
+		    break;
+		    	
+		    }
+		    }
+		    }#]
 		    
+		    // Aggiungo un peso fittizio di uno per testare il raggiungimento di max load
+		    // in futuro verrà aggiunto l'effettivo peso
+		    if [#Reserved_slot!=0#]{
 		    replyTo load_product with load_accepted : load_accepted($Reserved_slot)
+		    }else{
+		    
+		    replyTo load_product with load_refused : load_refused($Causa)	
+		    }
+		    
 		 
 	}
+	Goto waiting_for_request
 		
 }
 
@@ -55,18 +82,6 @@ QActor webgui context ctx_cargoservice {
     State s1 {
         
         println("[webgui] is now in state s1.") color green
-
-    }
-}
-
-QActor client context ctx_client {
-    State s0 initial {
-        println("client starts in state s0 [Initial State]!") color blue
-    }
-
-    State s1 {
-        
-        println("client is now in state s1.") color green
 
     }
 }
@@ -93,39 +108,45 @@ QActor led context ctx_iodev {
 
 QActor cargotest context ctx_cargoservice{
 	   
-    State start initial {
+    State start initial { 
         println("[cargotest] Inizia") color yellow
     }
-    
-    Transition t0
-    whenTime 1000 -> richiesta
+    Goto richiesta
 
     State richiesta {
        println("[cargotest] Invia una nuova richiesta") color yellow
         //Invio della richiesta
         request cargoservice -m load_product:load_product(1) 
+        request cargoservice -m load_product:load_product(1) 
+        request cargoservice -m load_product:load_product(1) 
         }
-		Transition t0
+        Goto waiting_for_response 
+        State waiting_for_response{
+        	
+        }
+		Transition t0 
         whenReply load_accepted -> loadAccepted
          whenReply load_refused -> loadRefused
         
-    State loadAccepted{  	
-    
-		    println("[cargoservice] risposta arrivata") color blue
-		    
-           [#
-       val msg=payloadArg(0).toInt()       #]
-   	println("[cargotest] $msg ") color yellow
-   }
+    State loadAccepted{
+		    println("[cargotest] risposta arrivata") color blue  
+           onMsg( load_accepted : load_accepted(SLOT) ){
+           [#val Msg=payloadArg(0).toInt()        #]
+   	println("[cargotest] Richiesta accettata, slot n. $Msg ") color yellow
+   }} 
+   Goto waiting_for_response
 
     State loadRefused{
-   	 
+
+	onMsg( load_refused : load_refused(CAUSA) ){
         [#
-       val msg=payloadArg(0).toInt()
+       var Msg=payloadArg(0)
        #]
-           	println("[cargotest] $msg ") color yellow
-    
+           	println("[cargotest] Richiesta rifiutata causa : $Msg ") color yellow
+    }
 }
+	Goto waiting_for_response
 
 }
-// ---------------- prossimi sprint ------------
+
+

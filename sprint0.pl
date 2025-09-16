@@ -19,5 +19,5 @@ context(ctx_test, "localhost",  "TCP", "9000").
  static(sonar).
   qactor( led, ctx_iodev, "it.unibo.led.Led").
  static(led).
-  qactor( cargotest, ctx_cargoservice, "it.unibo.cargotest.Cargotest").
+  qactor( cargotest, ctx_test, "it.unibo.cargotest.Cargotest").
  static(cargotest).

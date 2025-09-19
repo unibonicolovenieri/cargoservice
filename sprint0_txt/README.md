@@ -4,20 +4,20 @@
 
 - [Obiettivi](#obiettivi) ✅
 - [Requisiti forniti dal Commitente](#requisiti-del-commitente) ✅
-- [Analisi dei Requisiti](#analisi-dei-requisiti) ❌ 
+- [Analisi dei Requisiti](#analisi-dei-requisiti)  ✅
     - [Componenti fornite dal Committente](#componenti-fornite-dal-committente) ✅   
     - [Area di Lavoro](#area-di-lavoro) ✅
     - [Plain Old Java Objects (POJO)](#plain-old-java-objects) ✅
     - [Attori](#attori) ✅
     - [QAK](#qak) ✅
 
-- [Macrocomponenti](#macrocomponenti)❌
-- [Architettura di Riferimento](#architettura-di-riferimento) ❌
+- [Macrocomponenti](#macrocomponenti) ✅
+- [Architettura di Riferimento](#architettura-di-riferimento) ✅
 - [Piano di Test](#piano-di-test) ❌
 - [Piano di Lavoro](#piano-di-lavoro) ❌
 
 # Obiettivi
-In questo sprint0 i nostri obiettivi sono di analizzare e individuare sottoinsiemi di requisiti forniti dal committente e definire il nostro problema, per poi in futurio suddividere i sottoinsiemi in successivi sprint da eseguire eventualmente anche in parallelo, improntare le componenti della nostra archiettura (macrocomponenti principali & interazioni tra loro sotto forma di messaggi). Il sistema è distribuito?
+In questo sprint0 i nostri obiettivi sono di analizzare e individuare sottoinsiemi di requisiti forniti dal committente e definire il nostro problema, per poi in futuro suddividere i sottoinsiemi in successivi sprint da eseguire eventualmente anche in parallelo, improntare le componenti della nostra archiettura (macrocomponenti principali & interazioni tra loro sotto forma di messaggi).
 
 # Requisiti del commitente
 [requisiti del commitente](../requirements/README.md)
@@ -37,9 +37,9 @@ Il peso del prodotto/container. Serve per verificare che non venga superato il l
 ### Io-port
 È la porta di ingresso/uscita della stiva. Davanti a questa porta c’è un sensore sonar che rileva se un container è presente. È il punto dove il prodotto viene consegnato prima che il robot lo carichi.
 ### Slots & Sensors
-- Slots: sono le aree (4 in totale) all’interno della stiva dove i container vengono sistemati. Uno slot è già occupato in modo permanente, gli altri inizialmente sono liberi.
+- **Slots**: sono le aree (4 in totale) all’interno della stiva dove i container vengono sistemati. Uno slot è già occupato in modo permanente, gli altri inizialmente sono liberi.
 
-- Sensors: in questo caso si parla di un sonar davanti all’IOPort che rileva la presenza dei container e segnala eventuali anomalie (tipo guasto se non misura più distanze corrette).
+- **Sensors**: in questo caso si parla di un sonar davanti all’IOPort che rileva la presenza dei container e segnala eventuali anomalie (tipo guasto se non misura più distanze corrette).
 
 ### DDR Differential Drive Robot
 È il tipo di robot mobile con due ruote motrici indipendenti. Si muove facendo girare le ruote a velocità diverse (come i robot aspirapolvere), ed è quello usato come cargorobot.
@@ -127,11 +127,55 @@ Le componenti che rappresentano l'entità fisica sappiamo gia che risiederanno s
 In aggiunta alle [Componenti del committente](#componenti-fornite-dal-committente), si svilupperanno i seguenti Macrocomponenti:
 
 ### cargoservice
+Il cargoservice rappresenta il nucleo della logica di business del sistema, allineandosi al concetto di "Gestione Carico" (Loading Management) identificato come Bounded Context  
+
+Le sue responsabilità principali sono:  
+
+**• Gestire le richieste di carico**: Riceve le richieste esterne per il carico di un prodotto e ne gestisce l'intero ciclo di vita.  
+**• Orchestrare il processo**: Agisce come orchestratore della saga di caricamento. Decide se accettare o rifiutare una richiesta dopo aver eseguito le necessarie validazioni, come il controllo del peso massimo e la disponibilità di slot nella stiva  
+**• Coordinare gli altri componenti**: Interagisce con gli altri macro-componenti per portare a termine il processo. Ad esempio, richiede informazioni sul prodotto (come il peso) a un servizio dedicato, verifica la disponibilità di slot interrogando il componente `hold`, e comanda al cargorobot di eseguire la movimentazione.  
+**• Garantire l'elaborazione sequenziale**: Assicura che una sola richiesta di carico venga processata alla volta, mantenendo lo stato dell'operazione corrente
+
 ### cargorobot
+Il cargorobot è il componente software che astrae e controlla il robot DDR (Differential Drive Robot) fisico o virtuale, che opera come un carrello di trasporto (transport trolley).   
+
+Le sue funzioni principali sono:  
+
+**• Esecuzione di comandi di movimento**: Funge da puro esecutore di comandi di basso livello inviati da un componente di livello superiore (come il cargoservice). Questi comandi possono essere movimenti elementari (avanti, indietro, ruota), step di durata definita, o piani di movimento complessi (`doplan`).  
+**• Indipendenza dalla tecnologia**: Offre un'interfaccia software che permette di operare con il robot indipendentemente dalla sua realizzazione specifica (reale o virtuale), nascondendo i dettagli tecnologici.  
+**• Interazione con l'ambiente**: Può essere una fonte di informazioni, emettendo eventi relativi al suo stato o a ciò che percepisce, come i dati di un sonar (sonardata).
+
 ### sonar
+Il sonar è un agente software situato che si interfaccia con il sensore a ultrasuoni fisico (es. HC-SR04), tipicamente montato su un dispositivo come un Raspberry Pi.  
+
+Le sue responsabilità sono:  
+
+**• Astrazione dell'hardware**: Nasconde i dettagli di basso livello dell'interazione con il sensore fisico.  
+**• Rilevamento e misurazione**: Misura la distanza da eventuali ostacoli e fornisce questi dati al sistema. Nel contesto specifico del sistema cargo, il suo ruolo cruciale è rilevare la presenza di un container nell'area di I/O (`IOPort`).  
+**• Fornitura di dati filtrati**: Invia i valori di distanza rilevati dopo averli filtrati per renderli significativi per il livello applicativo (es. valori interi entro un certo range).  
+**• Emissione di eventi**: Comunica le informazioni rilevanti al resto del sistema emettendo eventi, come sonardata o un più specifico evento di business come obstacle.  
+**• Controllo**: Può essere controllato tramite comandi remoti come sonarstart e sonarstop per attivarne o disattivarne il funzionamento.
+
 ### led
+Il led è un altro agente software situato con la funzione di attuatore. È responsabile del controllo di un LED fisico, tipicamente connesso a un pin GPIO di un Raspberry Pi.  
+
+**• Fornire feedback visivo**: La sua funzione primaria è quella di segnalare visivamente lo stato del sistema o di un particolare sottosistema.  
+**• Esporre un'interfaccia di controllo**: Deve offrire un'interfaccia semplice per essere comandato da altri componenti, accettando messaggi come `turnOn` e `turnOff`.
+
 ### hold
+Il componente hold è un modello software che rappresenta lo stato della stiva della nave (cargo hold). Questo si allinea con il Bounded Context "Inventario Stiva" (Hold Inventory).  
+
+**• Gestire l'inventario della stiva**: È la fonte autorevole (source of truth) per lo stato di occupazione della stiva. Mantiene una mappa degli slot, registrando quali sono liberi e quali sono occupati.  
+**• Tracciare i prodotti**: Per ogni slot occupato, memorizza quale prodotto (identificato da un PID) vi è stato collocato.  
+**• Fornire informazioni di stato**: Risponde a interrogazioni da parte di altri servizi, come il cargoservice (che ha bisogno di sapere se ci sono slot liberi) e la web-gui (che deve visualizzare la mappa della stiva).
+
 ### web-gui
+La web-gui è l'interfaccia uomo-macchina (HMI) del sistema, concepita come un "dispositivo di I/O evoluto". Corrisponde al Bounded Context "Visualizzazione Stiva" (Hold Visualization).
+
+**• Visualizzazione dinamica**: Fornisce una rappresentazione grafica e in tempo reale dello stato della stiva.  
+**• Aggiornamento automatico**: Deve aggiornarsi automaticamente per riflettere i cambiamenti di stato nel backend senza che l'utente debba ricaricare la pagina. Questo suggerisce l'uso di tecnologie push come le WebSocket.  
+**• Interazione utente**: Permette agli utenti di interagire con il sistema, ad esempio inviando comandi per avviare nuove richieste di carico.  
+**• Architettura disaccoppiata**: Può essere realizzata come un microservizio a sé stante, disaccoppiato dalla logica di business principale, con cui comunica attraverso protocolli di messaggistica come MQTT o tramite API.  
 
 # Architettura di Riferimento
 ## Modello di comunicazione a Messaggi
@@ -145,14 +189,11 @@ Serviranno sccessive decisioni per la modellazione e l'implementazioni di messag
 # Piano di Test
 In questa prima fase i test servono a controllare che i prototipi dei componenti interagiscano come richiesto dal committente.
 
-- Tentativo accettato di carico
-
+- tentativo accettato di carico
 - tentativo rifiutato di carico per troppo peso
 - tentativo rifiutato per mancanza di slot
 - sonar rileva carico
-- controllare che il carico sia posizionato nel suo posto, il robot torni alla home e torna disponibile ad accettare una nuova richiesta
 - controllo status
-- quando il sonar è attivo si ferma tutto(?)
 
 # Piano di Lavoro
 Successivi allo sprint0 si distinuguono i seguenti sprint operativi del nostro processo Scrum
@@ -168,4 +209,3 @@ Successivi allo sprint0 si distinuguono i seguenti sprint operativi del nostro p
 4. Sprint 4(10h)
     - Web Gui
 
-Divisione Temporale e Data inizio e fine e Lavoro

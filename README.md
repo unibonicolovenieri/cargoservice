@@ -1,5 +1,4 @@
-# Cargoservice
-Repository per l'esame di Ingegneria dei Sistemi Software 2025
+# Repository per l'esame di Ingegneria dei Sistemi Software 2025
 
 ## Team di Lavoro
 

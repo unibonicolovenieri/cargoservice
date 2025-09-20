@@ -6,7 +6,9 @@ bin/default
 .idea
 build
 logs 
-
+*.gradle
+*.settings
+*.DS_Store
 log4jInfo.log
 
 #node

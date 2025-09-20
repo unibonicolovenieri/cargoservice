@@ -23,7 +23,7 @@ In questo sprint0 i nostri obiettivi sono di analizzare e individuare sottoinsie
 [requisiti del commitente](../requirements/README.md)
 
 # Analisi dei requisiti
-## 
+
 ### Hold
 È la stiva della nave, cioè l’[area di lavoro](#area-di-lavoro) e piatta dove vengono caricati i container con i prodotti. In questo progetto è una zona rettangolare con degli slot e una porta di ingresso/uscita (IOPort).
 ### Cargorobot

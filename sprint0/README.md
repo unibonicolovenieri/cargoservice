@@ -1,43 +1,36 @@
 # Sprint 0
 
-## Indice
-
-- [Obiettivi](#obiettivi) ✅
-- [Requisiti forniti dal Commitente](#requisiti-del-commitente) ✅
-- [Analisi dei Requisiti](#analisi-dei-requisiti)  ✅
-    - [Componenti fornite dal Committente](#componenti-fornite-dal-committente) ✅   
-    - [Area di Lavoro](#area-di-lavoro) ✅
-    - [Plain Old Java Objects (POJO)](#plain-old-java-objects) ✅
-    - [Attori](#attori) ✅
-    - [QAK](#qak) ✅
-
-- [Macrocomponenti](#macrocomponenti) ✅
-- [Architettura di Riferimento](#architettura-di-riferimento) ✅
-- [Piano di Test](#piano-di-test) ❌
-- [Piano di Lavoro](#piano-di-lavoro) ❌
+# Indice
+- [Obiettivi](#obiettivi) 
+- [Requisiti forniti dal Commitente](#requisiti-del-commitente) 
+- [Analisi dei Requisiti](#analisi-dei-requisiti)  
+- [Macrocomponenti](#macrocomponenti) 
+- [Architettura di Riferimento](#architettura-di-riferimento) 
+- [Piano di Test](#piano-di-test) 
+- [Piano di Lavoro](#piano-di-lavoro) 
 
 # Obiettivi
 In questo sprint0 i nostri obiettivi sono di analizzare e individuare sottoinsiemi di requisiti forniti dal committente e definire il nostro problema, per poi in futuro suddividere i sottoinsiemi in successivi sprint da eseguire eventualmente anche in parallelo, improntare le componenti della nostra archiettura (macrocomponenti principali & interazioni tra loro sotto forma di messaggi).
 
 # Requisiti del commitente
-[requisiti del commitente](../requirements/README.md)
+[Requisiti del commitente](../requirements/README.md)
 
 # Analisi dei requisiti
 
 ### Hold
-È la stiva della nave, cioè l’[area di lavoro](#area-di-lavoro) e piatta dove vengono caricati i container con i prodotti. In questo progetto è una zona rettangolare con degli slot e una porta di ingresso/uscita (IOPort).
+È la stiva della nave, cioè l’[area di lavoro](#area-di-lavoro) e piatta dove vengono caricati i container con i prodotti. In questo progetto è una zona rettangolare con degli slot e una porta di ingresso/uscita (IOPort). Verrà utilizzato dall'attore CargoService.
 ### Cargorobot
-È il robot a guida differenziale (Differential Drive Robot) incaricato di spostare i container dentro la stiva e piazzarli nello slot assegnato. Dopo il lavoro torna sempre alla sua posizione “HOME”.
+È il robot a guida differenziale (Differential Drive Robot) incaricato di spostare i container dentro la stiva e piazzarli nello slot assegnato. Dopo il lavoro torna sempre alla sua posizione “HOME”. Ci viene gia fornito dal committente.
 ### Products
-Sono i beni/merci che devono essere caricati sulla nave. Ogni prodotto viene messo in un container di dimensioni prefissate e registrato in un sistema.
+Sono i beni/merci che devono essere caricati sulla nave. Ogni prodotto viene messo in un container di dimensioni prefissate e registrato in un sistema.  
 ### Weight
-Il peso del prodotto/container. Serve per verificare che non venga superato il limite massimo di carico della nave (`MaxLoad`).
-### Productservice
-È il servizio software che gestisce la registrazione dei prodotti. Quando inserisci un prodotto specificando il peso, lui restituisce un identificativo unico (`PID`).
+Il peso del prodotto/container. Serve per verificare che non venga superato il limite massimo di carico della nave (`MaxLoad`). Sarà un attributo del Prodotto.
+### CargoService
+È il servizio software che gestisce la registrazione dei prodotti. Quando inserisci un prodotto specificando il peso, lui restituisce un identificativo unico (`PID`). Esso viene implementato come Attore qak.
 ### Io-port
-È la porta di ingresso/uscita della stiva. Davanti a questa porta c’è un sensore sonar che rileva se un container è presente. È il punto dove il prodotto viene consegnato prima che il robot lo carichi.
+È la porta di ingresso/uscita della stiva. Davanti a questa porta c’è un sensore sonar che rileva se un container è presente. È il punto dove il prodotto viene consegnato prima che il robot lo carichi. Sarà un macrocomponente del nostro sistema.
 ### Slots & Sensors
-- **Slots**: sono le aree (4 in totale) all’interno della stiva dove i container vengono sistemati. Uno slot è già occupato in modo permanente, gli altri inizialmente sono liberi.
+- **Slots**: sono le aree (4 in totale) all’interno della stiva dove i container vengono sistemati. Uno slot è già occupato in modo permanente, gli altri inizialmente sono liberi. 
 
 - **Sensors**: in questo caso si parla di un sonar davanti all’IOPort che rileva la presenza dei container e segnala eventuali anomalie (tipo guasto se non misura più distanze corrette).
 
@@ -118,7 +111,7 @@ Qak (o Qak Actors) è un linguaggio specifico del dominio (DSL) pensato per l'an
 - **Progettazione Top-Down:** Si parte dall’analisi dei requisiti e del problema, progredendo verso progettazione e implementazione, per affrontare la complessità in modo sistematico.
 - **Distinzione tra Interazioni H2M e M2M:** Riconoscimento delle differenze tra interazioni Uomo-Macchina e Macchina-Macchina, per progettare interfacce, protocolli e strategie di test adeguate.
 
-### [Link alla documentazione ufficiale Qak](https://github.com/anatali/issLab2025/blob/main/iss25Material/docs/_build/html/QakActors25Linguaggio.html)
+[Link alla documentazione ufficiale Qak](https://github.com/anatali/issLab2025/blob/main/iss25Material/docs/_build/html/QakActors25Linguaggio.html)
 # Macrocomponenti
 Gli attori consentono di gestire la distribuzione o la concentrazione dei componenti sui nodi della struttura. In questa fase dello sviluppo non siamo ancora nella condizione tale da poter stabilire il grado di distribuzione di tutta l'archiettura.
 
@@ -126,8 +119,8 @@ Le componenti che rappresentano l'entità fisica sappiamo gia che risiederanno s
 
 In aggiunta alle [Componenti del committente](#componenti-fornite-dal-committente), si svilupperanno i seguenti Macrocomponenti:
 
-### cargoservice
-Il cargoservice rappresenta il nucleo della logica di business del sistema, allineandosi al concetto di "Gestione Carico" (Loading Management) identificato come Bounded Context  
+### CargoService
+Il CargoService rappresenta il nucleo della logica di business del sistema, allineandosi al concetto di "Gestione Carico" (Loading Management) identificato come Bounded Context  
 
 Le sue responsabilità principali sono:  
 
@@ -136,16 +129,16 @@ Le sue responsabilità principali sono:
 **• Coordinare gli altri componenti**: Interagisce con gli altri macro-componenti per portare a termine il processo. Ad esempio, richiede informazioni sul prodotto (come il peso) a un servizio dedicato, verifica la disponibilità di slot interrogando il componente `hold`, e comanda al cargorobot di eseguire la movimentazione.  
 **• Garantire l'elaborazione sequenziale**: Assicura che una sola richiesta di carico venga processata alla volta, mantenendo lo stato dell'operazione corrente
 
-### cargorobot
+### Cargorobot
 Il cargorobot è il componente software che astrae e controlla il robot DDR (Differential Drive Robot) fisico o virtuale, che opera come un carrello di trasporto (transport trolley).   
 
 Le sue funzioni principali sono:  
 
-**• Esecuzione di comandi di movimento**: Funge da puro esecutore di comandi di basso livello inviati da un componente di livello superiore (come il cargoservice). Questi comandi possono essere movimenti elementari (avanti, indietro, ruota), step di durata definita, o piani di movimento complessi (`doplan`).  
+**• Esecuzione di comandi di movimento**: Funge da puro esecutore di comandi di basso livello inviati da un componente di livello superiore (come il CargoService). Questi comandi possono essere movimenti elementari (avanti, indietro, ruota), step di durata definita, o piani di movimento complessi (`doplan`).  
 **• Indipendenza dalla tecnologia**: Offre un'interfaccia software che permette di operare con il robot indipendentemente dalla sua realizzazione specifica (reale o virtuale), nascondendo i dettagli tecnologici.  
 **• Interazione con l'ambiente**: Può essere una fonte di informazioni, emettendo eventi relativi al suo stato o a ciò che percepisce, come i dati di un sonar (sonardata).
 
-### sonar
+### Sonar
 Il sonar è un agente software situato che si interfaccia con il sensore a ultrasuoni fisico (es. HC-SR04), tipicamente montato su un dispositivo come un Raspberry Pi.  
 
 Le sue responsabilità sono:  
@@ -156,20 +149,20 @@ Le sue responsabilità sono:
 **• Emissione di eventi**: Comunica le informazioni rilevanti al resto del sistema emettendo eventi, come sonardata o un più specifico evento di business come obstacle.  
 **• Controllo**: Può essere controllato tramite comandi remoti come sonarstart e sonarstop per attivarne o disattivarne il funzionamento.
 
-### led
+### Led
 Il led è un altro agente software situato con la funzione di attuatore. È responsabile del controllo di un LED fisico, tipicamente connesso a un pin GPIO di un Raspberry Pi.  
 
 **• Fornire feedback visivo**: La sua funzione primaria è quella di segnalare visivamente lo stato del sistema o di un particolare sottosistema.  
 **• Esporre un'interfaccia di controllo**: Deve offrire un'interfaccia semplice per essere comandato da altri componenti, accettando messaggi come `turnOn` e `turnOff`.
 
-### hold
+### Hold
 Il componente hold è un modello software che rappresenta lo stato della stiva della nave (cargo hold). Questo si allinea con il Bounded Context "Inventario Stiva" (Hold Inventory).  
 
 **• Gestire l'inventario della stiva**: È la fonte autorevole (source of truth) per lo stato di occupazione della stiva. Mantiene una mappa degli slot, registrando quali sono liberi e quali sono occupati.  
 **• Tracciare i prodotti**: Per ogni slot occupato, memorizza quale prodotto (identificato da un PID) vi è stato collocato.  
-**• Fornire informazioni di stato**: Risponde a interrogazioni da parte di altri servizi, come il cargoservice (che ha bisogno di sapere se ci sono slot liberi) e la web-gui (che deve visualizzare la mappa della stiva).
+**• Fornire informazioni di stato**: Risponde a interrogazioni da parte di altri servizi, come il CargoService (che ha bisogno di sapere se ci sono slot liberi) e la web-gui (che deve visualizzare la mappa della stiva).
 
-### web-gui
+### Web-gui
 La web-gui è l'interfaccia uomo-macchina (HMI) del sistema, concepita come un "dispositivo di I/O evoluto". Corrisponde al Bounded Context "Visualizzazione Stiva" (Hold Visualization).
 
 **• Visualizzazione dinamica**: Fornisce una rappresentazione grafica e in tempo reale dello stato della stiva.  
@@ -181,25 +174,67 @@ La web-gui è l'interfaccia uomo-macchina (HMI) del sistema, concepita come un "
 ## Modello di comunicazione a Messaggi
 Il modello ad attori sfrutta la comunicazione tramite messaggi e dai requisiti forniti siamo in grado di comprendere alcune delle interazioni che avvengo tra gli attori. Si indicano di seguito i messaggi che sono in grado di scambiarsi tra di loro. 
 
-INSERIRE CODICE CON I MESSAGGI
+- ```Request load_product  : load_product(PID) ```
+richiesta di carico di un prodotto con PID
 
-Serviranno sccessive decisioni per la modellazione e l'implementazioni di messaggi tra attori per ulteriori funzionalità.
+- ```Reply   load_accepted : load_accepted(SLOT) for load_product``` 	restituisce lo slot assegnato
+
+- ```Reply   load_refused  : load_refused(CAUSA) for load_product```
+ritorna la causa del mancato carico
+
+Serviranno successive decisioni per la modellazione e l'implementazioni di messaggi tra attori per ulteriori funzionalità.
 
 # Schema dell'architettura
+![](../images/sprint0arch.png)
 # Piano di Test
 In questa prima fase i test servono a controllare che i prototipi dei componenti interagiscano come richiesto dal committente.
 
 - tentativo accettato di carico
 - tentativo rifiutato di carico per troppo peso
 - tentativo rifiutato per mancanza di slot
-- sonar rileva carico
-- controllo status
+
+```bash
+State richiesta {
+    println("[cargotest] Invia una nuova richiesta") color yellow
+    // Invio della richiesta
+    request cargoservice -m load_product:load_product(1) 
+    request cargoservice -m load_product:load_product(1) 
+    request cargoservice -m load_product:load_product(1) 
+}
+Goto waiting_for_response 
+
+State waiting_for_response {
+}
+
+Transition t0 
+    whenReply load_accepted -> loadAccepted
+    whenReply load_refused  -> loadRefused
+
+State loadAccepted {
+    println("[cargotest] risposta arrivata") color blue  
+
+    onMsg(load_accepted : load_accepted(SLOT)) {
+        [# val Msg = payloadArg(0).toInt() #]
+        println("[cargotest] Richiesta accettata, slot n. $Msg ") color yellow
+    }
+} 
+Goto waiting_for_response
+
+State loadRefused {
+    onMsg(load_refused : load_refused(CAUSA)) {
+        [#
+        var Msg = payloadArg(0)
+        #]
+        println("[cargotest] Richiesta rifiutata causa : $Msg ") color yellow
+    }
+}
+```
 
 # Piano di Lavoro
 Successivi allo sprint0 si distinuguono i seguenti sprint operativi del nostro processo Scrum
 
 1. Sprint 1 (30h)
-    - Cargoservice (core buisness del sistema)
+    - CargoService (core buisness del sistema)
     - Cargorobot
 2. Sprint 2(20h)
     - Hold

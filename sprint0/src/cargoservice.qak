@@ -9,6 +9,7 @@ Reply   load_refused  : load_refused(CAUSA) for load_product 	//ritorna la causa
 Context ctx_cargoservice	ip [host="localhost" port=10000]
 Context ctx_iodev			ip [host="localhost" port=10001]
 Context ctx_test			ip [host="localhost" port=10002]
+Context ctx_gui				ip [host="localhost" port=10003]
 
 // --------  Attore di test "import" ---------
  
@@ -74,7 +75,7 @@ QActor cargoservice context ctx_cargoservice {
 
 
 // ---------------- prossimi sprint ------------
-QActor webgui context ctx_cargoservice {
+QActor webgui context ctx_gui {
     State s0 initial {
         println("[webgui] starts in state s0 [Initial State]!") color blue
     }

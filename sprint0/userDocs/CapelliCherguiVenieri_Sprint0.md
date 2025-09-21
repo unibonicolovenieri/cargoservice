@@ -13,7 +13,7 @@
 In questo sprint0 i nostri obiettivi sono di analizzare e individuare sottoinsiemi di requisiti forniti dal committente e definire il nostro problema, per poi in futuro suddividere i sottoinsiemi in successivi sprint da eseguire eventualmente anche in parallelo, improntare le componenti della nostra archiettura (macrocomponenti principali & interazioni tra loro sotto forma di messaggi).
 
 # Requisiti del commitente
-[Requisiti del commitente](../requirements/README.md)
+[Requisiti del commitente](../../requirements/README.md)
 
 # Analisi dei requisiti
 

@@ -46,7 +46,7 @@ Software per la misurazione della distanza dal sonar (componente hardware) e per
 ### WENV
 WENV è un ambiente di simulazione software (“Web Environment”) usato per testare il sistema, mostrare la stiva, lo stato degli slot e i movimenti del robot tramite un’interfaccia grafica web.
 ## Area di Lavoro
-![](../images/tf25sceneAnnotated.jpg)
+![](../../images/tf25sceneAnnotated.jpg)
 ## Plain Old Java Objects (POJO)
 I POJO sono essenziali per costruire il modello di dominio in DDD.  
 Sono usati per:  
@@ -185,7 +185,7 @@ ritorna la causa del mancato carico
 Serviranno successive decisioni per la modellazione e l'implementazioni di messaggi tra attori per ulteriori funzionalità.
 
 # Schema dell'architettura
-![](../images/sprint0arch.png)
+![](../../images/sprint0arch.png)
 # Piano di Test
 In questa prima fase i test servono a controllare che i prototipi dei componenti interagiscano come richiesto dal committente.
 

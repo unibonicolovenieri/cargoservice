@@ -1,4 +1,4 @@
-# Sprint 0
+# Sprint 0 V1
 
 # Indice
 - [Obiettivi](#obiettivi) 
@@ -10,16 +10,15 @@
 - [Piano di Lavoro](#piano-di-lavoro) 
 
 # Obiettivi
-In questo sprint0 i nostri obiettivi sono di analizzare i requisiti forniti dal committente, definire il nostro problema e comprendere come potremmo modellarlo.
+In questo sprint0 i nostri obiettivi sono di formalizzare i requisiti forniti dal committente e definire il nostro problema, in questa formalizzazione saremo in grado di definire problemi che saranno poi gestiti e sviluppati in sprint da eseguire eventualmente anche in parallelo, improntare le componenti della nostra archiettura (macrocomponenti principali & interazioni tra loro sotto forma di messaggi).
 
 # Requisiti del commitente
 [Requisiti del commitente](../../requirements/README.md)
 
 # Analisi dei requisiti
-Osserviamo che il problema si può descrivere come un sistema distribuito eterogeneo, in quanto i requisti prevedono utilizzo di sonar e led che andranno installati su un nodo fisico differente.
+
 ### Hold
-È la stiva della nave, cioè l’[area di lavoro](#area-di-lavoro). 
-La modelliamo come una zona rettangolare diviso in celle con 5 slot in cui verranno caricati i container e una porta di ingresso/uscita (IOPort). 
+È la stiva della nave, cioè l’[area di lavoro](#area-di-lavoro) e piatta dove vengono caricati i container con i prodotti. In questo progetto è una zona rettangolare con degli slot e una porta di ingresso/uscita (IOPort). Verrà utilizzato dall'attore CargoService.
 ### Cargorobot
 È il robot a guida differenziale (Differential Drive Robot) incaricato di spostare i container dentro la stiva e piazzarli nello slot assegnato. Dopo il lavoro torna sempre alla sua posizione “HOME”. Ci viene gia fornito dal committente.
 ### Products
@@ -186,7 +185,7 @@ ritorna la causa del mancato carico
 Serviranno successive decisioni per la modellazione e l'implementazioni di messaggi tra attori per ulteriori funzionalità.
 
 # Schema dell'architettura
-![](../../images/sprint0arch_v1.png)
+![](../../images/sprint0arch.png)
 # Piano di Test
 In questa prima fase i test servono a controllare che i prototipi dei componenti interagiscano come richiesto dal committente.
 
@@ -238,9 +237,10 @@ Successivi allo sprint0 si distinuguono i seguenti sprint operativi del nostro p
     - CargoService (core buisness del sistema)
     - Cargorobot
 2. Sprint 2(20h)
+    - Hold
+3. Sprint 3(20h)
     - Sonar
     - Led
-3. Sprint 3(20h)
+4. Sprint 4(10h)
     - Web Gui
-
 

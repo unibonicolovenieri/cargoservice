@@ -24,15 +24,11 @@ In questo sprint0 i nostri obiettivi sono di formalizzare i requisiti forniti da
 ### Products
 Sono i beni/merci che devono essere caricati sulla nave. Ogni prodotto viene messo in un container di dimensioni prefissate e registrato in un sistema.  
 ### Weight
-Il peso del prodotto/container. Serve per verificare che non venga superato il limite massimo di carico della nave (`MaxLoad`). Sarà un attributo del Prodotto.
+Il peso del prodotto/container. Serve per verificare che non venga superato il limite massimo di carico della nave (`MaxLoad`). 
 ### CargoService
-È il servizio software che gestisce la registrazione dei prodotti. Quando inserisci un prodotto specificando il peso, lui restituisce un identificativo unico (`PID`). Esso viene modellato come Attore qak.
+È il servizio software che si occupa di gestire l'hold. Quando inserisci un prodotto specificando il peso, lui restituisce un identificativo unico (`PID`). 
 ### Io-port
-È la porta di ingresso/uscita della stiva. Davanti a questa porta c’è un sensore sonar che rileva se un container è presente. È il punto dove il prodotto viene consegnato prima che il robot lo carichi. Sarà un macrocomponente del nostro sistema.
-### Slots & Sensors
-- **Slots**: sono le aree (4 in totale) all’interno della stiva dove i container vengono sistemati. Uno slot è già occupato in modo permanente, gli altri inizialmente sono liberi. 
-
-- **Sensors**: in questo caso si parla di un sonar davanti all’IOPort che rileva la presenza dei container e segnala eventuali anomalie (tipo guasto se non misura più distanze corrette).
+È la porta di ingresso/uscita della stiva. Davanti a questa porta c’è un sensore sonar che rileva se un container è presente. È il punto dove il prodotto viene consegnato prima che il robot lo carichi. Sarà un macrocomponente del nostro sistema. Si trova sul perimetro dell'hold.
 
 ### DDR Differential Drive Robot
 È il tipo di robot mobile con due ruote motrici indipendenti. Si muove facendo girare le ruote a velocità diverse (come i robot aspirapolvere), ed è quello usato come cargorobot.
@@ -40,7 +36,8 @@ Il peso del prodotto/container. Serve per verificare che non venga superato il l
 ## Componenti fornite dal committente
 Si elencano di seguito le componenti software fornite dal committente
 ### BasicRobot
-Componente software che esegue i comandi di movimento del DDR-robot. Non è a conoscenza della tecnologia con il quale il robot è stato implementato.
+Componente che governa il movimento del DDR-robot. Non è a conoscenza della tecnologia con il quale il robot è stato implementato. Dato un punto di arrivo è capace far raggiungere il DDR quel determinato punto. Pertanto conosce l'Hold e i suoi vincoli. Comunica tramite messaggi.
+
 ### SonarLed2025 
 Software per la misurazione della distanza dal sonar (componente hardware) e per accendere un LED
 ### WENV
@@ -69,7 +66,7 @@ Le loro caratteristiche principali includono:
 • **Qak come DSL**: Il linguaggio Qak è un Domain Specific Language (DSL) che fornisce un alto livello di astrazione per definire modelli eseguibili di sistemi basati su attori, aiutando a colmare l'abstraction gap  
 • **Raggruppamento in contesti**: Gli attori sono raggruppati in contesti che gestiscono le interazioni di rete tramite protocolli come TCP, CoAP, MQTT  
 
-### Confronto e Complementarità
+<!-- ### Confronto e Complementarità
 La scelta dipende dalla necessità di comportamento autonomo e stateful (Attori) o di rappresentazione dati/logica stateless (POJO)  
 • I POJO sono ottimi per le strutture dati e le regole di business fondamentali che operano su tali dati, fungendo da "mattoni" all'interno di un servizio o di un Attore  
 • Gli Attori sono ideali per gestire processi complessi e stateful, orchestrazioni e comunicazioni asincrone in ambienti distribuiti  
@@ -111,13 +108,15 @@ Qak (o Qak Actors) è un linguaggio specifico del dominio (DSL) pensato per l'an
 - **Progettazione Top-Down:** Si parte dall’analisi dei requisiti e del problema, progredendo verso progettazione e implementazione, per affrontare la complessità in modo sistematico.
 - **Distinzione tra Interazioni H2M e M2M:** Riconoscimento delle differenze tra interazioni Uomo-Macchina e Macchina-Macchina, per progettare interfacce, protocolli e strategie di test adeguate.
 
-[Link alla documentazione ufficiale Qak](https://github.com/anatali/issLab2025/blob/main/iss25Material/docs/_build/html/QakActors25Linguaggio.html)
+[Link alla documentazione ufficiale Qak](https://github.com/anatali/issLab2025/blob/main/iss25Material/docs/_build/html/QakActors25Linguaggio.html) -->
+
+
+
 # Macrocomponenti
-Gli attori consentono di gestire la distribuzione o la concentrazione dei componenti sui nodi della struttura. In questa fase dello sviluppo non siamo ancora nella condizione tale da poter stabilire il grado di distribuzione di tutta l'archiettura.
+Ora che sono stati definiti i requisiti ed i concetti fondamentali che utilizzeremo procediamo a modellarne i macrocomponenti. 
 
-Le componenti che rappresentano l'entità fisica sappiamo gia che risiederanno sul nodo dedicato (`Sonar` & `Led`). Stessa cosa vale per il componente che sostituirà `Basicrobot`.
-
-In aggiunta alle [Componenti del committente](#componenti-fornite-dal-committente), si svilupperanno i seguenti Macrocomponenti:
+### Cargorobot
+Il cargorobot sarà un attore in quanto sarà incaricato di reagire ad eventi come l'arrivo di un container. Esso aggiungerà al basicrobot la possibilità di caricare e scaricare container negli appositi slot dell'Hold. 
 
 ### CargoService
 Il CargoService rappresenta il nucleo della logica di business del sistema, allineandosi al concetto di "Gestione Carico" (Loading Management) identificato come Bounded Context  
@@ -127,48 +126,20 @@ Le sue responsabilità principali sono:
 **• Gestire le richieste di carico**: Riceve le richieste esterne per il carico di un prodotto e ne gestisce l'intero ciclo di vita.  
 **• Orchestrare il processo**: Agisce come orchestratore della saga di caricamento. Decide se accettare o rifiutare una richiesta dopo aver eseguito le necessarie validazioni, come il controllo del peso massimo e la disponibilità di slot nella stiva  
 **• Coordinare gli altri componenti**: Interagisce con gli altri macro-componenti per portare a termine il processo. Ad esempio, richiede informazioni sul prodotto (come il peso) a un servizio dedicato, verifica la disponibilità di slot interrogando il componente `hold`, e comanda al cargorobot di eseguire la movimentazione.  
-**• Garantire l'elaborazione sequenziale**: Assicura che una sola richiesta di carico venga processata alla volta, mantenendo lo stato dell'operazione corrente
 
-### Cargorobot
-Il cargorobot è il componente software che astrae e controlla il robot DDR (Differential Drive Robot) fisico o virtuale, che opera come un carrello di trasporto (transport trolley).   
-
-Le sue funzioni principali sono:  
-
-**• Esecuzione di comandi di movimento**: Funge da puro esecutore di comandi di basso livello inviati da un componente di livello superiore (come il CargoService). Questi comandi possono essere movimenti elementari (avanti, indietro, ruota), step di durata definita, o piani di movimento complessi (`doplan`).  
-**• Indipendenza dalla tecnologia**: Offre un'interfaccia software che permette di operare con il robot indipendentemente dalla sua realizzazione specifica (reale o virtuale), nascondendo i dettagli tecnologici.  
-**• Interazione con l'ambiente**: Può essere una fonte di informazioni, emettendo eventi relativi al suo stato o a ciò che percepisce, come i dati di un sonar (sonardata).
+Verrà modellato come un attore in quanto la comunicazione avverà con elementi eterogenei e pertanto riteniamo sia piu congruo lo scambio di messaggi come metodo comunicativo.
 
 ### Sonar
-Il sonar è un agente software situato che si interfaccia con il sensore a ultrasuoni fisico (es. HC-SR04), tipicamente montato su un dispositivo come un Raspberry Pi.  
-
-Le sue responsabilità sono:  
-
-**• Astrazione dell'hardware**: Nasconde i dettagli di basso livello dell'interazione con il sensore fisico.  
-**• Rilevamento e misurazione**: Misura la distanza da eventuali ostacoli e fornisce questi dati al sistema. Nel contesto specifico del sistema cargo, il suo ruolo cruciale è rilevare la presenza di un container nell'area di I/O (`IOPort`).  
-**• Fornitura di dati filtrati**: Invia i valori di distanza rilevati dopo averli filtrati per renderli significativi per il livello applicativo (es. valori interi entro un certo range).  
-**• Emissione di eventi**: Comunica le informazioni rilevanti al resto del sistema emettendo eventi, come sonardata o un più specifico evento di business come obstacle.  
-**• Controllo**: Può essere controllato tramite comandi remoti come sonarstart e sonarstop per attivarne o disattivarne il funzionamento.
-
+Il sonar si interfaccia con il sensore a ultrasuoni fisico, verrà montato in un nodo fisico separato (raspberry) e per tanto,facendo parte di un sistema distribuito, verrà modellato come un **attore**.
 ### Led
-Il led è un altro agente software situato con la funzione di attuatore. È responsabile del controllo di un LED fisico, tipicamente connesso a un pin GPIO di un Raspberry Pi.  
+Il led anche esso si trova su un nodo fisico separato e per lo stesso motivo del sonar verrà modellato come un **attore**. Di seguito le sue responsabilità principali:
 
 **• Fornire feedback visivo**: La sua funzione primaria è quella di segnalare visivamente lo stato del sistema o di un particolare sottosistema.  
 **• Esporre un'interfaccia di controllo**: Deve offrire un'interfaccia semplice per essere comandato da altri componenti, accettando messaggi come `turnOn` e `turnOff`.
 
-### Hold
-Il componente hold è un modello software che rappresenta lo stato della stiva della nave (cargo hold). Questo si allinea con il Bounded Context "Inventario Stiva" (Hold Inventory).  
-
-**• Gestire l'inventario della stiva**: È la fonte autorevole (source of truth) per lo stato di occupazione della stiva. Mantiene una mappa degli slot, registrando quali sono liberi e quali sono occupati.  
-**• Tracciare i prodotti**: Per ogni slot occupato, memorizza quale prodotto (identificato da un PID) vi è stato collocato.  
-**• Fornire informazioni di stato**: Risponde a interrogazioni da parte di altri servizi, come il CargoService (che ha bisogno di sapere se ci sono slot liberi) e la web-gui (che deve visualizzare la mappa della stiva).
-
 ### Web-gui
-La web-gui è l'interfaccia uomo-macchina (HMI) del sistema, concepita come un "dispositivo di I/O evoluto". Corrisponde al Bounded Context "Visualizzazione Stiva" (Hold Visualization).
-
-**• Visualizzazione dinamica**: Fornisce una rappresentazione grafica e in tempo reale dello stato della stiva.  
-**• Aggiornamento automatico**: Deve aggiornarsi automaticamente per riflettere i cambiamenti di stato nel backend senza che l'utente debba ricaricare la pagina. Questo suggerisce l'uso di tecnologie push come le WebSocket.  
-**• Interazione utente**: Permette agli utenti di interagire con il sistema, ad esempio inviando comandi per avviare nuove richieste di carico.  
-**• Architettura disaccoppiata**: Può essere realizzata come un microservizio a sé stante, disaccoppiato dalla logica di business principale, con cui comunica attraverso protocolli di messaggistica come MQTT o tramite API.  
+La web-gui è un'interfaccia che permetterà di visualizzare lo stato della stiva in tempo reale e di interagire con il sistema. Verrà modellato come un **attore** perchè dovrà comunicare tramite messaggi.
+ 
 
 # Architettura di Riferimento
 ## Modello di comunicazione a Messaggi
@@ -185,7 +156,7 @@ ritorna la causa del mancato carico
 Serviranno successive decisioni per la modellazione e l'implementazioni di messaggi tra attori per ulteriori funzionalità.
 
 # Schema dell'architettura
-![](../../images/sprint0arch.png)
+![](../../images/sprint0arch_v1.png)
 # Piano di Test
 In questa prima fase i test servono a controllare che i prototipi dei componenti interagiscano come richiesto dal committente.
 
@@ -236,11 +207,9 @@ Successivi allo sprint0 si distinuguono i seguenti sprint operativi del nostro p
 1. Sprint 1 (30h)
     - CargoService (core buisness del sistema)
     - Cargorobot
-2. Sprint 2(20h)
-    - Hold
-3. Sprint 3(20h)
+3. Sprint 2(20h)
     - Sonar
     - Led
-4. Sprint 4(10h)
+4. Sprint 3(10h)
     - Web Gui
 

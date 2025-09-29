@@ -1,0 +1,68 @@
+System sprint1
+
+Request load_product  : load_product(PID) 			    	    //richiesta di carico di un prodotto con PID
+Reply   load_accepted : load_accepted(SLOT) for load_product 	//restituisce lo slot assegnato
+Reply   load_refused  : load_refused(CAUSA) for load_product 	//ritorna la causa del mancato carico
+
+Context ctx_cargoservice	ip [host="localhost" port=10000]
+Context ctx_iodev			ip [host="localhost" port=10001]
+Context ctx_test			ip [host="localhost" port=10002]
+Context ctx_gui				ip [host="localhost" port=10003]
+
+QActor cargoservice context ctx_cargoservice {
+           [#
+           	var Taken_slot=arrayListOf("true","true","true","false","true")
+        	val MAX_LOAD=2
+        	var CURRENT_LOAD=0
+        	#
+        ]
+    State start initial {
+        println("[cargoservice] Inizia ") color blue
+
+    }
+    
+    Goto waiting_for_request
+    
+    State waiting_for_request{
+        println("[cargoservice] Sta aspettando richieste")color blue
+    }
+    
+    Transition t0
+    	whenRequest load_product -> handleRequest
+
+    State handleRequest {
+		    
+		    println("[cargoservice] Riceve richiesta di caricamento") color blue
+		    
+		    [#
+		    		
+		    var Causa="MAX_LOADreached"	 
+		    var Reserved_slot=0   	
+		    
+		    if( CURRENT_LOAD<MAX_LOAD) {
+		   	Causa="Nessuno_slot_libero"
+		    for(i in 0..4){
+		    if (Taken_slot[i]=="false") {
+		    CURRENT_LOAD=CURRENT_LOAD+1
+		    Reserved_slot = i+1
+		    Taken_slot[i]="true"
+		    break;
+		    	
+		    }
+		    }
+		    }#]
+		    
+		    // Aggiungo un peso fittizio di uno per testare il raggiungimento di max load
+		    // in futuro verrà aggiunto l'effettivo peso
+		    if [#Reserved_slot!=0#]{
+		    replyTo load_product with load_accepted : load_accepted($Reserved_slot)
+		    }else{
+		    
+		    replyTo load_product with load_refused : load_refused($Causa)	
+		    }
+		    
+		 
+	}
+	Goto waiting_for_request
+		
+}

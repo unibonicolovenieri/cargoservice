@@ -8,6 +8,7 @@
   - [Analisi del problema](#analisi-del-problema)
     - [CargoService](#cargoservice)
     - [Cargorobot](#cargorobot)
+    - [ProductService(????)](#productservice)
   - [Piano di test](#piano-di-test)
   - [Elaborazione](#elaborazione)
   - [Recap](#recap)
@@ -67,6 +68,7 @@ CARGOROBOT SI GESTISCE DA SOLO CHE SLOT TRA I LIBERI SCEGLIERE
 quali malfunzionamenti, disponibilità degli slot e peso totale (MAXLOAD)
 ### ProductService(????)
 
+Se domattina leggi questo messaggio ho finito troppo tardi e mi sono addormentato, non credo di riuscire a guardarci domattina -nico
 
 ## Piano di test
 

@@ -39,19 +39,35 @@ Il cargoservice è il componente che si occuperà di gestire le richieste di car
 Il ciclo di funzionamento del cargoservice sarà il seguente:
 
 1. Ricezione del **PID** del prodotto (container) all'interno di una richiesta di carico 
-2. **Verifica del peso** tramite una richiesta al componente **productservice**. In questa richiestsa viene inserito il PID del prodotto del quale si vuole conoscere il peso.
+2. **Verifica del peso** tramite una richiesta al componente **productservice**. In questa richiesta viene inserito il PID del prodotto del quale si vuole conoscere il peso.
 3. La risposta di productservice può essere di due tipi:
-    - **PID non registrato (ERRORE)**: il PID inviato da cargoservice non è registrato nel sistema. Cargoservice propagherà l'errore al mittente della richiesta di carico (in questo caso non avendo ancora implementato la parte dove vengono generate le richieste di carico, il mittente sarà un mockup che simulerà questo comportamento).
+    - **PID non registrato (ERRORE)**: il PID inviato da cargoservice non è registrato nel sistema. Cargoservice propagherà l'errore al mittente della richiesta di carico (in questo caso non avendo ancora implementato la parte dove vengono generate le richieste di carico, il mittente sarà un mockup che simulerà questo comportamento) e si preparerà a soddisfare la prossima richiesta.
     - **Peso relativo al PID**: Restituisce il peso relativo al PID inviato in precedenza.
   
-4. 
+4. Una volta ottenuto il peso la procedura di carico viene eseguita sotto le seguenti condizioni:
+- il carico attualmente ospitato sommato al carico dell'eventuale prodotto da caricare non deve la costante MAXLOAD (CURRENTLOAD + PRODUCT_WEIGHT<= MAXLOAD)
+- uno dei 5 slot(4 disponibili) deve essere libero per poter ospitare il prodotto
+
+In caso di mancanza di una delle due condizioni verrà segnalato il relativo errore.
+5. Cargoservice richiede al cargorobot di eseguire la load specificando il PID del prodotto, delegando la decisione dello slot in cui posizionarlo al cargorobot.
+Questo serve a dividere la logica di gestione della stiva dall'effettiva evasione del compito,
+ se ad esempio il robot impiegasse meno tempo a caricare il prodotto sullo slot numero 1 piuttosto che in altri, 
+ vogliamo che il cargoservice ne sia totalmente ignaro.
+6. Il cargoservice attende che il cargorobot ritorni alla HOME (posizione 0,0 dell'hold)
+7. cargoservice riceve in risposta lo slot in cui è stato caricato il prodotto dal cargorobot, aggiorna lo stato della stiva(peso,numero di slot liberi) ed è pronto per gestire nuove richieste.
+
+
 
 ### Cargorobot
-cosa sa fare
-Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot) .... (mappa), mosse, 
+Il cargorobot gestisce il basicrobot e si interfaccia con il cargoservice al fine di eseguire le richieste che arrivano. Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva( dimensione, ostacoli, perimetro, posizionamento dellì'IOport)
+
+Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), la IOport .... (mappa), mosse, 
 CARGOROBOT SI GESTISCE DA SOLO CHE SLOT TRA I LIBERI SCEGLIERE
 
 quali malfunzionamenti, disponibilità degli slot e peso totale (MAXLOAD)
+### ProductService(????)
+
+
 ## Piano di test
 
 Abbiamo simulato tramite un mockup il funzionamento di alcune componenti del sistema che al momento non sono ancora state implementate. Tuttavia tramite i test non solo ci sarà permesso di testare correttamente il funzionamento del sistema, ma anche di poter simulare il comportamento di alcune componenti che ancora non sono state implementate.

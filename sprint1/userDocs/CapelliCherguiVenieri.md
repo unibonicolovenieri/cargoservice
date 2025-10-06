@@ -60,12 +60,9 @@ Questo serve a dividere la logica di gestione della stiva dall'effettiva evasion
 ### Cargorobot
 Il cargorobot gestisce il DDRrobot e si interfaccia con il cargoservice al fine di eseguire le richieste che arrivano. Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva( dimensione, ostacoli, perimetro, posizionamento dell'IOport)
 
-Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot) e il posizionamento dell'IOport.
+Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), il posizionamento dell'IOport e il led.
 
-
-
-
-
+![](../../images/grigliarobot.jpg)
 
 
 
@@ -80,19 +77,20 @@ Il productservice è un componente che viene gia fornito dal committente per la 
 
 - PID (Valore Intero identifiativo del prodotto, deve essere maggiore di 0)
 - Peso (Valore Reale che rappresenta il peso del prodotto, deve essere maggiore di 0)
+- Nome (Stringa)
 
 Come detto in precedenza ProductService è un componente già fornito dal committente, pertanto non verrà implementato da noi, ma ci limiteremo ad utilizzarlo per le nostre esigenze. Le interazioni che avremo con questo componente sono analizzate nel prossimo punto.
 
 ### Messaggi tra componenti
 
 #### Cargoservice
-
+Da scrivere i comandi 
 #### Cargorobot
-
+Da scrivere
 Da verificare
 ```
-Request handle_load_operation : handle_load_operation(SLOT)
-Reply load_operation_done : load_operation_done(OK) f3or handle_load_operation 
+Request handle_load_operation : handle_load_operation(SLOT) //Start operazione di carico  
+Reply load_operation_done : load_operation_done(OK) for handle_load_operation //Conferma avvenuto carico 
 ```
 
 #### Basicrobot
@@ -164,6 +162,8 @@ Reply load_operation_done : load_operation_done(OK) f3or handle_load_operation
 Abbiamo simulato tramite un mockup il funzionamento di alcune componenti del sistema che al momento non sono ancora state implementate. Tuttavia tramite i test non solo ci sarà permesso di testare correttamente il funzionamento del sistema, ma anche di poter simulare il comportamento di alcune componenti che ancora non sono state implementate.
 
 Che cosa abbiamo simulato?
+Led e Sonar li simuliamo
+Web-gui non la consideriamo per il momento.
 ## Elaborazione
 
 ## Recap

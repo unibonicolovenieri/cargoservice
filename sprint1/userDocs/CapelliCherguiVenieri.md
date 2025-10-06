@@ -57,18 +57,107 @@ Questo serve a dividere la logica di gestione della stiva dall'effettiva evasion
 6. Il cargoservice attende che il cargorobot ritorni alla HOME (posizione 0,0 dell'hold)
 7. cargoservice riceve in risposta lo slot in cui è stato caricato il prodotto dal cargorobot, aggiorna lo stato della stiva(peso,numero di slot liberi) ed è pronto per gestire nuove richieste.
 
-
-
 ### Cargorobot
-Il cargorobot gestisce il basicrobot e si interfaccia con il cargoservice al fine di eseguire le richieste che arrivano. Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva( dimensione, ostacoli, perimetro, posizionamento dellì'IOport)
+Il cargorobot gestisce il DDRrobot e si interfaccia con il cargoservice al fine di eseguire le richieste che arrivano. Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva( dimensione, ostacoli, perimetro, posizionamento dell'IOport)
 
-Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), la IOport .... (mappa), mosse, 
+Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot) e il posizionamento dell'IOport.
+
+
+
+
+
+
+
+
+
+ .... (mappa), mosse, 
 CARGOROBOT SI GESTISCE DA SOLO CHE SLOT TRA I LIBERI SCEGLIERE
 
 quali malfunzionamenti, disponibilità degli slot e peso totale (MAXLOAD)
-### ProductService(????)
 
-Se domattina leggi questo messaggio ho finito troppo tardi e mi sono addormentato, non credo di riuscire a guardarci domattina -nico
+### ProductService
+Il productservice è un componente che viene gia fornito dal committente per la registrazione e la gestione dei prodotti all'interno di un relativo Database. Esso permette la registrazione, la cancellazione e la ricerca di prodotti tramite il loro PID. Ogni prodotto ha associato un peso che verrà utilizzato dal cargoservice per verificare che il carico totale non superi la costante MAXLOAD. **Prodotto** invece sono le entità che verranno gestite, essendo passive potrebbero essere implementate come **POJO**. Gli attributi di un prodotto sono:
+
+- PID (Valore Intero identifiativo del prodotto, deve essere maggiore di 0)
+- Peso (Valore Reale che rappresenta il peso del prodotto, deve essere maggiore di 0)
+
+Come detto in precedenza ProductService è un componente già fornito dal committente, pertanto non verrà implementato da noi, ma ci limiteremo ad utilizzarlo per le nostre esigenze. Le interazioni che avremo con questo componente sono analizzate nel prossimo punto.
+
+### Messaggi tra componenti
+
+#### Cargoservice
+
+#### Cargorobot
+
+Da verificare
+```
+Request handle_load_operation : handle_load_operation(SLOT)
+Reply load_operation_done : load_operation_done(OK) f3or handle_load_operation 
+```
+
+#### Basicrobot
+(Messaggi gia presenti nell'attore fornito dal committente)
+```
+    Dispatch cmd       	: cmd(MOVE)         
+    Dispatch end       	: end(ARG)         
+    
+    Request step       : step(TIME)	
+    Reply stepdone     : stepdone(V)                 for step
+    Reply stepfailed   : stepfailed(DURATION, CAUSE) for step
+
+    Event  sonardata   : sonar( DISTANCE ) 	   
+    Event obstacle     : obstacle(X) 
+    Event info         : info(X)    
+
+    Request  doplan     : doplan( PATH, STEPTIME )
+    Reply doplandone    : doplandone( ARG )    for doplan
+    Reply doplanfailed  : doplanfailed( ARG )  for doplan
+
+    Dispatch setrobotstate: setpos(X,Y,D) //D =up|down!left|right
+
+    Request engage        : engage(OWNER, STEPTIME)	
+    Reply   engagedone    : engagedone(ARG)    for engage
+    Reply   engagerefused : engagerefused(ARG) for engage
+
+    Dispatch disengage    : disengage(ARG)
+
+    Request checkowner    : checkowner(CALLER)
+    Reply checkownerok    : checkownerok(ARG)      for checkowner
+    Reply checkownerfailed: checkownerfailed(ARG)  for checkowner
+    
+    Event alarm           : alarm(X)
+    Dispatch nextmove     : nextmove(M)
+    Dispatch nomoremove   : nomoremove(M)
+    
+    Dispatch setdirection : dir( D )  //D =up|down!left|right
+
+    Request moverobot    :  moverobot(TARGETX, TARGETY)  
+    Reply moverobotdone  :  moverobotok(ARG)                    for moverobot
+    Reply moverobotfailed:  moverobotfailed(PLANDONE, PLANTODO) for moverobot
+     
+    Request getrobotstate : getrobotstate(ARG)
+    Reply robotstate      : robotstate(POS,DIR)  for getrobotstate
+
+    Request getenvmap     : getenvmap(X)
+    Reply   envmap        : envmap(MAP)  for getenvmap
+```
+### ProductService
+(Messaggi gia presenti nell'attore fornito dal committente)
+```
+  Request createProduct : product(String)                    
+  Reply   createdProduct: productid(ID) for createProduct   
+        
+  Request deleteProduct  : product( ID ) 
+  Reply   deletedProduct : product(String) for deleteProduct
+
+  Request getProduct : product( ID )  
+  Reply   getProductAnswer: product( JSonString ) for getProduct 
+    
+  Request getAllProducts : dummy( ID )
+  Reply   getAllProductsAnswer: products(  String ) for getAllProducts 
+```
+
+
 
 ## Piano di test
 

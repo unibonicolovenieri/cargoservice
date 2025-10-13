@@ -1,28 +1,40 @@
 System sprint1
 Request createProduct : product(String)                    
 Reply   createdProduct: productid(ID) for createProduct 
-Context ctxcargoservice	ip [host="127.0.0.1" port=8111]
+Request getAllProducts : dummy( ID )
+Reply   getAllProductsAnswer: products(  String ) for getAllProducts 
+Request getProduct 		: product( ID )  
+Reply   getProductAnswer: product( JSonString ) for getProduct 
+Context ctx_productservice	ip [host="127.0.0.1" port=8111]
 Context ctx_cargotest	ip [host="localhost" port=8112]
 
-ExternalQActor ctxcargoservice context ctxcargoservice
+ 
+
+ExternalQActor productservice context ctx_productservice
  
 QActor test context ctx_cargotest{
 	State start initial{
 		println("[test] avviato") color blue  
-		request ctxcargoservice -m createProduct:product("productId":31,"name":"p31","weight":311)
+		[#
+		
+		val ProductID="1"
+		#
+		]
+		//request productservice -m createProduct:createProduct($Product)
+		request productservice -m getProduct : getProduct($ProductID)
+		request productservice -m getAllProducts:getAllProducts($ProductID)
 		println("[test]  mandata richiesta") color yellow 
 	}
-		Transition t0 
-        whenReply createdProduct -> createdProduct
-         
-        
+//			Transition t0 
+//        whenReply createdProduct -> createdProduct
+//         whenReply getAllProductsAnswer -> createdProduct
+//        
     State createdProduct{
-		    println("[test] risposta arrivata") color yellow 
            onMsg( createdProduct : createdProduct(ID) ){
            [#val Msg=payloadArg(0).toInt()        #]
    	println("[cargotest] Richiesta accettata, slot n. $Msg ") color yellow
-   }} 
-}
+   }}  
+} 
 
 
 

@@ -25,9 +25,9 @@ with Diagram('sprint1Arch', show=False, outformat='png', graph_attr=graphattr) a
   with Cluster('env'):
      sys = Custom('','./qakicons/system.png')
 ### see https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/HTML-like/index
-     with Cluster('ctxcargoservice', graph_attr=nodeattr):
-          ctxcargoservice=Custom('ctxcargoservice(ext)','./qakicons/externalQActor.png')
+     with Cluster('ctx_productservice', graph_attr=nodeattr):
+          productservice=Custom('productservice(ext)','./qakicons/externalQActor.png')
      with Cluster('ctx_cargotest', graph_attr=nodeattr):
           test=Custom('test','./qakicons/symActorWithobjSmall.png')
-     test >> Edge(color='magenta', style='solid', decorate='true', label='<createProduct<font color="darkgreen"> createdProduct</font> &nbsp; >',  fontcolor='magenta') >> ctxcargoservice
+     test >> Edge(color='magenta', style='solid', decorate='true', label='<getProduct<font color="darkgreen"> getProductAnswer</font> &nbsp; getAllProducts<font color="darkgreen"> getAllProductsAnswer</font> &nbsp; >',  fontcolor='magenta') >> productservice
 diag

@@ -33,18 +33,20 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 				state("start") { //this:State
 					action { //it:State
 						CommUtils.outblue("[test] avviato")
-						request("createProduct", "product("{"productId":31,"name":"p31","weight":311}")" ,"ctxcargoservice" )  
+						
+								
+								val ProductID="1"
+						request("getProduct", "getProduct($ProductID)" ,"productservice" )  
+						request("getAllProducts", "getAllProducts($ProductID)" ,"productservice" )  
 						CommUtils.outyellow("[test]  mandata richiesta")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="createdProduct",cond=whenReply("createdProduct"))
 				}	 
 				state("createdProduct") { //this:State
 					action { //it:State
-						CommUtils.outyellow("[test] risposta arrivata")
 						if( checkMsgContent( Term.createTerm("productid(ID)"), Term.createTerm("createdProduct(ID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								val Msg=payloadArg(0).toInt()         

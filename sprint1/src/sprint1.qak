@@ -5,54 +5,90 @@ Request getAllProducts : dummy( ID )
 Reply   getAllProductsAnswer: products(  String ) for getAllProducts 
 Request getProduct 		: product( ID )  
 Reply   getProductAnswer: product( JSonString ) for getProduct 
+Request moverobot    :  moverobot(TARGETX, TARGETY)  
+Reply moverobotdone  :  moverobotok(ARG)                    for moverobot
+Reply moverobotfailed:  moverobotfailed(PLANDONE, PLANTODO) for moverobot
+ Request engage        : engage(OWNER, STEPTIME)	
+    Reply   engagedone    : engagedone(ARG)    for engage
+    Reply   engagerefused : engagerefused(ARG) for engage
 Context ctx_productservice	ip [host="127.0.0.1" port=8111]
 Context ctx_cargotest	ip [host="localhost" port=8112]
+Context ctxbasicrobot26usage ip [host="127.0.0.1" port=8020] 
 
  
-
+ExternalQActor basicrobot context ctxbasicrobot26usage
 ExternalQActor productservice context ctx_productservice
  
-QActor test context ctx_cargotest{
+QActor cargoservice context ctx_cargotest{
 	State start initial{
 		println("[test] avviato") color blue  
 		[#
-		val Product="'{\"productId\":1,\"name\":\"p1\",\"weight\":10}'"
-		val ProductID="1"
+		val Product="'{\"productId\":1,\"name\":\"p2\",\"weight\":100}'"
+		val ProductID=1
 		#
 		]
 		
 
 			[# val Cur_prod_PID = ProductID.toInt() #]
 			println("$name | checking with productservice for the weight of PID: $Cur_prod_PID") color blue
-			
+			request basicrobot -m engage:engage($MyName,300)
+			println("[test]  mandata richiesta") color yellow 
+	}		
+			Transition t0
+			whenReply engagedone-> createProduct
+			State createProduct{
+						[#
+		val Product="'{\"productId\":1,\"name\":\"p2\",\"weight\":100}'"
+		val ProductID=1
+		#
+		]
 			request productservice -m createProduct:product($Product)
-			request productservice -m getProduct : product($Cur_prod_PID)
+						println("[test]  mandata richiesta") color yellow 
+		}
+			
+//			request productservice -m getProduct : product($ProductID)
 		
-	
 		
 		
-		
-		
+
 		
 		
 		
 //		request productservice -m getProduct : product($ProductID)
-		request productservice -m getAllProducts:dummy($ProductID)
-		println("[test]  mandata richiesta") color yellow 
-	}
+//		request productservice -m getAllProducts:dummy($ProductID)
+
 			Transition t0 
         	whenReply createdProduct -> createdProduct
-         	whenReply getAllProductsAnswer -> allProductsRecieved
-         	whenReply getProductAnswer-> productRecieved
+      //   	whenReply engagedone -> allProductsRecieved
         
     State createdProduct{
-           onMsg( createdProduct : createdProduct(ID) ){
-           [#val Msg=payloadArg(0).toInt()        #]
+    				println("[test]aaaaaaaaaaaaaaaaaa richiesta") color yellow 
+           onMsg(createdProduct : productid(ID) ){
+           println("[test]aaaaaaaaaaaaaaaaaa richiesta") color yellow 
+           [#val Msg=payloadArg(0)+1 #]
+           
    	println("[cargotest] Richiesta accettata, slot n. $Msg ") color yellow
+   				println("Engaged") color yellow
+		request basicrobot -m moverobot : moverobot($Msg,$Msg)
+			println("Engaged") color yellow
+		
+   
    }}  
+   Transition t0
+   whenReply moverobotdone-> moved
+   State moved{
+   
+   onMsg(moverobotdone:moverobotdone(A,B)){
+			println("Pezzo di merda di un natali bastardo ")
+		}
+		
+		}
    State allProductsRecieved{
-   	printCurrentMessage
-   }
+   	println("Engaged") color yellow
+		[#val X=1
+			val Y=1#
+		]
+}
    State productRecieved{
    	printCurrentMessage
    }

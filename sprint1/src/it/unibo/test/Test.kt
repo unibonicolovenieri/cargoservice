@@ -34,13 +34,11 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					action { //it:State
 						CommUtils.outblue("[test] avviato")
 						
-								val Product="'{\"productId\":1,\"name\":\"p1\",\"weight\":10}'"
-								val ProductID="1"
+								val Product="'{\"productId\":2,\"name\":\"p2\",\"weight\":100}'"
+								val ProductID=2
 						 val Cur_prod_PID = ProductID.toInt()  
 						CommUtils.outblue("$name | checking with productservice for the weight of PID: $Cur_prod_PID")
-						request("createProduct", "product($Product)" ,"productservice" )  
-						request("getProduct", "product($Cur_prod_PID)" ,"productservice" )  
-						request("getAllProducts", "dummy($ProductID)" ,"productservice" )  
+						request("moverobot", "moverobot(1,1)" ,"basicrobot" )  
 						CommUtils.outyellow("[test]  mandata richiesta")
 						//genTimer( actor, state )
 					}

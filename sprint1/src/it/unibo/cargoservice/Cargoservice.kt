@@ -29,63 +29,89 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name» = actor.withobj.method»ENDIF
-		
-		           	var Taken_slot=arrayListOf("true","true","true","false","true")
-		        	val MAX_LOAD=2
-		        	var CURRENT_LOAD=0
 		return { //this:ActionBasciFsm
 				state("start") { //this:State
 					action { //it:State
-						CommUtils.outblue("[cargoservice] Inizia ")
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
-				}	 
-				state("waiting_for_request") { //this:State
-					action { //it:State
-						CommUtils.outblue("[cargoservice] Sta aspettando richieste")
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition(edgeName="t00",targetState="handleRequest",cond=whenRequest("load_product"))
-				}	 
-				state("handleRequest") { //this:State
-					action { //it:State
-						CommUtils.outblue("[cargoservice] Riceve richiesta di caricamento")
+						CommUtils.outblue("[test] avviato")
 						
-								    		
-								    var Causa="MAX_LOADreached"	 
-								    var Reserved_slot=0   	
-								    
-								    if( CURRENT_LOAD<MAX_LOAD) {
-								   	Causa="Nessuno_slot_libero"
-								    for(i in 0..4){
-								    if (Taken_slot[i]=="false") {
-								    CURRENT_LOAD=CURRENT_LOAD+1
-								    Reserved_slot = i+1
-								    Taken_slot[i]="true"
-								    break;
-								    	
-								    }
-								    }
-								    } 
-						if( Reserved_slot!=0 
-						 ){answer("load_product", "load_accepted", "load_accepted($Reserved_slot)"   )  
-						}
-						else
-						 {answer("load_product", "load_refused", "load_refused($Causa)"   )  
-						 }
+								val Product="'{\"productId\":1,\"name\":\"p2\",\"weight\":100}'"
+								val ProductID=1
+						 val Cur_prod_PID = ProductID.toInt()  
+						CommUtils.outblue("$name | checking with productservice for the weight of PID: $Cur_prod_PID")
+						request("engage", "engage($MyName,300)" ,"basicrobot" )  
+						CommUtils.outyellow("[test]  mandata richiesta")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
+					 transition(edgeName="t00",targetState="createProduct",cond=whenReply("engagedone"))
+				}	 
+				state("createProduct") { //this:State
+					action { //it:State
+						
+								val Product="'{\"productId\":1,\"name\":\"p2\",\"weight\":100}'"
+								val ProductID=1
+						request("createProduct", "product($Product)" ,"productservice" )  
+						CommUtils.outyellow("[test]  mandata richiesta")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t01",targetState="createdProduct",cond=whenReply("createdProduct"))
+				}	 
+				state("createdProduct") { //this:State
+					action { //it:State
+						CommUtils.outyellow("[test]aaaaaaaaaaaaaaaaaa richiesta")
+						if( checkMsgContent( Term.createTerm("productid(ID)"), Term.createTerm("productid(ID)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								CommUtils.outyellow("[test]aaaaaaaaaaaaaaaaaa richiesta")
+								val Msg=payloadArg(0)+1  
+								CommUtils.outyellow("[cargotest] Richiesta accettata, slot n. $Msg ")
+								CommUtils.outyellow("Engaged")
+								request("moverobot", "moverobot($Msg,$Msg)" ,"basicrobot" )  
+								CommUtils.outyellow("Engaged")
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t02",targetState="moved",cond=whenReply("moverobotdone"))
+				}	 
+				state("moved") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("moverobotok(ARG)"), Term.createTerm("moverobotdone(A,B)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								CommUtils.outblack("Pezzo di merda di un natali bastardo ")
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+				}	 
+				state("allProductsRecieved") { //this:State
+					action { //it:State
+						CommUtils.outyellow("Engaged")
+						val X=1
+									val Y=1 
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+				}	 
+				state("productRecieved") { //this:State
+					action { //it:State
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
 				}	 
 			}
 		}

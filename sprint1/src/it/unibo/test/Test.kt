@@ -34,16 +34,22 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					action { //it:State
 						CommUtils.outblue("[test] avviato")
 						
-								
+								val Product="'{\"productId\":1,\"name\":\"p1\",\"weight\":10}'"
 								val ProductID="1"
-						request("getProduct", "getProduct($ProductID)" ,"productservice" )  
-						request("getAllProducts", "getAllProducts($ProductID)" ,"productservice" )  
+						 val Cur_prod_PID = ProductID.toInt()  
+						CommUtils.outblue("$name | checking with productservice for the weight of PID: $Cur_prod_PID")
+						request("createProduct", "product($Product)" ,"productservice" )  
+						request("getProduct", "product($Cur_prod_PID)" ,"productservice" )  
+						request("getAllProducts", "dummy($ProductID)" ,"productservice" )  
 						CommUtils.outyellow("[test]  mandata richiesta")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 transition(edgeName="t00",targetState="createdProduct",cond=whenReply("createdProduct"))
+					transition(edgeName="t01",targetState="allProductsRecieved",cond=whenReply("getAllProductsAnswer"))
+					transition(edgeName="t02",targetState="productRecieved",cond=whenReply("getProductAnswer"))
 				}	 
 				state("createdProduct") { //this:State
 					action { //it:State
@@ -52,6 +58,26 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 								val Msg=payloadArg(0).toInt()         
 								CommUtils.outyellow("[cargotest] Richiesta accettata, slot n. $Msg ")
 						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+				}	 
+				state("allProductsRecieved") { //this:State
+					action { //it:State
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+				}	 
+				state("productRecieved") { //this:State
+					action { //it:State
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

@@ -16,24 +16,46 @@ QActor test context ctx_cargotest{
 	State start initial{
 		println("[test] avviato") color blue  
 		[#
-		
+		val Product="'{\"productId\":1,\"name\":\"p1\",\"weight\":10}'"
 		val ProductID="1"
 		#
 		]
-		//request productservice -m createProduct:createProduct($Product)
-		request productservice -m getProduct : getProduct($ProductID)
-		request productservice -m getAllProducts:getAllProducts($ProductID)
+		
+
+			[# val Cur_prod_PID = ProductID.toInt() #]
+			println("$name | checking with productservice for the weight of PID: $Cur_prod_PID") color blue
+			
+			request productservice -m createProduct:product($Product)
+			request productservice -m getProduct : product($Cur_prod_PID)
+		
+	
+		
+		
+		
+		
+		
+		
+		
+//		request productservice -m getProduct : product($ProductID)
+		request productservice -m getAllProducts:dummy($ProductID)
 		println("[test]  mandata richiesta") color yellow 
 	}
-//			Transition t0 
-//        whenReply createdProduct -> createdProduct
-//         whenReply getAllProductsAnswer -> createdProduct
-//        
+			Transition t0 
+        	whenReply createdProduct -> createdProduct
+         	whenReply getAllProductsAnswer -> allProductsRecieved
+         	whenReply getProductAnswer-> productRecieved
+        
     State createdProduct{
            onMsg( createdProduct : createdProduct(ID) ){
            [#val Msg=payloadArg(0).toInt()        #]
    	println("[cargotest] Richiesta accettata, slot n. $Msg ") color yellow
    }}  
+   State allProductsRecieved{
+   	printCurrentMessage
+   }
+   State productRecieved{
+   	printCurrentMessage
+   }
 } 
 
 

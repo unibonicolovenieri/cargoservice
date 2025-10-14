@@ -29,5 +29,5 @@ with Diagram('sprint1Arch', show=False, outformat='png', graph_attr=graphattr) a
           productservice=Custom('productservice(ext)','./qakicons/externalQActor.png')
      with Cluster('ctx_cargotest', graph_attr=nodeattr):
           test=Custom('test','./qakicons/symActorWithobjSmall.png')
-     test >> Edge(color='magenta', style='solid', decorate='true', label='<getProduct<font color="darkgreen"> getProductAnswer</font> &nbsp; getAllProducts<font color="darkgreen"> getAllProductsAnswer</font> &nbsp; >',  fontcolor='magenta') >> productservice
+     test >> Edge(color='magenta', style='solid', decorate='true', label='<createProduct<font color="darkgreen"> createdProduct</font> &nbsp; getProduct<font color="darkgreen"> getProductAnswer</font> &nbsp; getAllProducts<font color="darkgreen"> getAllProductsAnswer</font> &nbsp; >',  fontcolor='magenta') >> productservice
 diag

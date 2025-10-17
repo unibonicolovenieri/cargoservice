@@ -1,25 +1,128 @@
 System sprint1
+
+
+
+// messaggi product service
 Request createProduct : product(String)                    
 Reply   createdProduct: productid(ID) for createProduct 
 Request getAllProducts : dummy( ID )
 Reply   getAllProductsAnswer: products(  String ) for getAllProducts 
 Request getProduct 		: product( ID )  
 Reply   getProductAnswer: product( JSonString ) for getProduct 
+
+
+
+//messaggi cargoservice
+Request load_product 		: product( ID )  
+Reply   loadedProduct 		: slot( slot_id ) for load_product 
+
+
+
+
+
+
+
+
+//alcuni messaggi basicrobot(da completare)
 Request moverobot    :  moverobot(TARGETX, TARGETY)  
 Reply moverobotdone  :  moverobotok(ARG)                    for moverobot
 Reply moverobotfailed:  moverobotfailed(PLANDONE, PLANTODO) for moverobot
  Request engage        : engage(OWNER, STEPTIME)	
     Reply   engagedone    : engagedone(ARG)    for engage
     Reply   engagerefused : engagerefused(ARG) for engage
+    
+    
+    
+    
+//contesti  
 Context ctx_productservice	ip [host="127.0.0.1" port=8111]
 Context ctx_cargotest	ip [host="localhost" port=8112]
-Context ctxbasicrobot26usage ip [host="127.0.0.1" port=8020] 
+Context ctx_basicrobot ip [host="127.0.0.1" port=8020] 
+Context ctx_cargoservice	ip [host="localhost" port=8110]
 
- 
-ExternalQActor basicrobot context ctxbasicrobot26usage
+
+
+
+
+//attori esterni (basicrobot utilizzato da cargorobot e productservice utilizzato da cargoservice 
+ExternalQActor basicrobot context ctx_basicrobot
 ExternalQActor productservice context ctx_productservice
- 
-QActor cargoservice context ctx_cargotest{
+
+
+
+
+
+
+
+// cargoservice 
+QActor cargoservice context ctx_cargoservice{
+	
+	State start initial{
+		println("[cargoservice] STARTED ") color yellow
+		delay 1000
+	}
+	 Goto waiting_for_request
+	 
+	 
+	 State waiting_for_request{
+	 	println("[cargoservice] waiting for request") color yellow
+	 }
+	 
+	Transition t0
+	whenRequest load_product -> load_product
+	
+	State load_product{
+		
+	}
+}
+
+
+
+
+//cargorobot
+QActor cargorobot context ctx_cargoservice{
+	
+	State start initial{
+		println("[cargoservice] STARTED ") color yellow
+		delay 1000
+	}
+	 Goto waiting_for_request
+	 
+	 
+	 State waiting_for_request{
+	 	println("[cargoservice] waiting for request") color yellow
+	 }
+	 
+	Transition t0
+	whenRequest load_product -> load_product
+	
+	State load_product{
+		
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+QActor test context ctx_cargotest{
 	State start initial{
 		println("[test] avviato") color blue  
 		[#

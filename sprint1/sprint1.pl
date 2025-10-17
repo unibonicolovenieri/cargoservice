@@ -7,6 +7,8 @@ request( getAllProducts, dummy(ID) ).
 reply( getAllProductsAnswer, products(String) ).  %%for getAllProducts
 request( getProduct, product(ID) ).
 reply( getProductAnswer, product(JSonString) ).  %%for getProduct
+request( load_product, product(ID) ).
+reply( loadedProduct, slot(slot_id) ).  %%for load_product
 request( moverobot, moverobot(TARGETX,TARGETY) ).
 reply( moverobotdone, moverobotok(ARG) ).  %%for moverobot
 reply( moverobotfailed, moverobotfailed(PLANDONE,PLANTODO) ).  %%for moverobot
@@ -16,8 +18,13 @@ reply( engagerefused, engagerefused(ARG) ).  %%for engage
 %====================================================================================
 context(ctx_productservice, "127.0.0.1",  "TCP", "8111").
 context(ctx_cargotest, "localhost",  "TCP", "8112").
-context(ctxbasicrobot26usage, "127.0.0.1",  "TCP", "8020").
- qactor( basicrobot, ctxbasicrobot26usage, "external").
+context(ctx_basicrobot, "127.0.0.1",  "TCP", "8020").
+context(ctx_cargoservice, "localhost",  "TCP", "8110").
+ qactor( basicrobot, ctx_basicrobot, "external").
   qactor( productservice, ctx_productservice, "external").
-  qactor( cargoservice, ctx_cargotest, "it.unibo.cargoservice.Cargoservice").
+  qactor( cargoservice, ctx_cargoservice, "it.unibo.cargoservice.Cargoservice").
  static(cargoservice).
+  qactor( cargorobot, ctx_cargoservice, "it.unibo.cargorobot.Cargorobot").
+ static(cargorobot).
+  qactor( test, ctx_cargotest, "it.unibo.test.Test").
+ static(test).

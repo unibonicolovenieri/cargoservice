@@ -28,9 +28,12 @@ with Diagram('sprint1Arch', show=False, outformat='png', graph_attr=graphattr) a
      with Cluster('ctx_productservice', graph_attr=nodeattr):
           productservice=Custom('productservice(ext)','./qakicons/externalQActor.png')
      with Cluster('ctx_cargotest', graph_attr=nodeattr):
-          cargoservice=Custom('cargoservice','./qakicons/symActorWithobjSmall.png')
-     with Cluster('ctxbasicrobot26usage', graph_attr=nodeattr):
+          test=Custom('test','./qakicons/symActorWithobjSmall.png')
+     with Cluster('ctx_basicrobot', graph_attr=nodeattr):
           basicrobot=Custom('basicrobot(ext)','./qakicons/externalQActor.png')
-     cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<engage<font color="darkgreen"> engagedone engagerefused</font> &nbsp; moverobot<font color="darkgreen"> moverobotdone moverobotfailed</font> &nbsp; >',  fontcolor='magenta') >> basicrobot
-     cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<createProduct<font color="darkgreen"> createdProduct</font> &nbsp; >',  fontcolor='magenta') >> productservice
+     with Cluster('ctx_cargoservice', graph_attr=nodeattr):
+          cargoservice=Custom('cargoservice','./qakicons/symActorWithobjSmall.png')
+          cargorobot=Custom('cargorobot','./qakicons/symActorWithobjSmall.png')
+     test >> Edge(color='magenta', style='solid', decorate='true', label='<engage<font color="darkgreen"> engagedone engagerefused</font> &nbsp; moverobot<font color="darkgreen"> moverobotdone moverobotfailed</font> &nbsp; >',  fontcolor='magenta') >> basicrobot
+     test >> Edge(color='magenta', style='solid', decorate='true', label='<createProduct<font color="darkgreen"> createdProduct</font> &nbsp; >',  fontcolor='magenta') >> productservice
 diag

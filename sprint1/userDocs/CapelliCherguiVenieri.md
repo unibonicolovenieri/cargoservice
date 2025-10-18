@@ -80,6 +80,7 @@ L'attività che il cargorobot dovrà svolgere sarà la seguente:
 
 
 ### ProductService
+
 Il productservice è un componente che viene gia fornito dal committente per la registrazione e la gestione dei prodotti all'interno di un relativo Database. Esso permette la registrazione, la cancellazione e la ricerca di prodotti tramite il loro PID. Ogni prodotto ha associato un peso che verrà utilizzato dal cargoservice per verificare che il carico totale non superi la costante MAXLOAD. **Prodotto** invece sono le entità che verranno gestite, essendo passive potrebbero essere implementate come **POJO**. Gli attributi di un prodotto sono:
 
 - PID (Valore Intero identifiativo del prodotto, deve essere maggiore di 0)
@@ -88,10 +89,10 @@ Il productservice è un componente che viene gia fornito dal committente per la 
 
 Come detto in precedenza ProductService è un componente già fornito dal committente, pertanto non verrà implementato da noi, ma ci limiteremo ad utilizzarlo per le nostre esigenze. Le interazioni che avremo con questo componente sono analizzate nel prossimo punto.
 
-### Messaggi tra componenti
+
 
 #### Cargoservice
-Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di gestire gli slot e quello di coordinare l'operazione di carico. Comunicherà dunque tramite Request e Reply sviluppate in questo modo
+Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di gestire gli slot e quello di coordinare l'operazione di carico. Necessiterà dunque di Request e Reply sviluppate in questo modo
 
 ```
   Request slot_request : slot_request(WEIGHT) //Richiesta di carico di un prodotto
@@ -169,6 +170,16 @@ Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di
   Reply   getAllProductsAnswer: products(  String ) for getAllProducts 
 ```
 
+#### Considerazioni aggiuntive
+Come si deve comportare gargorobot dopo che ha terminato l'operazione di carico?
+Come deve gestire il suo movimento dopo il termine di un operaizione
+Può fallire una richiesta, ma l'operazione può fallire?
+Quando il cargorobot viene interrotto in base a cosa può essere interroto, chi se ne deve occupare?
+Dato che basicrobot27 non va come cerca il percorso per lo slot?
+Se avviene un guasto come glielo dobbiamo comunicare? Come deve riprendere? Basicorbot ha già dei messaggi per il blocco? (spoiler si ed è alarm(x))
+Dopo un interruzione la ripresa come la gestiamo? Dove deve arrivare, e se è stato bloccato o meno dato che un interruzzione può anche essere quella dove cargorobot si ferma per non caricare nulla.
+
+
 
 ## Piano di test
 
@@ -178,6 +189,7 @@ Abbiamo simulato tramite un mockup il funzionamento di alcune componenti del sis
 Che cosa abbiamo simulato?
 Led e Sonar li simuliamo
 Web-gui non la consideriamo per il momento.
+
 ## Sviluppo
 
 ## Divisione dei task

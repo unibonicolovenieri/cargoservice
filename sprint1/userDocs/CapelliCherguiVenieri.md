@@ -54,6 +54,9 @@ Il ciclo di funzionamento del cargoservice sarà il seguente:
 - il carico attualmente ospitato sommato al carico dell'eventuale prodotto da caricare non deve la costante `MAXLOAD` (`CURRENTLOAD` + `PRODUCT_WEIGHT` <= `MAXLOAD`)
 - uno dei 5 slot (4 disponibili) deve essere libero per poter ospitare il prodotto
 
+Dunque la risposta che cargoservice darà alla richiesta di carico sarà:
+- **RIFIUTO**: In caso di mancanza di una delle due condizioni sopra - Risposta di errore
+- **ACCETTAZIONE**: Condizioni soddisfatte e nella risposta viene specificato lo slot in cui il prodotto dovrà essere caricato.
 In caso di mancanza di una delle due condizioni verrà segnalato il relativo errore.
 5. Cargoservice richiede al cargorobot di eseguire la load specificando il PID del prodotto, delegando la decisione dello slot in cui posizionarlo al cargorobot.
 Questo serve a dividere la logica di gestione della stiva dall'effettiva evasione del compito,
@@ -69,13 +72,12 @@ Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. 
 
 ![](../../images/grigliarobot.jpg)
 
+L'attività che il cargorobot dovrà svolgere sarà la seguente:
+1. Il cargorobot riceve da cargoservice una richiesta di gestione di un container e lo slot in cui posizionarlo.
+3. Il cargorobot si dirige verso la pickup-position e preleva il container o attende che questo venga posizionato sull'IOport.
+4. Succesivamente dopo aver prelevato il container, si dirige verso lo slot fornito in precedenza e deposita il container.
+5. Una volta completata l'operazione cargorobot ritorna in (0,0) HOME e notifica a cargoservice il completamento dell'operazione.
 
-
-
- .... (mappa), mosse, 
-CARGOROBOT SI GESTISCE DA SOLO CHE SLOT TRA I LIBERI SCEGLIERE
-
-quali malfunzionamenti, disponibilità degli slot e peso totale (MAXLOAD)
 
 ### ProductService
 Il productservice è un componente che viene gia fornito dal committente per la registrazione e la gestione dei prodotti all'interno di un relativo Database. Esso permette la registrazione, la cancellazione e la ricerca di prodotti tramite il loro PID. Ogni prodotto ha associato un peso che verrà utilizzato dal cargoservice per verificare che il carico totale non superi la costante MAXLOAD. **Prodotto** invece sono le entità che verranno gestite, essendo passive potrebbero essere implementate come **POJO**. Gli attributi di un prodotto sono:
@@ -89,14 +91,21 @@ Come detto in precedenza ProductService è un componente già fornito dal commit
 ### Messaggi tra componenti
 
 #### Cargoservice
-Da scrivere i comandi 
+Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di gestire gli slot e quello di coordinare l'operazione di carico. Comunicherà dunque tramite Request e Reply sviluppate in questo modo
+
+```
+  Request slot_request : slot_request(WEIGHT) //Richiesta di carico di un prodotto
+  Reply slot_accepted : slot_accepted(SLOT) for slot_request //Conferma accettazione carico con assegnazione slot
+  Reply slot_refused : slot_refused(REASON) for slot_request //Rifiuto con motivazione
+```
+```
+  Request handle_load_operation : handle_load_operation(SLOT) //Start operazione di carico  
+  Reply load_operation_done : load_operation_done(OK) for handle_load_operation //Conferma avvenuto carico 
+```
+
 #### Cargorobot
-Da scrivere
-Da verificare
-```
-Request handle_load_operation : handle_load_operation(SLOT) //Start operazione di carico  
-Reply load_operation_done : load_operation_done(OK) for handle_load_operation //Conferma avvenuto carico 
-```
+
+
 
 #### Basicrobot
 (Messaggi gia presenti nell'attore fornito dal committente)
@@ -144,7 +153,7 @@ Reply load_operation_done : load_operation_done(OK) for handle_load_operation //
     Request getenvmap     : getenvmap(X)
     Reply   envmap        : envmap(MAP)  for getenvmap
 ```
-### ProductService
+#### ProductService
 (Messaggi già presenti nell'attore fornito dal committente)
 ```
   Request createProduct : product(String)                    
@@ -161,16 +170,20 @@ Reply load_operation_done : load_operation_done(OK) for handle_load_operation //
 ```
 
 
-
 ## Piano di test
+
 
 Abbiamo simulato tramite un mockup il funzionamento di alcune componenti del sistema che al momento non sono ancora state implementate. Tuttavia tramite i test non solo ci sarà permesso di testare correttamente il funzionamento del sistema, ma anche di poter simulare il comportamento di alcune componenti che ancora non sono state implementate.
 
 Che cosa abbiamo simulato?
 Led e Sonar li simuliamo
 Web-gui non la consideriamo per il momento.
-## Elaborazione
-
-## Recap
+## Sviluppo
 
 ## Divisione dei task
+
+Abbiamo impiegato in totale 20 ore di lavoro per completare questo sprint, suddivise tra le varie attività come segue:
+- Analisi del problema: 8 ore
+- Redazione del documento: 6 ore
+- Pianificazione e Sviluppo del test: 6 ore
+

@@ -65,33 +65,7 @@ Questo serve a dividere la logica di gestione della stiva dall'effettiva evasion
 6. Il cargoservice attende che il cargorobot ritorni alla HOME (posizione 0,0 dell'hold)
 7. cargoservice riceve in risposta lo slot in cui è stato caricato il prodotto dal cargorobot, aggiorna lo stato della stiva(peso,numero di slot liberi) ed è pronto per gestire nuove richieste.
 
-### Cargorobot
-Il cargorobot gestisce il DDRrobot e si interfaccia con il cargoservice al fine di eseguire le richieste che arrivano. Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva( dimensione, ostacoli, perimetro, posizionamento dell'IOport)
-
-Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), il posizionamento dell'IOport e il led.
-
-![](../../images/grigliarobot.jpg)
-
-L'attività che il cargorobot dovrà svolgere sarà la seguente:
-1. Il cargorobot riceve da cargoservice una richiesta di gestione di un container e lo slot in cui posizionarlo.
-3. Il cargorobot si dirige verso la pickup-position e preleva il container o attende che questo venga posizionato sull'IOport.
-4. Succesivamente dopo aver prelevato il container, si dirige verso lo slot fornito in precedenza e deposita il container.
-5. Una volta completata l'operazione cargorobot ritorna in (0,0) HOME e notifica a cargoservice il completamento dell'operazione.
-
-
-### ProductService
-
-Il productservice è un componente che viene gia fornito dal committente per la registrazione e la gestione dei prodotti all'interno di un relativo Database. Esso permette la registrazione, la cancellazione e la ricerca di prodotti tramite il loro PID. Ogni prodotto ha associato un peso che verrà utilizzato dal cargoservice per verificare che il carico totale non superi la costante MAXLOAD. **Prodotto** invece sono le entità che verranno gestite, essendo passive potrebbero essere implementate come **POJO**. Gli attributi di un prodotto sono:
-
-- PID (Valore Intero identifiativo del prodotto, deve essere maggiore di 0)
-- Peso (Valore Reale che rappresenta il peso del prodotto, deve essere maggiore di 0)
-- Nome (Stringa)
-
-Come detto in precedenza ProductService è un componente già fornito dal committente, pertanto non verrà implementato da noi, ma ci limiteremo ad utilizzarlo per le nostre esigenze. Le interazioni che avremo con questo componente sono analizzate nel prossimo punto.
-
-
-
-#### Cargoservice
+xc
 Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di gestire gli slot e quello di coordinare l'operazione di carico. Necessiterà dunque di Request e Reply sviluppate in questo modo
 
 ```
@@ -104,9 +78,42 @@ Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di
   Reply load_operation_done : load_operation_done(OK) for handle_load_operation //Conferma avvenuto carico 
 ```
 
-#### Cargorobot
+#### Considerazioni Aggiuntive
+In caso di evento scatenato dal led (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Per comunicare queste interruzzioni a cargorobot possiamo inoltrare gli eventi che in futuro svilupperemo sul componente led. Led in questo sprint sarà un mok. Il cargoservice scatenerà due eventi stop e resume in risposta agli eventi dell'attuale mockup Led.
+### Cargorobot
+Il cargorobot gestisce il DDRrobot e si interfaccia con il cargoservice al fine di eseguire le richieste che arrivano. Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva( dimensione, ostacoli, perimetro, posizionamento dell'IOport)
 
+Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), il posizionamento dell'IOport e il led.
 
+![](../../images/grigliarobot.jpg)
+
+L'attività che il cargorobot dovrà svolgere sarà la seguente:
+1. Il cargorobot riceve da cargoservice una richiesta di gestione di un container e lo slot in cui posizionarlo.
+3. Il cargorobot si dirige verso la pickup-position e preleva il container o attende che questo venga posizionato sull'IOport.
+4. Succesivamente dopo aver prelevato il container, si dirige verso lo slot fornito in precedenza e deposita il container.
+5. Una volta completata l'operazione cargorobot ritorna in (0,0) HOME e notifica a cargoservice il completamento dell'operazione. 
+
+#### Considerazioni Aggiuntive
+
+Il cargorobot deve tornare in HOME e solo dopo aver effettuato un tune_at_home notificare al cargoservice il completamento dell'operazione. 
+
+In caso di evento scatenato dal led (es. malfunzionamento, emergenza) il cargorobot deve interrompere ogni attività in corso e attendere ulteriori istruzioni. 
+Questo ci porta alla conclusione di dover gestire e mantenere memorizzate alcune informazioni:
+
+- Avanzamento della richiesta (Arrivato all'IOport, Arrivato allo slot, Arrivato a HOME)
+- Salvataggio della richiesta in corso (SLOT in cui effettuare il caricamento se non ancora eseguito)
+
+Utilizzeremo *alarm(x)* per notificae basicrobot un evento di blocco. Useremo *nome comando* per riprendere l'attività.
+
+### ProductService
+
+Il productservice è un componente che viene gia fornito dal committente per la registrazione e la gestione dei prodotti all'interno di un relativo Database. Esso permette la registrazione, la cancellazione e la ricerca di prodotti tramite il loro PID. Ogni prodotto ha associato un peso che verrà utilizzato dal cargoservice per verificare che il carico totale non superi la costante MAXLOAD. **Prodotto** invece sono le entità che verranno gestite, essendo passive potrebbero essere implementate come **POJO**. Gli attributi di un prodotto sono:
+
+- PID (Valore Intero identifiativo del prodotto, deve essere maggiore di 0)
+- Peso (Valore Reale che rappresenta il peso del prodotto, deve essere maggiore di 0)
+- Nome (Stringa)
+
+Come detto in precedenza ProductService è un componente già fornito dal committente, pertanto non verrà implementato da noi, ma ci limiteremo ad utilizzarlo per le nostre esigenze. Le interazioni che avremo con questo componente sono analizzate nel prossimo punto.
 
 #### Basicrobot
 (Messaggi gia presenti nell'attore fornito dal committente)
@@ -156,6 +163,7 @@ Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di
 ```
 #### ProductService
 (Messaggi già presenti nell'attore fornito dal committente)
+
 ```
   Request createProduct : product(String)                    
   Reply   createdProduct: productid(ID) for createProduct   
@@ -169,17 +177,6 @@ Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di
   Request getAllProducts : dummy( ID )
   Reply   getAllProductsAnswer: products(  String ) for getAllProducts 
 ```
-
-#### Considerazioni aggiuntive
-Come si deve comportare gargorobot dopo che ha terminato l'operazione di carico?
-Come deve gestire il suo movimento dopo il termine di un operaizione
-Può fallire una richiesta, ma l'operazione può fallire?
-Quando il cargorobot viene interrotto in base a cosa può essere interroto, chi se ne deve occupare?
-Dato che basicrobot27 non va come cerca il percorso per lo slot?
-Se avviene un guasto come glielo dobbiamo comunicare? Come deve riprendere? Basicorbot ha già dei messaggi per il blocco? (spoiler si ed è alarm(x))
-Dopo un interruzione la ripresa come la gestiamo? Dove deve arrivare, e se è stato bloccato o meno dato che un interruzzione può anche essere quella dove cargorobot si ferma per non caricare nulla.
-
-
 
 ## Piano di test
 

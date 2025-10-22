@@ -45,7 +45,7 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t02",targetState="createProduct",cond=whenReply("engagedone"))
+					 transition(edgeName="t04",targetState="createProduct",cond=whenReply("engagedone"))
 				}	 
 				state("createProduct") { //this:State
 					action { //it:State
@@ -59,7 +59,7 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t03",targetState="createdProduct",cond=whenReply("createdProduct"))
+					 transition(edgeName="t05",targetState="createdProduct",cond=whenReply("createdProduct"))
 				}	 
 				state("createdProduct") { //this:State
 					action { //it:State
@@ -78,7 +78,7 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t04",targetState="moved",cond=whenReply("moverobotdone"))
+					 transition(edgeName="t06",targetState="moved",cond=whenReply("moverobotdone"))
 				}	 
 				state("moved") { //this:State
 					action { //it:State

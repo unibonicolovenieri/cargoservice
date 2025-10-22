@@ -9,6 +9,8 @@ request( getProduct, product(ID) ).
 reply( getProductAnswer, product(JSonString) ).  %%for getProduct
 request( load_product, product(ID) ).
 reply( loadedProduct, slot(slot_id) ).  %%for load_product
+request( move_product, product(ID,SLOT) ).
+reply( movedProduct, result(SLOT) ).  %%for load_product
 request( moverobot, moverobot(TARGETX,TARGETY) ).
 reply( moverobotdone, moverobotok(ARG) ).  %%for moverobot
 reply( moverobotfailed, moverobotfailed(PLANDONE,PLANTODO) ).  %%for moverobot

@@ -11,7 +11,6 @@ Request getProduct 		: product( ID )
 Reply   getProductAnswer: product( JSonString ) for getProduct 
 
 
-
 //messaggi cargoservice
 Request load_product 		: product( ID )  
 Reply   loadedProduct 		: slot( slot_id ) for load_product 
@@ -20,8 +19,6 @@ Reply   loadedProduct 		: slot( slot_id ) for load_product
 //messaggi tra cargoservice e cargorobot
 Request move_product 		: product( ID, SLOT)  
 Reply   movedProduct 		: result( SLOT ) for load_product 
-
-
 
 
 
@@ -62,12 +59,14 @@ QActor cargoservice context ctx_cargoservice{
            	var Taken_slot=arrayListOf("false","false","false","false","true")
         	val MAX_LOAD=2
         	var CURRENT_LOAD=0
+        	var Product_weight = 0
+        	var Reserved_slot = 0
          #]
 	State start initial{
 		println("[cargoservice] STARTED ") color yellow
 		delay 1000
 	}
-	 Goto waiting_for_request
+	Goto waiting_for_request
 	 
 	 
 	 State waiting_for_request{
@@ -79,14 +78,11 @@ QActor cargoservice context ctx_cargoservice{
 	
 	State check_product{
 		
-		onMsg(load_product: product(ID)){
-		
-		[#
-			val ID=payloadArg(0).toInt()
-		#]
-		
-		request cargoservice -m getProduct:product($ID)
-	
+		onMsg(load_product: product(ID)){		
+			[#
+				val ID=payloadArg(0).toInt()
+			#]			
+			request cargoservice -m getProduct:product($ID)	
 		}
 		
 	}
@@ -100,8 +96,8 @@ QActor cargoservice context ctx_cargoservice{
 		
 		[#
 			val Product=payloadArg(0)
-			val Product_weigth = main.java.Product.getJsonInt(Product, "weight")
-			
+			var Product_weight_tmp = 1 // main.java.Product.getJsonInt(Product, "weight") qui dava errore
+			Product_weight = Product_weight_tmp
 		#]
 		}
 		}
@@ -113,18 +109,17 @@ QActor cargoservice context ctx_cargoservice{
 		
 		State moveProduct{
 			
-		[# CURRENT_LOAD += Product_weight
-		      
-		    var Reserved_slot=0   
+		[# 
+			CURRENT_LOAD += Product_weight		      
+		    Reserved_slot=0   
 		    for(i in 0..4){
-		    if (Taken_slot[i]=="false") {
-		    Reserved_slot = i+1
-		    Taken_slot[i]="true"
-		    break;
-		    	
+			    if (Taken_slot[i]=="false") {
+				    Reserved_slot = i+1
+				    Taken_slot[i]="true"
+				    break;		    	
+			    }
 		    }
-		    }
-		    #]
+		 #]
 	request cargorobot -m move_product:product($Reserved_slot) 
 	}
 	Transition t0
@@ -142,21 +137,28 @@ QActor cargoservice context ctx_cargoservice{
 //cargorobot
 QActor cargorobot context ctx_cargoservice{
 	
+	[#
+		val Myname = "$name"
+		var CurrentRequestSlot = 0
+	#]
+	
 	State start initial{
 		println("[cargorobot] STARTED ") color yellow
 		request basicrobot -m engage:engage($Myname,300) 
 	}
+	
 	 Transition t0 
 	 whenReply engagedone -> waiting_for_request
 	 whenReply engagerefused -> engage_refused
 	 
 	 State engage_refused{
 	 	onMsg(engagerefused:engagerefused(ARG)){
-	 	[#val Msg=ayloadArg(0)#]
+	 	[#val Msg=payloadArg(0)#]
 	 	println("[cargorobot] Engage refused motivo:$Msg")
 	 	}
 	 	
 	 }
+	 
 	 State waiting_for_request{
 	 	println("[cargorobot] waiting for request") color yellow
 	 }
@@ -165,21 +167,27 @@ QActor cargorobot context ctx_cargoservice{
 	whenRequest move_product -> goto_IOPort
 	
 	State goto_IOPort{
-		request basicrobot -m moverobot:moverobot(5,0)
+		onMsg(move_product: product(SLOT)){
+            [# CurrentRequestSlot = payloadArg(0).toInt() #]
+            println("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot")
+            request basicrobot -m moverobot:moverobot(5,0)
+        }
 	}
 	Goto goto_slot
 	State goto_slot{
 		[#
 			val XSlot=2
 			val YSlot=2
-			#
-		]
+			
+		#]
 		request basicrobot -m moverobot:moverobot($XSlot,$YSlot)
 	}
 	Goto return_home
 	State return_home{
 		request basicrobot -m moverobot:moverobot(0,0)
 	}
+	
+	// notify cargoservice (?)
 }
 
 
@@ -207,28 +215,29 @@ QActor test context ctx_cargotest{
 	State start initial{
 		println("[test] avviato") color blue  
 		[#
-		val Product="'{\"productId\":1,\"name\":\"p2\",\"weight\":100}'"
-		val ProductID=1
-		#
-		]
+			val Myname = "$name"
+			val Product="'{\"productId\":1,\"name\":\"p2\",\"weight\":100}'"
+			val ProductID=1
+		#]
 		
 
-			[# val Cur_prod_PID = ProductID.toInt() #]
-			println("$name | checking with productservice for the weight of PID: $Cur_prod_PID") color blue
-			request basicrobot -m engage:engage($MyName,300)
-			println("[test]  mandata richiesta") color yellow 
-	}		
-			Transition t0
-			whenReply engagedone-> createProduct
-			State createProduct{
-						[#
-		val Product="'{\"productId\":1,\"name\":\"p2\",\"weight\":100}'"
-		val ProductID=1
-		#
-		]
+		[# val Cur_prod_PID = ProductID.toInt() #]
+		println("$name | checking with productservice for the weight of PID: $Cur_prod_PID") color blue
+		request basicrobot -m engage:engage($Myname,300)
+		println("[test]  mandata richiesta") color yellow 
+	}	
+		
+	Transition t0
+	whenReply engagedone-> createProduct
+	
+	State createProduct{
+		[#
+			val Product="'{\"productId\":1,\"name\":\"p2\",\"weight\":100}'"
+			val ProductID=1
+		#]
 			request productservice -m createProduct:product($Product)
-						println("[test]  mandata richiesta") color yellow 
-		}
+			println("[test]  mandata richiesta") color yellow 
+	}
 			
 //			request productservice -m getProduct : product($ProductID)
 		
@@ -241,23 +250,23 @@ QActor test context ctx_cargotest{
 //		request productservice -m getProduct : product($ProductID)
 //		request productservice -m getAllProducts:dummy($ProductID)
 
-			Transition t0 
-        	whenReply createdProduct -> createdProduct
+	Transition t0 
+	whenReply createdProduct -> createdProduct
       //   	whenReply engagedone -> allProductsRecieved
         
     State createdProduct{
-    				println("[test]aaaaaaaaaaaaaaaaaa richiesta") color yellow 
-           onMsg(createdProduct : productid(ID) ){
-           println("[test]aaaaaaaaaaaaaaaaaa richiesta") color yellow 
-           [#val Msg=payloadArg(0)+1 #]
-           
-   	println("[cargotest] Richiesta accettata, slot n. $Msg ") color yellow
-   				println("Engaged") color yellow
-		request basicrobot -m moverobot : moverobot($Msg,$Msg)
-			println("Engaged") color yellow
-		
-   
-   }}  
+		println("[test]aaaaaaaaaaaaaaaaaa richiesta") color yellow 
+		onMsg(createdProduct : productid(ID) ){
+			println("[test]aaaaaaaaaaaaaaaaaa richiesta") color yellow 
+			[# val Msg=payloadArg(0)+1 #]
+	           
+	   		println("[cargotest] Richiesta accettata, slot n. $Msg ") color yellow
+	   		println("Engaged") color yellow
+			request basicrobot -m moverobot : moverobot($Msg,$Msg)
+			println("Engaged") color yellow		
+	   
+	   }
+   }  
    Transition t0
    whenReply moverobotdone-> moved
    State moved{

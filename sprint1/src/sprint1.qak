@@ -143,21 +143,42 @@ QActor cargoservice context ctx_cargoservice{
 QActor cargorobot context ctx_cargoservice{
 	
 	State start initial{
-		println("[cargoservice] STARTED ") color yellow
-		delay 1000
+		println("[cargorobot] STARTED ") color yellow
+		request basicrobot -m engage:engage($Myname,300) 
 	}
-	 Goto waiting_for_request
+	 Transition t0 
+	 whenReply engagedone -> waiting_for_request
+	 whenReply engagerefused -> engage_refused
 	 
-	 
+	 State engage_refused{
+	 	onMsg(engagerefused:engagerefused(ARG)){
+	 	[#val Msg=ayloadArg(0)#]
+	 	println("[cargorobot] Engage refused motivo:$Msg")
+	 	}
+	 	
+	 }
 	 State waiting_for_request{
-	 	println("[cargoservice] waiting for request") color yellow
+	 	println("[cargorobot] waiting for request") color yellow
 	 }
 	 
 	Transition t0
-	whenRequest load_product -> load_product
+	whenRequest move_product -> goto_IOPort
 	
-	State load_product{
-		
+	State goto_IOPort{
+		request basicrobot -m moverobot:moverobot(5,0)
+	}
+	Goto goto_slot
+	State goto_slot{
+		[#
+			val XSlot=2
+			val YSlot=2
+			#
+		]
+		request basicrobot -m moverobot:moverobot($XSlot,$YSlot)
+	}
+	Goto return_home
+	State return_home{
+		request basicrobot -m moverobot:moverobot(0,0)
 	}
 }
 

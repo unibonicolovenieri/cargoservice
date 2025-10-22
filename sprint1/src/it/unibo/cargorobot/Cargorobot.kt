@@ -32,27 +32,65 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 		return { //this:ActionBasciFsm
 				state("start") { //this:State
 					action { //it:State
-						CommUtils.outyellow("[cargoservice] STARTED ")
-						delay(1000) 
+						CommUtils.outyellow("[cargorobot] STARTED ")
+						request("engage", "engage($Myname,300)" ,"basicrobot" )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
+					 transition(edgeName="t03",targetState="waiting_for_request",cond=whenReply("engagedone"))
+					transition(edgeName="t04",targetState="engage_refused",cond=whenReply("engagerefused"))
+				}	 
+				state("engage_refused") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("engagerefused(ARG)"), Term.createTerm("engagerefused(ARG)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								val Msg=ayloadArg(0) 
+								CommUtils.outblack("[cargorobot] Engage refused motivo:$Msg")
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
 				}	 
 				state("waiting_for_request") { //this:State
 					action { //it:State
-						CommUtils.outyellow("[cargoservice] waiting for request")
+						CommUtils.outyellow("[cargorobot] waiting for request")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t03",targetState="load_product",cond=whenRequest("load_product"))
+					 transition(edgeName="t05",targetState="goto_IOPort",cond=whenRequest("move_product"))
 				}	 
-				state("load_product") { //this:State
+				state("goto_IOPort") { //this:State
 					action { //it:State
+						request("moverobot", "moverobot(5,0)" ,"basicrobot" )  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="goto_slot", cond=doswitch() )
+				}	 
+				state("goto_slot") { //this:State
+					action { //it:State
+						
+									val XSlot=2
+									val YSlot=2
+						request("moverobot", "moverobot($XSlot,$YSlot)" ,"basicrobot" )  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="return_home", cond=doswitch() )
+				}	 
+				state("return_home") { //this:State
+					action { //it:State
+						request("moverobot", "moverobot(0,0)" ,"basicrobot" )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

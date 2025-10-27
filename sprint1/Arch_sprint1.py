@@ -25,18 +25,17 @@ with Diagram('sprint1Arch', show=False, outformat='png', graph_attr=graphattr) a
   with Cluster('env'):
      sys = Custom('','./qakicons/system.png')
 ### see https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/HTML-like/index
-     with Cluster('ctx_productservice', graph_attr=nodeattr):
+     with Cluster('ctx_cargoservice', graph_attr=nodeattr):
           productservice=Custom('productservice(ext)','./qakicons/externalQActor.png')
-     with Cluster('ctx_cargotest', graph_attr=nodeattr):
-          test=Custom('test','./qakicons/symActorWithobjSmall.png')
      with Cluster('ctx_basicrobot', graph_attr=nodeattr):
           basicrobot=Custom('basicrobot(ext)','./qakicons/externalQActor.png')
-     with Cluster('ctx_cargoservice', graph_attr=nodeattr):
-          cargoservice=Custom('cargoservice','./qakicons/symActorWithobjSmall.png')
+     with Cluster('ctx_cargo', graph_attr=nodeattr):
           cargorobot=Custom('cargorobot','./qakicons/symActorWithobjSmall.png')
-     test >> Edge(color='magenta', style='solid', decorate='true', label='<engage<font color="darkgreen"> engagedone engagerefused</font> &nbsp; moverobot<font color="darkgreen"> moverobotdone moverobotfailed</font> &nbsp; >',  fontcolor='magenta') >> basicrobot
+          cargoservice=Custom('cargoservice','./qakicons/symActorWithobjSmall.png')
+          test=Custom('test','./qakicons/symActorWithobjSmall.png')
      cargorobot >> Edge(color='magenta', style='solid', decorate='true', label='<engage<font color="darkgreen"> engagedone engagerefused</font> &nbsp; moverobot<font color="darkgreen"> moverobotdone moverobotfailed</font> &nbsp; >',  fontcolor='magenta') >> basicrobot
+     test >> Edge(color='magenta', style='solid', decorate='true', label='<load_product<font color="darkgreen"> loadedProduct movedProduct</font> &nbsp; >',  fontcolor='magenta') >> cargoservice
+     cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<getProduct<font color="darkgreen"> getProductAnswer</font> &nbsp; >',  fontcolor='magenta') >> productservice
      test >> Edge(color='magenta', style='solid', decorate='true', label='<createProduct<font color="darkgreen"> createdProduct</font> &nbsp; >',  fontcolor='magenta') >> productservice
      cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<move_product &nbsp; >',  fontcolor='magenta') >> cargorobot
-     cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<getProduct<font color="darkgreen"> getProductAnswer</font> &nbsp; >',  fontcolor='magenta') >> cargoservice
 diag

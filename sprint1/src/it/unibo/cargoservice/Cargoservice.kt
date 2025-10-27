@@ -31,7 +31,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 		//IF actor.withobj !== null val actor.withobj.name» = actor.withobj.method»ENDIF
 		
 		           	var Taken_slot=arrayListOf("false","false","false","false","true")
-		        	val MAX_LOAD=2
+		        	val MAX_LOAD=100
 		        	var CURRENT_LOAD=0
 		        	var Product_weight = 0
 		        	var Reserved_slot = 0
@@ -39,7 +39,6 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 				state("start") { //this:State
 					action { //it:State
 						CommUtils.outyellow("[cargoservice] STARTED ")
-						delay(1000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -55,31 +54,33 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="check_product",cond=whenRequest("load_product"))
+					 transition(edgeName="t09",targetState="check_product",cond=whenRequest("load_product"))
 				}	 
 				state("check_product") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("product(ID)"), Term.createTerm("product(ID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
+								CommUtils.outblack("[cargoservice] check del prodotto")
 								
 												val ID=payloadArg(0).toInt()
-								request("getProduct", "product($ID)" ,"cargoservice" )  
+								request("getProduct", "product($ID)" ,"productservice" )  
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t01",targetState="check_load",cond=whenReply("getProductAnswer"))
+					 transition(edgeName="t010",targetState="check_load",cond=whenReply("getProductAnswer"))
 				}	 
 				state("check_load") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("product(JSonString)"), Term.createTerm("product(JsonString)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
+								CommUtils.outblack("[cargoservice] arrivato peso")
 								
 											val Product=payloadArg(0)
-											var Product_weight_tmp = 1 // main.java.Product.getJsonInt(Product, "weight") qui dava errore
-											Product_weight = Product_weight_tmp
+											
+											Product_weight = main.java.Product.getJsonInt(Product, "weight")
 						}
 						//genTimer( actor, state )
 					}
@@ -103,6 +104,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 				}	 
 				state("moveProduct") { //this:State
 					action { //it:State
+						CommUtils.outblack("[cargoservice] ingresso move product")
 						 
 									CURRENT_LOAD += Product_weight		      
 								    Reserved_slot=0   
@@ -114,16 +116,20 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 									    }
 								    }
 						request("move_product", "product($Reserved_slot)" ,"cargorobot" )  
+						CommUtils.outblack("[cargoservice] richiesta di move al basic robot mandata")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t02",targetState="load_finished",cond=whenReply("movedProduct"))
+					 transition(edgeName="t011",targetState="load_finished",cond=whenReply("movedProduct"))
 				}	 
 				state("load_finished") { //this:State
 					action { //it:State
-						CommUtils.outblack("Load completata il robot è in home ")
+						if( checkMsgContent( Term.createTerm("result(SLOT)"), Term.createTerm("result(SLOT)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								CommUtils.outblack("Load completata il robot è in home ")
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

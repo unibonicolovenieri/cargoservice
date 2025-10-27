@@ -36,14 +36,14 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				state("start") { //this:State
 					action { //it:State
 						CommUtils.outyellow("[cargorobot] STARTED ")
-						request("engage", "engage($Myname,300)" ,"basicrobot" )  
+						request("engage", "engage($Myname,350)" ,"basicrobot" )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t03",targetState="waiting_for_request",cond=whenReply("engagedone"))
-					transition(edgeName="t04",targetState="engage_refused",cond=whenReply("engagerefused"))
+					 transition(edgeName="t00",targetState="waiting_for_request",cond=whenReply("engagedone"))
+					transition(edgeName="t01",targetState="engage_refused",cond=whenReply("engagerefused"))
 				}	 
 				state("engage_refused") { //this:State
 					action { //it:State
@@ -60,51 +60,76 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				}	 
 				state("waiting_for_request") { //this:State
 					action { //it:State
-						CommUtils.outyellow("[cargorobot] waiting for request")
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition(edgeName="t05",targetState="goto_IOPort",cond=whenRequest("move_product"))
-				}	 
-				state("goto_IOPort") { //this:State
-					action { //it:State
-						if( checkMsgContent( Term.createTerm("product(ID,SLOT)"), Term.createTerm("product(SLOT)"), 
+						if( checkMsgContent( Term.createTerm("engagedone(ARG)"), Term.createTerm("engagedone(ARG)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 CurrentRequestSlot = payloadArg(0).toInt()  
-								CommUtils.outblack("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot")
-								request("moverobot", "moverobot(5,0)" ,"basicrobot" )  
+								CommUtils.outyellow("[cargorobot] waiting for request")
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="goto_slot", cond=doswitch() )
+					 transition(edgeName="t02",targetState="goto_IOPort",cond=whenRequest("move_product"))
+				}	 
+				state("goto_IOPort") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("product(SLOT)"), Term.createTerm("product(SLOT)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 val CurrentRequestSlot = payloadArg(0).toInt()  
+								CommUtils.outblack("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot")
+								request("moverobot", "moverobot(1,6)" ,"basicrobot" )  
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t03",targetState="return_home_anyway",cond=whenReply("moverobotfailed"))
+					transition(edgeName="t04",targetState="goto_slot",cond=whenReply("moverobotdone"))
 				}	 
 				state("goto_slot") { //this:State
 					action { //it:State
-						
-									val XSlot=2
-									val YSlot=2
-									
-						request("moverobot", "moverobot($XSlot,$YSlot)" ,"basicrobot" )  
+						if( checkMsgContent( Term.createTerm("moverobotok(ARG)"), Term.createTerm("moverobotok(ARG)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								
+											val XSlot=4
+											val YSlot=4
+											
+								request("moverobot", "moverobot($XSlot,$YSlot)" ,"basicrobot" )  
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="return_home", cond=doswitch() )
+					 transition(edgeName="t05",targetState="return_home",cond=whenReply("moverobotdone"))
+					transition(edgeName="t06",targetState="return_home_anyway",cond=whenReply("moverobotfailed"))
 				}	 
 				state("return_home") { //this:State
 					action { //it:State
-						request("moverobot", "moverobot(0,0)" ,"basicrobot" )  
+						if( checkMsgContent( Term.createTerm("moverobotok(ARG)"), Term.createTerm("moverobotok(ARG)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								request("moverobot", "moverobot(0,0)" ,"basicrobot" )  
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+				}	 
+				state("return_home_anyway") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("moverobotfailed(PLANDONE,PLANTODO)"), Term.createTerm("moverobotfailed(PLANDONE,PLANTODO)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								request("moverobot", "moverobot(0,0)" ,"basicrobot" )  
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t07",targetState="waiting_for_request",cond=whenReply("moverobotdone"))
+					transition(edgeName="t08",targetState="waiting_for_request",cond=whenReply("moverobotfailed"))
 				}	 
 			}
 		}

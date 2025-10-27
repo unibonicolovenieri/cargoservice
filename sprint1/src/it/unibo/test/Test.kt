@@ -36,23 +36,7 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 						
 									val Myname = "$name"
 									val Product="'{\"productId\":1,\"name\":\"p2\",\"weight\":100}'"
-									val ProductID=1
-						 val Cur_prod_PID = ProductID.toInt()  
-						CommUtils.outblue("$name | checking with productservice for the weight of PID: $Cur_prod_PID")
-						request("engage", "engage($Myname,300)" ,"basicrobot" )  
-						CommUtils.outyellow("[test]  mandata richiesta")
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition(edgeName="t06",targetState="createProduct",cond=whenReply("engagedone"))
-				}	 
-				state("createProduct") { //this:State
-					action { //it:State
-						
-									val Product="'{\"productId\":1,\"name\":\"p2\",\"weight\":100}'"
-									val ProductID=1
+						CommUtils.outblue("$Myname | creating product: $Product")
 						request("createProduct", "product($Product)" ,"productservice" )  
 						CommUtils.outyellow("[test]  mandata richiesta")
 						//genTimer( actor, state )
@@ -60,7 +44,7 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t07",targetState="createdProduct",cond=whenReply("createdProduct"))
+					 transition(edgeName="t012",targetState="createdProduct",cond=whenReply("createdProduct"))
 				}	 
 				state("createdProduct") { //this:State
 					action { //it:State
@@ -68,22 +52,21 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 						if( checkMsgContent( Term.createTerm("productid(ID)"), Term.createTerm("productid(ID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outyellow("[test]aaaaaaaaaaaaaaaaaa richiesta")
-								 val Msg=payloadArg(0)+1  
-								CommUtils.outyellow("[cargotest] Richiesta accettata, slot n. $Msg ")
-								CommUtils.outyellow("Engaged")
-								request("moverobot", "moverobot($Msg,$Msg)" ,"basicrobot" )  
-								CommUtils.outyellow("Engaged")
+								 val ID=payloadArg(0)+1  
+								CommUtils.outyellow("[test] prodotto creato ID: $ID")
+								request("load_product", "product($ID)" ,"cargoservice" )  
+								CommUtils.outyellow("[test] Ho chiesto la load del prodotto appena creato a cargoservice")
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t08",targetState="moved",cond=whenReply("moverobotdone"))
+					 transition(edgeName="t013",targetState="moved",cond=whenReply("loadedProduct"))
 				}	 
 				state("moved") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("moverobotok(ARG)"), Term.createTerm("moverobotdone(A,B)"), 
+						if( checkMsgContent( Term.createTerm("slot(SLOT)"), Term.createTerm("slot(SLOT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outblack("funzionamento")
 						}
@@ -95,9 +78,6 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 				}	 
 				state("allProductsRecieved") { //this:State
 					action { //it:State
-						CommUtils.outyellow("Engaged")
-						val X=1
-									val Y=1 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

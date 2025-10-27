@@ -54,6 +54,9 @@ Il ciclo di funzionamento del cargoservice sarà il seguente:
 - il carico attualmente ospitato sommato al carico dell'eventuale prodotto da caricare non deve la costante `MAXLOAD` (`CURRENTLOAD` + `PRODUCT_WEIGHT` <= `MAXLOAD`)
 - uno dei 5 slot (4 disponibili) deve essere libero per poter ospitare il prodotto
 
+Dunque la risposta che cargoservice darà alla richiesta di carico sarà:
+- **RIFIUTO**: In caso di mancanza di una delle due condizioni sopra - Risposta di errore
+- **ACCETTAZIONE**: Condizioni soddisfatte e nella risposta viene specificato lo slot in cui il prodotto dovrà essere caricato.
 In caso di mancanza di una delle due condizioni verrà segnalato il relativo errore.
 5. Cargoservice richiede al cargorobot di eseguire la load specificando il PID del prodotto, delegando la decisione dello slot in cui posizionarlo al cargorobot.
 Questo serve a dividere la logica di gestione della stiva dall'effettiva evasione del compito,
@@ -62,6 +65,21 @@ Questo serve a dividere la logica di gestione della stiva dall'effettiva evasion
 6. Il cargoservice attende che il cargorobot ritorni alla HOME (posizione 0,0 dell'hold)
 7. cargoservice riceve in risposta lo slot in cui è stato caricato il prodotto dal cargorobot, aggiorna lo stato della stiva(peso,numero di slot liberi) ed è pronto per gestire nuove richieste.
 
+xc
+Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di gestire gli slot e quello di coordinare l'operazione di carico. Necessiterà dunque di Request e Reply sviluppate in questo modo
+
+```
+  Request slot_request : slot_request(WEIGHT) //Richiesta di carico di un prodotto
+  Reply slot_accepted : slot_accepted(SLOT) for slot_request //Conferma accettazione carico con assegnazione slot
+  Reply slot_refused : slot_refused(REASON) for slot_request //Rifiuto con motivazione
+```
+```
+  Request handle_load_operation : handle_load_operation(SLOT) //Start operazione di carico  
+  Reply load_operation_done : load_operation_done(OK) for handle_load_operation //Conferma avvenuto carico 
+```
+
+#### Considerazioni Aggiuntive
+In caso di evento scatenato dal led (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Per comunicare queste interruzzioni a cargorobot possiamo inoltrare gli eventi che in futuro svilupperemo sul componente led. Led in questo sprint sarà un mok. Il cargoservice scatenerà due eventi stop e resume in risposta agli eventi dell'attuale mockup Led.
 ### Cargorobot
 Il cargorobot gestisce il DDRrobot e si interfaccia con il cargoservice al fine di eseguire le richieste che arrivano. Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva( dimensione, ostacoli, perimetro, posizionamento dell'IOport)
 
@@ -69,15 +87,26 @@ Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. 
 
 ![](../../images/grigliarobot.jpg)
 
+L'attività che il cargorobot dovrà svolgere sarà la seguente:
+1. Il cargorobot riceve da cargoservice una richiesta di gestione di un container e lo slot in cui posizionarlo.
+3. Il cargorobot si dirige verso la pickup-position e preleva il container o attende che questo venga posizionato sull'IOport.
+4. Succesivamente dopo aver prelevato il container, si dirige verso lo slot fornito in precedenza e deposita il container.
+5. Una volta completata l'operazione cargorobot ritorna in (0,0) HOME e notifica a cargoservice il completamento dell'operazione. 
 
+#### Considerazioni Aggiuntive
 
+Il cargorobot deve tornare in HOME e solo dopo aver effettuato un tune_at_home notificare al cargoservice il completamento dell'operazione. 
 
- .... (mappa), mosse, 
-CARGOROBOT SI GESTISCE DA SOLO CHE SLOT TRA I LIBERI SCEGLIERE
+In caso di evento scatenato dal led (es. malfunzionamento, emergenza) il cargorobot deve interrompere ogni attività in corso e attendere ulteriori istruzioni. 
+Questo ci porta alla conclusione di dover gestire e mantenere memorizzate alcune informazioni:
 
-quali malfunzionamenti, disponibilità degli slot e peso totale (MAXLOAD)
+- Avanzamento della richiesta (Arrivato all'IOport, Arrivato allo slot, Arrivato a HOME)
+- Salvataggio della richiesta in corso (SLOT in cui effettuare il caricamento se non ancora eseguito)
+
+Utilizzeremo *alarm(x)* per notificae basicrobot un evento di blocco. Useremo *nome comando* per riprendere l'attività.
 
 ### ProductService
+
 Il productservice è un componente che viene gia fornito dal committente per la registrazione e la gestione dei prodotti all'interno di un relativo Database. Esso permette la registrazione, la cancellazione e la ricerca di prodotti tramite il loro PID. Ogni prodotto ha associato un peso che verrà utilizzato dal cargoservice per verificare che il carico totale non superi la costante MAXLOAD. **Prodotto** invece sono le entità che verranno gestite, essendo passive potrebbero essere implementate come **POJO**. Gli attributi di un prodotto sono:
 
 - PID (Valore Intero identifiativo del prodotto, deve essere maggiore di 0)
@@ -85,18 +114,6 @@ Il productservice è un componente che viene gia fornito dal committente per la 
 - Nome (Stringa)
 
 Come detto in precedenza ProductService è un componente già fornito dal committente, pertanto non verrà implementato da noi, ma ci limiteremo ad utilizzarlo per le nostre esigenze. Le interazioni che avremo con questo componente sono analizzate nel prossimo punto.
-
-### Messaggi tra componenti
-
-#### Cargoservice
-Da scrivere i comandi 
-#### Cargorobot
-Da scrivere
-Da verificare
-```
-Request handle_load_operation : handle_load_operation(SLOT) //Start operazione di carico  
-Reply load_operation_done : load_operation_done(OK) for handle_load_operation //Conferma avvenuto carico 
-```
 
 #### Basicrobot
 (Messaggi gia presenti nell'attore fornito dal committente)
@@ -144,8 +161,9 @@ Reply load_operation_done : load_operation_done(OK) for handle_load_operation //
     Request getenvmap     : getenvmap(X)
     Reply   envmap        : envmap(MAP)  for getenvmap
 ```
-### ProductService
+#### ProductService
 (Messaggi già presenti nell'attore fornito dal committente)
+
 ```
   Request createProduct : product(String)                    
   Reply   createdProduct: productid(ID) for createProduct   
@@ -160,17 +178,21 @@ Reply load_operation_done : load_operation_done(OK) for handle_load_operation //
   Reply   getAllProductsAnswer: products(  String ) for getAllProducts 
 ```
 
-
-
 ## Piano di test
+
 
 Abbiamo simulato tramite un mockup il funzionamento di alcune componenti del sistema che al momento non sono ancora state implementate. Tuttavia tramite i test non solo ci sarà permesso di testare correttamente il funzionamento del sistema, ma anche di poter simulare il comportamento di alcune componenti che ancora non sono state implementate.
 
 Che cosa abbiamo simulato?
 Led e Sonar li simuliamo
 Web-gui non la consideriamo per il momento.
-## Elaborazione
 
-## Recap
+## Sviluppo
 
 ## Divisione dei task
+
+Abbiamo impiegato in totale 20 ore di lavoro per completare questo sprint, suddivise tra le varie attività come segue:
+- Analisi del problema: 8 ore
+- Redazione del documento: 6 ore
+- Pianificazione e Sviluppo del test: 6 ore
+

@@ -30,13 +30,16 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name» = actor.withobj.method»ENDIF
 		
-		           	var Taken_slot=arrayListOf("true","true","true","false","true")
+		           	var Taken_slot=arrayListOf("false","false","false","false","true")
 		        	val MAX_LOAD=2
 		        	var CURRENT_LOAD=0
+		        	var Product_weight = 0
+		        	var Reserved_slot = 0
 		return { //this:ActionBasciFsm
 				state("start") { //this:State
 					action { //it:State
-						CommUtils.outblue("[cargoservice] Inizia ")
+						CommUtils.outyellow("[cargoservice] STARTED ")
+						delay(1000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -46,40 +49,81 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 				}	 
 				state("waiting_for_request") { //this:State
 					action { //it:State
-						CommUtils.outblue("[cargoservice] Sta aspettando richieste")
+						CommUtils.outyellow("[cargoservice] waiting for request")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="handleRequest",cond=whenRequest("load_product"))
+					 transition(edgeName="t00",targetState="check_product",cond=whenRequest("load_product"))
 				}	 
-				state("handleRequest") { //this:State
+				state("check_product") { //this:State
 					action { //it:State
-						CommUtils.outblue("[cargoservice] Riceve richiesta di caricamento")
-						
-								    		
-								    var Causa="MAX_LOADreached"	 
-								    var Reserved_slot=0   	
-								    
-								    if( CURRENT_LOAD<MAX_LOAD) {
-								   	Causa="Nessuno_slot_libero"
-								    for(i in 0..4){
-								    if (Taken_slot[i]=="false") {
-								    CURRENT_LOAD=CURRENT_LOAD+1
-								    Reserved_slot = i+1
-								    Taken_slot[i]="true"
-								    break;
-								    	
-								    }
-								    }
-								    } 
-						if( Reserved_slot!=0 
-						 ){answer("load_product", "load_accepted", "load_accepted($Reserved_slot)"   )  
+						if( checkMsgContent( Term.createTerm("product(ID)"), Term.createTerm("product(ID)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								
+												val ID=payloadArg(0).toInt()
+								request("getProduct", "product($ID)" ,"cargoservice" )  
 						}
-						else
-						 {answer("load_product", "load_refused", "load_refused($Causa)"   )  
-						 }
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t01",targetState="check_load",cond=whenReply("getProductAnswer"))
+				}	 
+				state("check_load") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("product(JSonString)"), Term.createTerm("product(JsonString)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								
+											val Product=payloadArg(0)
+											var Product_weight_tmp = 1 // main.java.Product.getJsonInt(Product, "weight") qui dava errore
+											Product_weight = Product_weight_tmp
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="moveProduct", cond=doswitchGuarded({CURRENT_LOAD+ Product_weight <= MAX_LOAD  
+					}) )
+					transition( edgeName="goto",targetState="too_much_weight", cond=doswitchGuarded({! (CURRENT_LOAD+ Product_weight <= MAX_LOAD  
+					) }) )
+				}	 
+				state("too_much_weight") { //this:State
+					action { //it:State
+						CommUtils.outblack("Il carico eccederebbe maxload, non è possibile eseguire la load")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
+				}	 
+				state("moveProduct") { //this:State
+					action { //it:State
+						 
+									CURRENT_LOAD += Product_weight		      
+								    Reserved_slot=0   
+								    for(i in 0..4){
+									    if (Taken_slot[i]=="false") {
+										    Reserved_slot = i+1
+										    Taken_slot[i]="true"
+										    break;		    	
+									    }
+								    }
+						request("move_product", "product($Reserved_slot)" ,"cargorobot" )  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t02",targetState="load_finished",cond=whenReply("movedProduct"))
+				}	 
+				state("load_finished") { //this:State
+					action { //it:State
+						CommUtils.outblack("Load completata il robot è in home ")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

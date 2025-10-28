@@ -30,11 +30,11 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name» = actor.withobj.method»ENDIF
 		
-		           	var Taken_slot=arrayListOf("false","false","false","false","true")
-		        	val MAX_LOAD=100
-		        	var CURRENT_LOAD=0
-		        	var Product_weight = 0
-		        	var Reserved_slot = 0
+		       	var Taken_slot=arrayListOf("false","false","false","false","true")
+		    	val MAX_LOAD=100
+		    	var CURRENT_LOAD=0
+		    	var Product_weight = 0
+		    	var Reserved_slot = 0
 		return { //this:ActionBasciFsm
 				state("start") { //this:State
 					action { //it:State
@@ -78,9 +78,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outblack("[cargoservice] arrivato peso")
 								
-											val Product=payloadArg(0)
-											
-											Product_weight = main.java.Product.getJsonInt(Product, "weight")
+												val Product=payloadArg(0)					
+												Product_weight = main.java.Product.getJsonInt(Product, "weight")
 						}
 						//genTimer( actor, state )
 					}

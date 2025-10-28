@@ -36,7 +36,7 @@ I requisiti che implementeremo in questo sprint sono:
 3. Un sistema che sia in grado interrompere ogni attività in caso di malfunzionamento. Ovvero in caso di guasti o problemi tecnici, il sistema deve essere in grado di **interrompere** ogni attività e, una volta risolti i problemi, **farle ripartire**.
 
 ## Analisi del problema
-In questo Sprint ci siamo concentrati sull'analisi dei due componenti [*cargoservice*](#cargoservice) e *cargorobot*. Abbiamo analizzato il problema e le interazioni che questi componenti avranno con il resto del sistema.
+In questo Sprint ci siamo concentrati sull'analisi dei due componenti [*cargoservice*](#cargoservice) e [*cargorobot*](#cargorobot). Abbiamo analizzato il problema e le interazioni che questi componenti avranno con il resto del sistema.
 
 ### CargoService
 Il cargoservice è il componente che si occuperà di gestire le richieste di carico e scarico dei container. Le richieste arriveranno da un componente esterno e il cargo service dovrà elaborarle in base a diversi fattori, come la disponibilità degli slot, il peso totale dei container e l'ordine di arrivo, per poi accettarle o rifiutarle. Verrà implementato come un **orchestrator**: si occuperà di coordinare le attività del cargorobot, di gestire le richieste di carico in base allo stato del led e infine di comunicare con la web-gui per permettere l'interazione e il controllo da parte del committente.
@@ -79,9 +79,10 @@ Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di
 ```
 
 #### Considerazioni Aggiuntive
-In caso di evento scatenato dal led (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Per comunicare queste interruzzioni a cargorobot possiamo inoltrare gli eventi che in futuro svilupperemo sul componente led. Led in questo sprint sarà un mok. Il cargoservice scatenerà due eventi stop e resume in risposta agli eventi dell'attuale mockup Led.
+In caso di evento scatenato dal led (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Per comunicare queste interruzzioni a cargorobot possiamo inoltrare gli eventi che in futuro svilupperemo sul componente led. Led in questo sprint sarà un mock. Il cargoservice scatenerà due eventi stop e resume in risposta agli eventi dell'attuale mockup Led.
+
 ### Cargorobot
-Il cargorobot gestisce il DDRrobot e si interfaccia con il cargoservice al fine di eseguire le richieste che arrivano. Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva( dimensione, ostacoli, perimetro, posizionamento dell'IOport)
+Il cargorobot gestisce il DDRrobot e si interfaccia con il cargoservice al fine di eseguire le richieste che arrivano. Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva (dimensione, ostacoli, perimetro, posizionamento dell'IOport)
 
 Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), il posizionamento dell'IOport e il led.
 
@@ -180,12 +181,29 @@ Come detto in precedenza ProductService è un componente già fornito dal commit
 
 ## Piano di test
 
-
 Abbiamo simulato tramite un mockup il funzionamento di alcune componenti del sistema che al momento non sono ancora state implementate. Tuttavia tramite i test non solo ci sarà permesso di testare correttamente il funzionamento del sistema, ma anche di poter simulare il comportamento di alcune componenti che ancora non sono state implementate.
 
-Che cosa abbiamo simulato?
-Led e Sonar li simuliamo
-Web-gui non la consideriamo per il momento.
+Nella fase di test, viene mandata una richiesta dal componente di Test e gestita da `cargoservice`.
+
+Il flusso di lavoro è il seguente:
+```
+test actor:
+  createProduct
+  |
+  createdProduct
+  |
+  request load_product al cargoservice
+  |
+  cargoservice chiama productservice
+  |
+  assegna slot
+  |
+  invia move_product a cargorobot
+  |
+  cargorobot completa e notifica
+  |
+  cargoservice aggiorna stato
+```
 
 ## Sviluppo
 

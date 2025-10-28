@@ -5,8 +5,10 @@ System sprint1
 // messaggi product service
 Request createProduct : product(String)                    
 Reply   createdProduct: productid(ID) for createProduct 
+
 Request getAllProducts : dummy( ID )
 Reply   getAllProductsAnswer: products(  String ) for getAllProducts 
+
 Request getProduct 		: product( ID )  
 Reply   getProductAnswer: product( JSonString ) for getProduct 
 
@@ -26,13 +28,12 @@ Reply   movedProduct 		: result( SLOT ) for load_product
 Request moverobot    :  moverobot(TARGETX, TARGETY)  
 Reply moverobotdone  :  moverobotok(ARG)                    for moverobot
 Reply moverobotfailed:  moverobotfailed(PLANDONE, PLANTODO) for moverobot
- Request engage        : engage(OWNER, STEPTIME)	
-    Reply   engagedone    : engagedone(ARG)    for engage
-    Reply   engagerefused : engagerefused(ARG) for engage
+Request engage        : engage(OWNER, STEPTIME)	
+Reply   engagedone    : engagedone(ARG)    for engage
+Reply   engagerefused : engagerefused(ARG) for engage
     
     
-    
-    
+       
 //contesti  
 Context ctx_cargoservice	ip [host="127.0.0.1" port=8111]
 Context ctx_basicrobot ip [host="127.0.0.1" port=8020] 
@@ -68,14 +69,15 @@ QActor cargorobot context ctx_cargo{
 	 
 	 State engage_refused{
 	 	onMsg(engagerefused:engagerefused(ARG)){
-	 	[#val Msg=payloadArg(0)#]
-	 	println("[cargorobot] Engage refused motivo:$Msg")
+		 	[#val Msg=payloadArg(0)#]
+		 	println("[cargorobot] Engage refused motivo:$Msg")
 	 	}
 	 	
 	 }
 	 
 	 State waiting_for_request{
-	 	onMsg(engagedone:engagedone(ARG)){println("[cargorobot] waiting for request") color yellow
+	 	onMsg(engagedone:engagedone(ARG)){
+	 		println("[cargorobot] waiting for request") color yellow
 	 	}
 	 }
 	 
@@ -84,11 +86,12 @@ QActor cargorobot context ctx_cargo{
 	
 	State goto_IOPort{
 		onMsg(move_product: product(SLOT)){
-            [# val CurrentRequestSlot = payloadArg(0).toInt() #]
+            [# var CurrentRequestSlot = payloadArg(0).toInt() #]
             println("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot")
             request basicrobot -m moverobot:moverobot(1,6)
         }
 	}
+	
 	Transition t0
 	whenReply moverobotfailed-> return_home_anyway
 	whenReply moverobotdone -> goto_slot
@@ -106,21 +109,21 @@ QActor cargorobot context ctx_cargo{
 	Transition t0
 	whenReply moverobotdone -> return_home
 	whenReply moverobotfailed-> return_home_anyway
+	
 	State return_home{
 		onMsg(moverobotdone:moverobotok(ARG)){
-		request basicrobot -m moverobot:moverobot(0,0)
+			request basicrobot -m moverobot:moverobot(0,0)
 		
 		}}
 		State return_home_anyway{
-		onMsg(moverobotfailed:moverobotfailed(PLANDONE, PLANTODO)){
-		request basicrobot -m moverobot:moverobot(0,0)
-		}
-		
+			onMsg(moverobotfailed:moverobotfailed(PLANDONE, PLANTODO)){
+				request basicrobot -m moverobot:moverobot(0,0)
+			}
+			
 		}
 		Transition t0
-	whenReply moverobotdone -> waiting_for_request
-	whenReply moverobotfailed-> waiting_for_request
-		
+		whenReply moverobotdone -> waiting_for_request
+		whenReply moverobotfailed-> waiting_for_request			
 	}
 	
 	// notify cargoservice (?)
@@ -133,16 +136,16 @@ QActor cargorobot context ctx_cargo{
 
 // cargoservice 
 QActor cargoservice context ctx_cargo{
-	     [#
-           	var Taken_slot=arrayListOf("false","false","false","false","true")
-        	val MAX_LOAD=100
-        	var CURRENT_LOAD=0
-        	var Product_weight = 0
-        	var Reserved_slot = 0
-         #]
+     [#
+       	var Taken_slot=arrayListOf("false","false","false","false","true")
+    	val MAX_LOAD=100
+    	var CURRENT_LOAD=0
+    	var Product_weight = 0
+    	var Reserved_slot = 0
+     #]
+         
 	State start initial{
 		println("[cargoservice] STARTED ") color yellow
-
 	}
 	Goto waiting_for_request
 	 
@@ -170,25 +173,26 @@ QActor cargoservice context ctx_cargo{
 	whenReply getProductAnswer -> check_load
 	
 	
-		State check_load{
-		
+	State check_load{
+	
 		onMsg(getProductAnswer: product(JsonString)){
-		println("[cargoservice] arrivato peso")
-		[#
-			val Product=payloadArg(0)
-			
-			Product_weight = main.java.Product.getJsonInt(Product, "weight")
-		#]
+			println("[cargoservice] arrivato peso")
+			[#
+				val Product=payloadArg(0)					
+				Product_weight = main.java.Product.getJsonInt(Product, "weight")
+			#]
 		}
-		}
-		Goto moveProduct if [#CURRENT_LOAD+ Product_weight <= MAX_LOAD #] else too_much_weight
-		State too_much_weight{
-			println("Il carico eccederebbe maxload, non è possibile eseguire la load")
-		}
-		Goto waiting_for_request
-		
-		State moveProduct{
-			println("[cargoservice] ingresso move product")
+	}
+	
+	Goto moveProduct if [#CURRENT_LOAD+ Product_weight <= MAX_LOAD #] else too_much_weight
+	
+	State too_much_weight{
+		println("Il carico eccederebbe maxload, non è possibile eseguire la load")
+	}
+	Goto waiting_for_request
+	
+	State moveProduct{
+		println("[cargoservice] ingresso move product")
 		[# 
 			CURRENT_LOAD += Product_weight		      
 		    Reserved_slot=0   
@@ -199,33 +203,21 @@ QActor cargoservice context ctx_cargo{
 				    break;		    	
 			    }
 		    }
-		 #]
-	request cargorobot -m move_product:product($Reserved_slot) 
-	println("[cargoservice] richiesta di move al basic robot mandata")
+		#]
+		request cargorobot -m move_product:product($Reserved_slot) 
+		println("[cargoservice] richiesta di move al basic robot mandata")
 	}
+		
 	Transition t0
 	whenReply movedProduct -> load_finished
+	
 	State load_finished{
 		onMsg(movedProduct:result( SLOT )){
-		println("Load completata il robot è in home ")
-		
+			println("Load completata il robot è in home ")		
 		}
 	}
 	Goto waiting_for_request
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

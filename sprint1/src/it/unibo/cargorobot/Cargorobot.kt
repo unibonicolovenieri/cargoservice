@@ -75,7 +75,7 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("product(SLOT)"), Term.createTerm("product(SLOT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 val CurrentRequestSlot = payloadArg(0).toInt()  
+								 var CurrentRequestSlot = payloadArg(0).toInt()  
 								CommUtils.outblack("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot")
 								request("moverobot", "moverobot(1,6)" ,"basicrobot" )  
 						}

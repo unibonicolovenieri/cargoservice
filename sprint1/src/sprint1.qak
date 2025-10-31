@@ -31,6 +31,12 @@ Reply moverobotfailed:  moverobotfailed(PLANDONE, PLANTODO) for moverobot
 Request engage        : engage(OWNER, STEPTIME)	
 Reply   engagedone    : engagedone(ARG)    for engage
 Reply   engagerefused : engagerefused(ARG) for engage
+
+//per sonar test
+Event container_arrived : container_arrived(X) 
+Event container_absent  : container_absent(X)  
+Event interrompi_tutto  : interrompi_tutto(X)  
+Event riprendi_tutto    : riprendi_tutto(X)   
     
     
        
@@ -314,9 +320,49 @@ QActor test context ctx_cargo{
 } 
 
 
-
-
-
+QActor sonar_test context ctx_cargo{
+	[# var Counter = 1 #]
+	
+	State start initial{
+		println("$name | started ") color green  
+		}
+	Goto simulate_container_arrival
+	
+	
+	State simulate_container_arrival {
+		println("$name | Simulo arrivo container") color green
+		println("$name | $Counter | numero dell'iterazione di Sonar Test") color gray       
+		emit container_arrived : container_arrived(si)
+		delay 5000
+		}
+	Goto simulate_container_absence
+	
+	
+	State simulate_container_absence {
+		if [# Counter % 5 == 0 #
+		] { // ogni due cicli si guasta
+			println("$name | Simulo sparizione container") color yellow
+		emit container_absent : container_absent(no)
+		delay 3000
+		}
+	}
+	Goto maybe_fail
+	
+	
+	State maybe_fail {
+		[# Counter++ #]
+		if [# Counter % 2 == 0 #] { // ogni due cicli si guasta
+			println("$name | Guasto sonar!") color magenta
+			emit interrompi_tutto : interrompi_tutto(si)
+			delay 4000
+			println("$name | Sonar ripristinato!") color magenta
+			emit riprendi_tutto : riprendi_tutto(si)
+		}
+		delay 2000
+		}
+		Goto simulate_container_arrival
+	
+} 
 
 
 

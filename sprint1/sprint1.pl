@@ -12,7 +12,7 @@ reply( loadedProduct, slot(SLOT) ).  %%for load_product
 request( move_product, product(SLOT) ).
 reply( movedProduct, result(SLOT) ).  %%for load_product
 request( moverobot, moverobot(TARGETX,TARGETY) ).
-reply( moverobotdone, moverobotok(ARG) ).  %%for moverobot
+reply( moverobotdone, moverobotdone(ok) ).  %%for moverobot
 reply( moverobotfailed, moverobotfailed(PLANDONE,PLANTODO) ).  %%for moverobot
 request( engage, engage(OWNER,STEPTIME) ).
 reply( engagedone, engagedone(ARG) ).  %%for engage

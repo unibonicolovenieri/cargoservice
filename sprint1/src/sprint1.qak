@@ -26,7 +26,7 @@ Reply   movedProduct 		: result( SLOT ) for load_product
 
 //alcuni messaggi basicrobot(da completare)
 Request moverobot    :  moverobot(TARGETX, TARGETY)  
-Reply moverobotdone  :  moverobotok(ARG)                    for moverobot
+Reply moverobotdone  :  moverobotdone(ok)                    for moverobot
 Reply moverobotfailed:  moverobotfailed(PLANDONE, PLANTODO) for moverobot
 Request engage        : engage(OWNER, STEPTIME)	
 Reply   engagedone    : engagedone(ARG)    for engage
@@ -78,6 +78,7 @@ QActor cargorobot context ctx_cargo{
 	 State waiting_for_request{
 	 	onMsg(engagedone:engagedone(ARG)){
 	 		println("[cargorobot] waiting for request") color yellow
+	 		
 	 	}
 	 }
 	 
@@ -86,9 +87,14 @@ QActor cargorobot context ctx_cargo{
 	
 	State goto_IOPort{
 		onMsg(move_product: product(SLOT)){
-            [# var CurrentRequestSlot = payloadArg(0).toInt() #]
+            [# var CurrentRequestSlot = payloadArg(0).toInt()
+            	val X=1
+            	val Y=5#
+            ]
             println("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot")
-            request basicrobot -m moverobot:moverobot(1,6)
+            delay 3000
+            request basicrobot -m moverobot:moverobot(0,4)
+            println("sent ") color yellow
         }
 	}
 	
@@ -96,13 +102,16 @@ QActor cargorobot context ctx_cargo{
 	whenReply moverobotfailed-> return_home_anyway
 	whenReply moverobotdone -> goto_slot
 	State goto_slot{
-		onMsg(moverobotdone:moverobotok(ARG)){
+		println("gotoslot")
+		delay 3000
+		onMsg(moverobotdone  :  moverobotdone(ok)){
 		[#
 			val XSlot=4
 			val YSlot=4
 			
 		#]
-		request basicrobot -m moverobot:moverobot($XSlot,$YSlot)
+		println("gotoslot")
+		request basicrobot -m moverobot:moverobot(1,3)
 		
 		}
 	}
@@ -111,11 +120,18 @@ QActor cargorobot context ctx_cargo{
 	whenReply moverobotfailed-> return_home_anyway
 	
 	State return_home{
-		onMsg(moverobotdone:moverobotok(ARG)){
+		delay 3000
+		onMsg(moverobotdone  :  moverobotdone(ok)){
 			request basicrobot -m moverobot:moverobot(0,0)
 		
-		}}
+		}
+		}
+		Transition t0
+		whenReply moverobotdone -> waiting_for_request
+		whenReply moverobotfailed-> waiting_for_request
 		State return_home_anyway{
+			println("returnhomeanyway")
+			delay 3000
 			onMsg(moverobotfailed:moverobotfailed(PLANDONE, PLANTODO)){
 				request basicrobot -m moverobot:moverobot(0,0)
 			}

@@ -75,9 +75,13 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("product(SLOT)"), Term.createTerm("product(SLOT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 var CurrentRequestSlot = payloadArg(0).toInt()  
+								 var CurrentRequestSlot = payloadArg(0).toInt()
+								            	val X=1
+								            	val Y=5 
 								CommUtils.outblack("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot")
-								request("moverobot", "moverobot(1,6)" ,"basicrobot" )  
+								delay(3000) 
+								request("moverobot", "moverobot(0,4)" ,"basicrobot" )  
+								CommUtils.outyellow("sent ")
 						}
 						//genTimer( actor, state )
 					}
@@ -89,13 +93,16 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				}	 
 				state("goto_slot") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("moverobotok(ARG)"), Term.createTerm("moverobotok(ARG)"), 
+						CommUtils.outblack("gotoslot")
+						delay(3000) 
+						if( checkMsgContent( Term.createTerm("moverobotdone(ok)"), Term.createTerm("moverobotdone(ok)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								
 											val XSlot=4
 											val YSlot=4
 											
-								request("moverobot", "moverobot($XSlot,$YSlot)" ,"basicrobot" )  
+								CommUtils.outblack("gotoslot")
+								request("moverobot", "moverobot(1,3)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
 					}
@@ -107,19 +114,8 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				}	 
 				state("return_home") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("moverobotok(ARG)"), Term.createTerm("moverobotok(ARG)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								request("moverobot", "moverobot(0,0)" ,"basicrobot" )  
-						}
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-				}	 
-				state("return_home_anyway") { //this:State
-					action { //it:State
-						if( checkMsgContent( Term.createTerm("moverobotfailed(PLANDONE,PLANTODO)"), Term.createTerm("moverobotfailed(PLANDONE,PLANTODO)"), 
+						delay(3000) 
+						if( checkMsgContent( Term.createTerm("moverobotdone(ok)"), Term.createTerm("moverobotdone(ok)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								request("moverobot", "moverobot(0,0)" ,"basicrobot" )  
 						}
@@ -130,6 +126,22 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					}	 	 
 					 transition(edgeName="t07",targetState="waiting_for_request",cond=whenReply("moverobotdone"))
 					transition(edgeName="t08",targetState="waiting_for_request",cond=whenReply("moverobotfailed"))
+				}	 
+				state("return_home_anyway") { //this:State
+					action { //it:State
+						CommUtils.outblack("returnhomeanyway")
+						delay(3000) 
+						if( checkMsgContent( Term.createTerm("moverobotfailed(PLANDONE,PLANTODO)"), Term.createTerm("moverobotfailed(PLANDONE,PLANTODO)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								request("moverobot", "moverobot(0,0)" ,"basicrobot" )  
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t09",targetState="waiting_for_request",cond=whenReply("moverobotdone"))
+					transition(edgeName="t010",targetState="waiting_for_request",cond=whenReply("moverobotfailed"))
 				}	 
 			}
 		}

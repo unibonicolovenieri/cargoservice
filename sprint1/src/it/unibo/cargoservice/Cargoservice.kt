@@ -55,6 +55,16 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					sysaction { //it:State
 					}	 	 
 					 transition(edgeName="t011",targetState="check_product",cond=whenRequest("load_product"))
+					transition(edgeName="t012",targetState="stop",cond=whenEvent("interrompi_tutto"))
+				}	 
+				state("stop") { //this:State
+					action { //it:State
+						CommUtils.outyellow("IIIIIIINTERrompituttooooo")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
 				}	 
 				state("check_product") { //this:State
 					action { //it:State
@@ -70,7 +80,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t012",targetState="check_load",cond=whenReply("getProductAnswer"))
+					 transition(edgeName="t013",targetState="check_load",cond=whenReply("getProductAnswer"))
 				}	 
 				state("check_load") { //this:State
 					action { //it:State
@@ -121,7 +131,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t013",targetState="load_finished",cond=whenReply("movedProduct"))
+					 transition(edgeName="t014",targetState="load_finished",cond=whenReply("movedProduct"))
 				}	 
 				state("load_finished") { //this:State
 					action { //it:State

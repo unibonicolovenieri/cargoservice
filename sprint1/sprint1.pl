@@ -17,6 +17,10 @@ reply( moverobotfailed, moverobotfailed(PLANDONE,PLANTODO) ).  %%for moverobot
 request( engage, engage(OWNER,STEPTIME) ).
 reply( engagedone, engagedone(ARG) ).  %%for engage
 reply( engagerefused, engagerefused(ARG) ).  %%for engage
+event( container_arrived, container_arrived(X) ).
+event( container_absent, container_absent(X) ).
+event( interrompi_tutto, interrompi_tutto(X) ).
+event( riprendi_tutto, riprendi_tutto(X) ).
 %====================================================================================
 context(ctx_cargoservice, "127.0.0.1",  "TCP", "8111").
 context(ctx_basicrobot, "127.0.0.1",  "TCP", "8020").
@@ -29,3 +33,5 @@ context(ctx_cargo, "localhost",  "TCP", "8000").
  static(cargoservice).
   qactor( test, ctx_cargo, "it.unibo.test.Test").
  static(test).
+  qactor( sonar_test, ctx_cargo, "it.unibo.sonar_test.Sonar_test").
+ static(sonar_test).

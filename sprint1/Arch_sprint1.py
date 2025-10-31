@@ -33,11 +33,6 @@ with Diagram('sprint1Arch', show=False, outformat='png', graph_attr=graphattr) a
           cargorobot=Custom('cargorobot','./qakicons/symActorWithobjSmall.png')
           cargoservice=Custom('cargoservice','./qakicons/symActorWithobjSmall.png')
           test=Custom('test','./qakicons/symActorWithobjSmall.png')
-          sonar_test=Custom('sonar_test','./qakicons/symActorWithobjSmall.png')
-     sonar_test >> Edge( label='container_arrived', **eventedgeattr, decorate='true', fontcolor='red') >> sys
-     sonar_test >> Edge( label='container_absent', **eventedgeattr, decorate='true', fontcolor='red') >> sys
-     sonar_test >> Edge( label='interrompi_tutto', **eventedgeattr, decorate='true', fontcolor='red') >> sys
-     sonar_test >> Edge( label='riprendi_tutto', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      cargorobot >> Edge(color='magenta', style='solid', decorate='true', label='<engage<font color="darkgreen"> engagedone engagerefused</font> &nbsp; moverobot<font color="darkgreen"> moverobotdone moverobotfailed</font> &nbsp; >',  fontcolor='magenta') >> basicrobot
      test >> Edge(color='magenta', style='solid', decorate='true', label='<load_product<font color="darkgreen"> loadedProduct movedProduct</font> &nbsp; >',  fontcolor='magenta') >> cargoservice
      cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<getProduct<font color="darkgreen"> getProductAnswer</font> &nbsp; >',  fontcolor='magenta') >> productservice

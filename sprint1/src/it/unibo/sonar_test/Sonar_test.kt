@@ -47,7 +47,7 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						CommUtils.outgreen("$name | Simulo arrivo container")
 						CommUtils.outgray("$name | $Counter | numero dell'iterazione di Sonar Test")
 						emit("container_trigger", "container_trigger(si)" ) 
-						delay(50000) 
+						delay(15000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -60,7 +60,7 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						if(  Counter % 5 == 0  
 						 ){CommUtils.outyellow("$name | Simulo sparizione container")
 						emit("container_absence", "container_absence(no)" ) 
-						delay(30000) 
+						delay(10000) 
 						}
 						//genTimer( actor, state )
 					}
@@ -79,7 +79,7 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						CommUtils.outmagenta("$name | Sonar ripristinato!")
 						emit("problem_solved", "problem_solved(solved)" ) 
 						}
-						delay(50000) 
+						delay(10000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

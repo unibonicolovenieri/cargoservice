@@ -75,24 +75,6 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					sysaction { //it:State
 					}	 	 
 				}	 
-				state("allProductsRecieved") { //this:State
-					action { //it:State
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-				}	 
-				state("productRecieved") { //this:State
-					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-				}	 
 			}
 		}
 } 

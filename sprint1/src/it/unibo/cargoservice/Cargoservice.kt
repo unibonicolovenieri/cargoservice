@@ -31,7 +31,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 		//IF actor.withobj !== null val actor.withobj.name» = actor.withobj.method»ENDIF
 		
 		       	var Taken_slot=arrayListOf("false","false","false","false","true")
-		    	val MAX_LOAD=100
+		    	val MAX_LOAD=500
 		    	var CURRENT_LOAD=0
 		    	var Product_weight = 0
 		    	var Reserved_slot = 0
@@ -57,7 +57,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					}	 	 
 					 transition(edgeName="t018",targetState="check_product",cond=whenRequest("load_product"))
 					interrupthandle(edgeName="t019",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
-					interrupthandle(edgeName="t020",targetState="check_product",cond=whenEvent("container_trigger"),interruptedStateTransitions)
+					transition(edgeName="t020",targetState="check_product",cond=whenEvent("container_trigger"))
 				}	 
 				state("stop") { //this:State
 					action { //it:State
@@ -72,7 +72,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 interrupthandle(edgeName="t021",targetState="resume",cond=whenEvent("problem_solved"),interruptedStateTransitions)
+					 transition(edgeName="t021",targetState="resume",cond=whenEvent("problem_solved"))
 				}	 
 				state("resume") { //this:State
 					action { //it:State
@@ -82,6 +82,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 								CommUtils.outyellow("[$name] sonar ha risolto l'errore causa: $M")
 								emit("resume", "resume(ok)" ) 
 						}
+						returnFromInterrupt(interruptedStateTransitions)
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

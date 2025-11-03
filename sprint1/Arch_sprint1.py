@@ -34,7 +34,11 @@ with Diagram('sprint1Arch', show=False, outformat='png', graph_attr=graphattr) a
           cargoservice=Custom('cargoservice','./qakicons/symActorWithobjSmall.png')
           test=Custom('test','./qakicons/symActorWithobjSmall.png')
           sonar_test=Custom('sonar_test','./qakicons/symActorWithobjSmall.png')
+     cargorobot >> Edge( label='alarm', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+     sys >> Edge( label='resume', **evattr, decorate='true', fontcolor='darkgreen') >> cargorobot
+     sys >> Edge( label='container_trigger', **evattr, decorate='true', fontcolor='darkgreen') >> cargoservice
      cargoservice >> Edge( label='stop', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+     sys >> Edge( label='problem_solved', **evattr, decorate='true', fontcolor='darkgreen') >> cargoservice
      cargoservice >> Edge( label='resume', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sonar_test >> Edge( label='container_trigger', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sonar_test >> Edge( label='container_absence', **eventedgeattr, decorate='true', fontcolor='red') >> sys

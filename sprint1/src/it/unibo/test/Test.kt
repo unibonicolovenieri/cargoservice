@@ -44,7 +44,7 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t015",targetState="createdProduct",cond=whenReply("createdProduct"))
+					 transition(edgeName="t026",targetState="createdProduct",cond=whenReply("createdProduct"))
 				}	 
 				state("createdProduct") { //this:State
 					action { //it:State
@@ -55,15 +55,13 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 								 val ID=payloadArg(0)+1  
 								CommUtils.outyellow("[test] prodotto creato ID: $ID")
 								delay(50000) 
-								request("load_product", "product($ID)" ,"cargoservice" )  
-								CommUtils.outyellow("[test] Ho chiesto la load del prodotto appena creato a cargoservice")
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t016",targetState="moved",cond=whenReply("loadedProduct"))
+					 transition(edgeName="t027",targetState="moved",cond=whenReply("loadedProduct"))
 				}	 
 				state("moved") { //this:State
 					action { //it:State

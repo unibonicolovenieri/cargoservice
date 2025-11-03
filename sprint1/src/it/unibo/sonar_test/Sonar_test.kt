@@ -34,6 +34,7 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				state("start") { //this:State
 					action { //it:State
 						CommUtils.outgreen("$name | started ")
+						delay(15000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -45,12 +46,46 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					action { //it:State
 						CommUtils.outgreen("$name | Simulo arrivo container")
 						CommUtils.outgray("$name | $Counter | numero dell'iterazione di Sonar Test")
-						emit("interrompi_tutto", "interrompi_tutto(si)" ) 
+						emit("container_trigger", "container_trigger(si)" ) 
+						delay(50000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 transition( edgeName="goto",targetState="simulate_container_absence", cond=doswitch() )
+				}	 
+				state("simulate_container_absence") { //this:State
+					action { //it:State
+						if(  Counter % 5 == 0  
+						 ){CommUtils.outyellow("$name | Simulo sparizione container")
+						emit("container_absence", "container_absence(no)" ) 
+						delay(30000) 
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="maybe_fail", cond=doswitch() )
+				}	 
+				state("maybe_fail") { //this:State
+					action { //it:State
+						 Counter++  
+						if(  Counter % 4 == 0  
+						 ){CommUtils.outmagenta("$name | Guasto sonar!")
+						emit("sonar_error", "sonar_error(errore)" ) 
+						delay(4000) 
+						CommUtils.outmagenta("$name | Sonar ripristinato!")
+						emit("problem_solved", "problem_solved(solved)" ) 
+						}
+						delay(50000) 
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="simulate_container_arrival", cond=doswitch() )
 				}	 
 			}
 		}

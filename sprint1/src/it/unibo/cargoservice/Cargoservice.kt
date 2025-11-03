@@ -39,6 +39,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 				state("start") { //this:State
 					action { //it:State
 						CommUtils.outyellow("[cargoservice] STARTED ")
+						delay(5000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -54,25 +55,47 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t011",targetState="check_product",cond=whenRequest("load_product"))
-					transition(edgeName="t012",targetState="stop",cond=whenEvent("interrompi_tutto"))
+					 transition(edgeName="t018",targetState="check_product",cond=whenRequest("load_product"))
+					interrupthandle(edgeName="t019",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+					interrupthandle(edgeName="t020",targetState="check_product",cond=whenEvent("container_trigger"),interruptedStateTransitions)
 				}	 
 				state("stop") { //this:State
 					action { //it:State
-						CommUtils.outyellow("IIIIIIINTERrompituttooooo")
+						if( checkMsgContent( Term.createTerm("sonar_error(CAUSA)"), Term.createTerm("sonar_error(CAUSA)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 val M=payloadArg(0) 
+								CommUtils.outyellow("[$name] sonar ha emesso un errore causa: $M")
+								emit("stop", "stop(si)" ) 
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 interrupthandle(edgeName="t021",targetState="resume",cond=whenEvent("problem_solved"),interruptedStateTransitions)
+				}	 
+				state("resume") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("problem_solved(CAUSA)"), Term.createTerm("problem_solved(CAUSA)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 val M=payloadArg(0) 
+								CommUtils.outyellow("[$name] sonar ha risolto l'errore causa: $M")
+								emit("resume", "resume(ok)" ) 
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
 				}	 
 				state("check_product") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("product(ID)"), Term.createTerm("product(ID)"), 
+						if( checkMsgContent( Term.createTerm("container_trigger(X)"), Term.createTerm("container_trigger(X)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outblack("[cargoservice] check del prodotto")
 								
-												val ID=payloadArg(0).toInt()
+												val ID=1
 								request("getProduct", "product($ID)" ,"productservice" )  
 						}
 						//genTimer( actor, state )
@@ -80,7 +103,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t013",targetState="check_load",cond=whenReply("getProductAnswer"))
+					 transition(edgeName="t022",targetState="check_load",cond=whenReply("getProductAnswer"))
+					interrupthandle(edgeName="t023",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
 				}	 
 				state("check_load") { //this:State
 					action { //it:State
@@ -131,7 +155,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t014",targetState="load_finished",cond=whenReply("movedProduct"))
+					 transition(edgeName="t024",targetState="load_finished",cond=whenReply("movedProduct"))
+					interrupthandle(edgeName="t025",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
 				}	 
 				state("load_finished") { //this:State
 					action { //it:State

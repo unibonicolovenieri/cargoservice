@@ -36,7 +36,7 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				state("start") { //this:State
 					action { //it:State
 						CommUtils.outyellow("[cargorobot] STARTED ")
-						request("engage", "engage($Myname,350)" ,"basicrobot" )  
+						request("engage", "engage($Myname,340)" ,"basicrobot" )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -44,6 +44,33 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					}	 	 
 					 transition(edgeName="t00",targetState="waiting_for_request",cond=whenReply("engagedone"))
 					transition(edgeName="t01",targetState="engage_refused",cond=whenReply("engagerefused"))
+					interrupthandle(edgeName="t02",targetState="stop",cond=whenEvent("stop"),interruptedStateTransitions)
+				}	 
+				state("stop") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("stop(X)"), Term.createTerm("stop(X)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								CommUtils.outyellow("[$name] robot stopped")
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 interrupthandle(edgeName="t03",targetState="resume",cond=whenEvent("resume"),interruptedStateTransitions)
+				}	 
+				state("resume") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("resume(X)"), Term.createTerm("resume(X)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								CommUtils.outyellow("[$name] robot rinizia il lavoro")
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
 				}	 
 				state("engage_refused") { //this:State
 					action { //it:State
@@ -69,15 +96,16 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t02",targetState="goto_IOPort",cond=whenRequest("move_product"))
+					 transition(edgeName="t04",targetState="goto_IOPort",cond=whenRequest("move_product"))
+					interrupthandle(edgeName="t05",targetState="stop",cond=whenEvent("stop"),interruptedStateTransitions)
 				}	 
 				state("goto_IOPort") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("product(SLOT)"), Term.createTerm("product(SLOT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 var CurrentRequestSlot = payloadArg(0).toInt()
-								            	val X=1
-								            	val Y=5 
+								            	var X=0
+								            	var Y=4 
 								CommUtils.outblack("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot")
 								delay(3000) 
 								request("moverobot", "moverobot(0,4)" ,"basicrobot" )  
@@ -88,8 +116,9 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t03",targetState="return_home_anyway",cond=whenReply("moverobotfailed"))
-					transition(edgeName="t04",targetState="goto_slot",cond=whenReply("moverobotdone"))
+					 transition(edgeName="t06",targetState="return_home_anyway",cond=whenReply("moverobotfailed"))
+					transition(edgeName="t07",targetState="goto_slot",cond=whenReply("moverobotdone"))
+					interrupthandle(edgeName="t08",targetState="stop",cond=whenEvent("stop"),interruptedStateTransitions)
 				}	 
 				state("goto_slot") { //this:State
 					action { //it:State
@@ -109,8 +138,9 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t05",targetState="return_home",cond=whenReply("moverobotdone"))
-					transition(edgeName="t06",targetState="return_home_anyway",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t09",targetState="return_home",cond=whenReply("moverobotdone"))
+					transition(edgeName="t010",targetState="return_home_anyway",cond=whenReply("moverobotfailed"))
+					interrupthandle(edgeName="t011",targetState="stop",cond=whenEvent("stop"),interruptedStateTransitions)
 				}	 
 				state("return_home") { //this:State
 					action { //it:State
@@ -124,8 +154,9 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t07",targetState="waiting_for_request",cond=whenReply("moverobotdone"))
-					transition(edgeName="t08",targetState="waiting_for_request",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t012",targetState="load_completed",cond=whenReply("moverobotdone"))
+					transition(edgeName="t013",targetState="load_failed",cond=whenReply("moverobotfailed"))
+					interrupthandle(edgeName="t014",targetState="stop",cond=whenEvent("stop"),interruptedStateTransitions)
 				}	 
 				state("return_home_anyway") { //this:State
 					action { //it:State
@@ -140,8 +171,31 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t09",targetState="waiting_for_request",cond=whenReply("moverobotdone"))
-					transition(edgeName="t010",targetState="waiting_for_request",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t015",targetState="load_failed",cond=whenReply("moverobotdone"))
+					transition(edgeName="t016",targetState="load_failed",cond=whenReply("moverobotfailed"))
+					interrupthandle(edgeName="t017",targetState="stop",cond=whenEvent("stop"),interruptedStateTransitions)
+				}	 
+				state("load_completed") { //this:State
+					action { //it:State
+						CommUtils.outblack("[$name] load completed")
+						answer("move_product", "movedProduct", "result(ok)"   )  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
+				}	 
+				state("load_failed") { //this:State
+					action { //it:State
+						CommUtils.outblack("[$name] load failed")
+						answer("move_product", "moveProductFailed", "fail(failed)"   )  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
 				}	 
 			}
 		}

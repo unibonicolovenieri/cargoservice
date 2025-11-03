@@ -133,7 +133,7 @@ networks:
 ## yamls> docker network ls
 ## docker network create iss-network
 ## docker network rm xxx
-## docker-compose -f iss2025new.yaml -p up 
+## docker-compose -f sprint1.yaml up 
 
 
 

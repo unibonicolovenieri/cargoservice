@@ -107,7 +107,7 @@ services:
   basicrobot24:
     container_name: basicrobot24.1.0
     #image: docker.io/natbodocker/basicrobot24:3.0
-    image: sha256:0cb7c4dd5a97368083a2f3e7a622dbc9491ab55b8df577955a9f0d19c8b15e24
+    image: lucacapelli/basicrobot:1.0
     mem_limit: 512m
     ports:
       - "8020:8020/tcp"

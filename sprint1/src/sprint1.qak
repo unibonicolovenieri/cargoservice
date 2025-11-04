@@ -67,7 +67,7 @@ QActor cargorobot context ctx_cargo{
 		var delivering = false
 		val posizione = hashMapOf(
 		    "HOME"     to arrayOf(0, 0),
-		    "IO_port"  to arrayOf(0, 4),
+		    "IOport"  to arrayOf(0, 4),
 		    "1"    to arrayOf(1, 1),
 		    "2"    to arrayOf(1, 3),
 		    "3"    to arrayOf(4, 1),
@@ -76,7 +76,7 @@ QActor cargorobot context ctx_cargo{
 		
 		val orientamento = hashMapOf(
 			"HOME"    	to "down",
-			"IO_port" 	to "down",
+			"IOport" 	to "down",
 		    "1"   	to "right",
 		    "2" 	to "right",
 		    "3" 	to "left",
@@ -89,7 +89,7 @@ QActor cargorobot context ctx_cargo{
 	
 	State start initial{
 		println("[cargorobot] STARTED ") color yellow
-		request basicrobot -m engage:engage($Myname,350) 
+		request basicrobot -m engage:engage($Myname,330) 
 	}
 
 	 Transition t0 
@@ -144,10 +144,11 @@ QActor cargorobot context ctx_cargo{
 	State goto_IOPort{
 		onMsg(move_product: product(SLOT)){
             [# CurrentRequestSlot = payloadArg(0).toInt()
-            	X = posizione["IOport"][0]
-            	Y = posizione["IOport"][1]
+            	X = posizione["IOport"]!![0]!!
+				Y = posizione["IOport"]!![1]!!
             #]
             println("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot")
+            println("Posizione X: $X Y: $Y")
             delay 3000
             request basicrobot -m moverobot:moverobot($X,$Y)
             [#delivering = true
@@ -168,13 +169,13 @@ QActor cargorobot context ctx_cargo{
 		delay 3000
 		onMsg(moverobotdone  :  moverobotdone(ok)){
 		[#
-			X = posizione[CurrentRequestSlot][0]
-            Y = posizione[CurrentRequestSlot][1]
+			X = posizione[CurrentRequestSlot.toString()]!![0]!!
+			Y = posizione[CurrentRequestSlot.toString()]!![1]!!
 			
 		#]
 		println("gotoslot")
 		request basicrobot -m moverobot:moverobot($X,$Y)
-		[#delivering = false#]
+		[#delivering = true#]
 		}
 	}
 	
@@ -189,12 +190,12 @@ QActor cargorobot context ctx_cargo{
 		delay 3000
 		onMsg(moverobotdone  :  moverobotdone(ok)){
 		[#
-			X = posizione["HOME"][0]
-            Y = posizione["HOME"][1]
+			X = posizione["HOME"]!![0]!!
+			Y = posizione["HOME"]!![1]!!
 			
 		#]
 			request basicrobot -m moverobot:moverobot($X,$Y)
-		[#delivering = false#]
+		[#delivering = true#]
 		}
 		}
 		Transition t0
@@ -208,12 +209,11 @@ QActor cargorobot context ctx_cargo{
 			delay 3000
 			onMsg(moverobotfailed:fail(PLANDONE)){
 				[#
-			X = posizione["HOME"][0]
-            Y = posizione["HOME"][1]
-			
-		#]
+				X = posizione["HOME"]!![0]!!
+				Y = posizione["HOME"]!![1]!!
+				#]
 				request basicrobot -m moverobot:moverobot($X,$Y)
-				 [#delivering = false#]
+				 [#delivering = true#]
 			}
 			
 		}
@@ -419,7 +419,7 @@ QActor sonar_test context ctx_cargo {
 	
 	State start initial {
 		println("$name | started ") color green
-		delay 15000 
+		delay 5000 
 	}
 	Goto simulate_container_arrival
 	

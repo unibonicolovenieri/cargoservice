@@ -34,7 +34,7 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				state("start") { //this:State
 					action { //it:State
 						CommUtils.outgreen("$name | started ")
-						delay(15000) 
+						delay(5000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

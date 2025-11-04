@@ -35,7 +35,7 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				var delivering = false
 				val posizione = hashMapOf(
 				    "HOME"     to arrayOf(0, 0),
-				    "IO_port"  to arrayOf(0, 4),
+				    "IOport"  to arrayOf(0, 4),
 				    "1"    to arrayOf(1, 1),
 				    "2"    to arrayOf(1, 3),
 				    "3"    to arrayOf(4, 1),
@@ -44,7 +44,7 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				
 				val orientamento = hashMapOf(
 					"HOME"    	to "down",
-					"IO_port" 	to "down",
+					"IOport" 	to "down",
 				    "1"   	to "right",
 				    "2" 	to "right",
 				    "3" 	to "left",
@@ -57,7 +57,7 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				state("start") { //this:State
 					action { //it:State
 						CommUtils.outyellow("[cargorobot] STARTED ")
-						request("engage", "engage($Myname,350)" ,"basicrobot" )  
+						request("engage", "engage($Myname,330)" ,"basicrobot" )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -132,9 +132,10 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						if( checkMsgContent( Term.createTerm("product(SLOT)"), Term.createTerm("product(SLOT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 CurrentRequestSlot = payloadArg(0).toInt()
-								            	X = posizione["IOport"][0]
-								            	Y = posizione["IOport"][1]
+								            	X = posizione["IOport"]!![0]!!
+												Y = posizione["IOport"]!![1]!!
 								CommUtils.outblack("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot")
+								CommUtils.outblack("Posizione X: $X Y: $Y")
 								delay(3000) 
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 								delivering = true
@@ -157,12 +158,12 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						if( checkMsgContent( Term.createTerm("moverobotdone(ok)"), Term.createTerm("moverobotdone(ok)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								
-											X = posizione[CurrentRequestSlot][0]
-								            Y = posizione[CurrentRequestSlot][1]
+											X = posizione[CurrentRequestSlot.toString()]!![0]!!
+											Y = posizione[CurrentRequestSlot.toString()]!![1]!!
 											
 								CommUtils.outblack("gotoslot")
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
-								delivering = false 
+								delivering = true 
 						}
 						//genTimer( actor, state )
 					}
@@ -179,11 +180,11 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						if( checkMsgContent( Term.createTerm("moverobotdone(ok)"), Term.createTerm("moverobotdone(ok)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								
-											X = posizione["HOME"][0]
-								            Y = posizione["HOME"][1]
+											X = posizione["HOME"]!![0]!!
+											Y = posizione["HOME"]!![1]!!
 											
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
-								delivering = false 
+								delivering = true 
 						}
 						//genTimer( actor, state )
 					}
@@ -201,11 +202,10 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						if( checkMsgContent( Term.createTerm("moverobotfailed(PLANDONE,PLANTODO)"), Term.createTerm("fail(PLANDONE)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								
-											X = posizione["HOME"][0]
-								            Y = posizione["HOME"][1]
-											
+												X = posizione["HOME"]!![0]!!
+												Y = posizione["HOME"]!![1]!!
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
-								delivering = false 
+								delivering = true 
 						}
 						//genTimer( actor, state )
 					}

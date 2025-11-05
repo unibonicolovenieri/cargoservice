@@ -236,9 +236,11 @@ Aggiunto: attore `sonar_test` che simula il comportamento del sensore sonar, ges
 - ripristino (`problem_solved`)
 Lo scopo è testare la capacità del sistema di interrompere e riprendere le attività automaticamente.
 
-`sonar_test` -> `cargoservice` -> `cargorobot` -> `basicrobot`
-    |                  |
-`problem_solved`   `stop/resume`
+```
+sonar_test -->  cargoservice -->  cargorobot -->  basicrobot  
+      ↑               ↓
+problem_solved   stop/resume
+```
 
 ## Elaborazione
 

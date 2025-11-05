@@ -115,11 +115,12 @@ QActor cargorobot context ctx_cargo{
 				request basicrobot -m moverobot:moverobot($X,$Y)
 
 			}
+			println("[$name] robot rinizia il lavoro")color yellow
 			returnFromInterrupt
-	 		println("[$name] robot rinizia il lavoro")color yellow
+	 		
 	 	}
 	 }
-	 Goto waiting_for_request // da cambiare 
+	 
 	 
 	 State engage_refused{
 	 	onMsg(engagerefused:engagerefused(ARG)){
@@ -147,9 +148,8 @@ QActor cargorobot context ctx_cargo{
             	X = posizione["IOport"]!![0]!!
 				Y = posizione["IOport"]!![1]!!
             #]
-            println("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot")
-            println("Posizione X: $X Y: $Y")
-            delay 3000
+            println("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot") color yellow
+            println("Posizione X: $X Y: $Y") color yellow
             request basicrobot -m moverobot:moverobot($X,$Y)
             [#delivering = true
             	
@@ -165,7 +165,7 @@ QActor cargorobot context ctx_cargo{
 	
 	
 	State goto_slot{
-		println("gotoslot")
+		println("gotoslot") color yellow
 		delay 3000
 		onMsg(moverobotdone  :  moverobotdone(ok)){
 		[#
@@ -223,7 +223,7 @@ QActor cargorobot context ctx_cargo{
 		whenReply moverobotdone -> load_failed
 		whenReply moverobotfailed-> load_failed
 		whenInterruptEvent stop -> stop	
-		
+		 
 		
 		State load_completed{
 			println("[$name] load completed")
@@ -337,12 +337,12 @@ QActor cargoservice context ctx_cargo{
 	Goto moveProduct if [#CURRENT_LOAD+ Product_weight <= MAX_LOAD #] else too_much_weight
 	
 	State too_much_weight{
-		println("Il carico eccederebbe maxload, non è possibile eseguire la load")
+		println("Il carico eccederebbe maxload, non è possibile eseguire la load") color yellow
 	}
 	Goto waiting_for_request
 	
 	State moveProduct{
-		println("[cargoservice] ingresso move product")
+		println("[cargoservice] ingresso move product") color yellow
 		[# 
 			CURRENT_LOAD += Product_weight		      
 		    Reserved_slot=0   
@@ -355,7 +355,7 @@ QActor cargoservice context ctx_cargo{
 		    }
 		#]
 		request cargorobot -m move_product:product($Reserved_slot) 
-		println("[cargoservice] richiesta di move al basic robot mandata")
+		println("[cargoservice] richiesta di move al cargo robot mandata") color yellow
 	}
 		
 	Transition t0
@@ -419,7 +419,7 @@ QActor sonar_test context ctx_cargo {
 	
 	State start initial {
 		println("$name | started ") color green
-		delay 5000 
+		delay 20000 
 	}
 	Goto simulate_container_arrival
 	

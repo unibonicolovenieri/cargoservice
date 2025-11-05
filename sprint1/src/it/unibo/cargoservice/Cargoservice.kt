@@ -128,7 +128,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 				}	 
 				state("too_much_weight") { //this:State
 					action { //it:State
-						CommUtils.outblack("Il carico eccederebbe maxload, non è possibile eseguire la load")
+						CommUtils.outyellow("Il carico eccederebbe maxload, non è possibile eseguire la load")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -138,7 +138,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 				}	 
 				state("moveProduct") { //this:State
 					action { //it:State
-						CommUtils.outblack("[cargoservice] ingresso move product")
+						CommUtils.outyellow("[cargoservice] ingresso move product")
 						 
 									CURRENT_LOAD += Product_weight		      
 								    Reserved_slot=0   
@@ -150,7 +150,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 									    }
 								    }
 						request("move_product", "product($Reserved_slot)" ,"cargorobot" )  
-						CommUtils.outblack("[cargoservice] richiesta di move al basic robot mandata")
+						CommUtils.outyellow("[cargoservice] richiesta di move al cargo robot mandata")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

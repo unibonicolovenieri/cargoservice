@@ -121,7 +121,6 @@ services:
       - MQTTBROKER=mosquitto
     depends_on:
       - wenv
-      - cargoserviceqak
       - eureka
     networks:
       - iss-network

@@ -39,12 +39,12 @@ I requisiti che implementeremo in questo sprint sono:
 In questo Sprint ci siamo concentrati sull'analisi dei due componenti [*cargoservice*](#cargoservice) e [*cargorobot*](#cargorobot). Abbiamo analizzato il problema e le interazioni che questi componenti avranno con il resto del sistema.
 
 ### CargoService
-Il cargoservice è il componente che si occuperà di gestire le richieste di carico e scarico dei container. Le richieste arriveranno da un componente esterno e il cargo service dovrà elaborarle in base a diversi fattori, come la disponibilità degli slot, il peso totale dei container e l'ordine di arrivo, per poi accettarle o rifiutarle. Verrà implementato come un **orchestrator**: si occuperà di coordinare le attività del cargorobot, di gestire le richieste di carico in base allo stato del led e infine di comunicare con la web-gui per permettere l'interazione e il controllo da parte del committente.
+Il cargoservice è il componente che si occuperà di gestire le richieste di carico e scarico dei container. Le richieste arriveranno da un componente esterno e il cargo service dovrà elaborarle in base a diversi fattori, come la disponibilità degli slot, il peso totale dei container e l'ordine di arrivo, per poi accettarle o rifiutarle. Verrà implementato come un **orchestrator**: si occuperà di coordinare le attività del cargorobot, di gestire le richieste di carico in base allo stato del led e infine di comunicare con la web-gui per permettere l'interazione e il controllo da parte del committente. Il `cargoservice` riceve anche eventi dal `sonar` (mock del sensore) che simulano la presenza o assenza del container, gestendo guasti e ripristini. In caso di `sonar_error`, il `cargoservice` emette `stop` per sospendere le operazioni.
 
 
 Il ciclo di funzionamento del cargoservice sarà il seguente:
 
-1. Ricezione del **PID** del prodotto (container) all'interno di una richiesta di carico 
+1. Ricezione del **PID** del prodotto (container) all'interno di una richiesta di carico (da richiesta diretta o da attore esterno).
 2. **Verifica del peso** tramite una richiesta al componente **productservice**. In questa richiesta viene inserito il PID del prodotto del quale si vuole conoscere il peso.
 3. La risposta di productservice può essere di due tipi:
     - **PID non registrato (ERRORE)**: il PID inviato da cargoservice non è registrato nel sistema. Cargoservice propagherà l'errore al mittente della richiesta di carico (in questo caso non avendo ancora implementato la parte dove vengono generate le richieste di carico, il mittente sarà un mockup che simulerà questo comportamento) e si preparerà a soddisfare la prossima richiesta.
@@ -86,6 +86,8 @@ Il cargorobot gestisce il DDRrobot e si interfaccia con il cargoservice al fine 
 
 Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), il posizionamento dell'IOport e il led.
 
+Può gestire eventi `stop` e `resume` ricevuti dal `cargoservice`. Durante `stop` emette un `alarm` e sospende l'attività, la variabile `delivering` ci informa sullo stato. Su `resume`, se stava consegnando, riprende automaticamente dal punto in cui era rimasto.
+
 ![](../../images/grigliarobot.jpg)
 
 L'attività che il cargorobot dovrà svolgere sarà la seguente:
@@ -115,6 +117,8 @@ Il productservice è un componente che viene gia fornito dal committente per la 
 - Nome (Stringa)
 
 Come detto in precedenza ProductService è un componente già fornito dal committente, pertanto non verrà implementato da noi, ma ci limiteremo ad utilizzarlo per le nostre esigenze. Le interazioni che avremo con questo componente sono analizzate nel prossimo punto.
+
+## Messaggi tra componenti
 
 #### Basicrobot
 (Messaggi gia presenti nell'attore fornito dal committente)
@@ -178,6 +182,26 @@ Come detto in precedenza ProductService è un componente già fornito dal commit
   Request getAllProducts : dummy( ID )
   Reply   getAllProductsAnswer: products(  String ) for getAllProducts 
 ```
+#### Messaggi nuovi
+```
+  Request load_product : product(ID)
+  Reply   loadedProduct : slot(SLOT) for load_product
+
+  Request move_product : product(SLOT)
+  Reply   movedProduct : result(SLOT) for move_product
+  Reply   moveProductFailed : fail(failed) for move_product
+
+  Event stop : stop(X)
+  Event resume : resume(X)
+  Event alarm : alarm(X)
+
+  Event container_trigger : container_trigger(X)
+  Event container_absence : container_absence(X)
+  Event sonar_error : sonar_error(CAUSA)
+  Event problem_solved : problem_solved(CAUSA)
+
+```
+
 
 ## Piano di test
 
@@ -205,7 +229,23 @@ test actor:
   cargoservice aggiorna stato
 ```
 
-## Sviluppo
+Aggiunto: attore `sonar_test` che simula il comportamento del sensore sonar, gestendo ciclicamente eventi di:
+- arrivo container (`container_trigger`)
+- assenza (`container_absence`)
+- guasti (`sonar_error`)
+- ripristino (`problem_solved`)
+Lo scopo è testare la capacità del sistema di interrompere e riprendere le attività automaticamente.
+
+`sonar_test` -> `cargoservice` -> `cargorobot` -> `basicrobot`
+    |                  |
+`problem_solved`   `stop/resume`
+
+## Elaborazione
+
+È stata gestita la sincronizzazione tra `cargoservice` e `cargorobot` in presenza di errori del sonar, con l’introduzione degli eventi `stop`, `resume`, `alarm`, `sonar_error` e `problem_solved`.
+Il test `sonar_test` permette di validare il comportamento del sistema in caso di errori temporanei.
+
+## Recap
 
 ## Divisione dei task
 

@@ -26,7 +26,6 @@ Event stop: stop(X)
 Event resume: resume(X) 
 Event alarm           		: alarm(X)
 
-Dispatch setdirection : dir( D )
 
 //alcuni messaggi basicrobot(da completare)
 Request moverobot    :  moverobot(TARGETX, TARGETY)  
@@ -184,32 +183,16 @@ QActor cargorobot context ctx_cargo{
 		}
 	}
 	
+	
 	Transition t0
+	whenReply moverobotdone -> return_home
 	whenReply moverobotfailed-> return_home_anyway
-	whenReply moverobotdone -> arrived_at_slot
 	whenInterruptEvent stop -> stop
 	
-	State arrived_at_slot{
-		println("Direction") color blue
-		[#
-			var Direction = orientamento[CurrentRequestSlot.toString()]!!
-			#
-		]
-		forward basicrobot -m setdirection : dir($Direction)
-		println("Direction $Direction") color blue
-		
-	}
-	
-	Goto return_home
-//	Transition t0
-//	whenReply moverobotdone -> return_home
-//	whenReply moverobotfailed-> return_home_anyway
-//	whenInterruptEvent stop -> stop
-//	
 	
 	State return_home{
 		delay 3000
-		
+		onMsg(moverobotdone  :  moverobotdone(ok)){
 		[#
 			X = posizione["HOME"]!![0]!!
 			Y = posizione["HOME"]!![1]!!
@@ -217,7 +200,7 @@ QActor cargorobot context ctx_cargo{
 		#]
 			request basicrobot -m moverobot:moverobot($X,$Y)
 		[#delivering = true#]
-		
+		}
 		}
 		Transition t0
 		whenReply moverobotdone -> load_completed
@@ -275,7 +258,7 @@ QActor cargorobot context ctx_cargo{
 // cargoservice 
 QActor cargoservice context ctx_cargo{
      [#
-       	var Taken_slot=arrayListOf("true","true","false","false","true")
+       	var Taken_slot=arrayListOf("false","false","false","false","true")
     	val MAX_LOAD=500
     	var CURRENT_LOAD=0
     	var Product_weight = 0

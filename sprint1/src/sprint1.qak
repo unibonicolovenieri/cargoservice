@@ -112,15 +112,25 @@ QActor cargorobot context ctx_cargo{
 			
 			if [#delivering#]{
 				
+				println("[$name] robot stava consegnando e ora riprenderà il lavoro")color yellow
 				request basicrobot -m moverobot:moverobot($X,$Y)
+				
 
 			}
-			println("[$name] robot rinizia il lavoro")color yellow
-			returnFromInterrupt
 	 		
 	 	}
 	 }
-	 
+	 Goto riprendocosaprecedente if [#delivering #] else continuaJob
+	 State riprendocosaprecedente{
+	 	onMsg(moverobotdone:moverobotdone(OK)){
+	 	println("[$name] robot rinizia il lavoro")color yellow
+		returnFromInterrupt
+		}
+	 }
+	 State continuaJob{
+	 	println("non stato facendo niente torno al mio lavoro")color yellow
+	 	returnFromInterrupt
+	 }
 	 
 	 State engage_refused{
 	 	onMsg(engagerefused:engagerefused(ARG)){
@@ -173,9 +183,10 @@ QActor cargorobot context ctx_cargo{
 			Y = posizione[CurrentRequestSlot.toString()]!![1]!!
 			
 		#]
-		println("gotoslot")
+		println("[gotoslot] position received") color green
 		request basicrobot -m moverobot:moverobot($X,$Y)
 		[#delivering = true#]
+		println("gotoslot delivering: $delivering | position x: $X y: $Y") color green
 		}
 	}
 	
@@ -301,7 +312,7 @@ QActor cargoservice context ctx_cargo{
 	 println("[$name] sonar ha risolto l'errore causa: $M")	color yellow
 	 emit resume:resume(ok) //dico al cargorobot di riprendere ciò che stava facendo
 	 }
-	 returnFromInterrupt
+	 returnFromInterrupt //provo a toglierla ma occhio - 7 novembre alle 10:32
 	}
 	Goto waiting_for_request
 	

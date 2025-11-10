@@ -87,11 +87,37 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outgreen("$[name] Riprendo a funzionare")
 								if( delivering 
-								 ){request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
+								 ){CommUtils.outyellow("[$name] robot stava consegnando e ora riprenderà il lavoro")
+								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 								}
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="riprendocosaprecedente", cond=doswitchGuarded({delivering  
+					}) )
+					transition( edgeName="goto",targetState="continuaJob", cond=doswitchGuarded({! (delivering  
+					) }) )
+				}	 
+				state("riprendocosaprecedente") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("moverobotdone(ok)"), Term.createTerm("moverobotdone(OK)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outyellow("[$name] robot rinizia il lavoro")
 								returnFromInterrupt(interruptedStateTransitions)
 						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+				}	 
+				state("continuaJob") { //this:State
+					action { //it:State
+						CommUtils.outyellow("non stato facendo niente torno al mio lavoro")
+						returnFromInterrupt(interruptedStateTransitions)
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -159,9 +185,10 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 											X = posizione[CurrentRequestSlot.toString()]!![0]!!
 											Y = posizione[CurrentRequestSlot.toString()]!![1]!!
 											
-								CommUtils.outblack("gotoslot")
+								CommUtils.outgreen("[gotoslot] position received")
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 								delivering = true 
+								CommUtils.outgreen("gotoslot delivering: $delivering | position x: $X y: $Y")
 						}
 						//genTimer( actor, state )
 					}

@@ -15,6 +15,7 @@ reply( moveProductFailed, fail(failed) ).  %%for move_product
 event( stop, stop(X) ).
 event( resume, resume(X) ).
 event( alarm, alarm(X) ).
+dispatch( setdirection, dir(D) ).
 request( moverobot, moverobot(TARGETX,TARGETY) ).
 reply( moverobotdone, moverobotdone(ok) ).  %%for moverobot
 reply( moverobotfailed, moverobotfailed(PLANDONE,PLANTODO) ).  %%for moverobot

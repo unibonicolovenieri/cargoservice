@@ -30,7 +30,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name» = actor.withobj.method»ENDIF
 		
-		       	var Taken_slot=arrayListOf("false","false","false","false","true")
+		       	var Taken_slot=arrayListOf("true","true","false","false","true")
 		    	val MAX_LOAD=500
 		    	var CURRENT_LOAD=0
 		    	var Product_weight = 0

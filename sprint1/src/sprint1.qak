@@ -101,34 +101,27 @@ QActor cargorobot context ctx_cargo{
 	 		emit alarm : alarm(allarme)
 	 		println("[$name] robot stopped")color yellow
 	 	}
-	 }
+	 } 
 	 Transition t0 
 	 whenEvent resume -> resume
 	 
 	 	 State resume{
-	 	onMsg(resume:resume(X)){
-	 		
-	 		println ("$[name] Riprendo a funzionare") color green
-			
-			if [#delivering#]{
-				
-				println("[$name] robot stava consegnando e ora riprenderà il lavoro")color yellow
-				request basicrobot -m moverobot:moverobot($X,$Y)
-				
 
-			}
 	 		
-	 	}
+	 		println ("[$name] Riprendo a funzionare") color green
+			
 	 }
 	 Goto riprendocosaprecedente if [#delivering #] else continuaJob
 	 State riprendocosaprecedente{
-	 	onMsg(moverobotdone:moverobotdone(OK)){
+	 	println("[$name] robot stava consegnando e ora riprenderà il lavoro")color yellow
+		request basicrobot -m moverobot:moverobot($X,$Y)
+	 	
 	 	println("[$name] robot rinizia il lavoro")color yellow
-		returnFromInterrupt
-		}
 	 }
+	 Transition t0
+	 whenReply moverobotdone-> continuaJob
 	 State continuaJob{
-	 	println("non stato facendo niente torno al mio lavoro")color yellow
+	 	println("non sto facendo niente torno al mio lavoro")color yellow
 	 	returnFromInterrupt
 	 }
 	 
@@ -345,14 +338,14 @@ QActor cargoservice context ctx_cargo{
 		}
 	}
 	
-	Goto moveProduct if [#CURRENT_LOAD+ Product_weight <= MAX_LOAD #] else too_much_weight
+	Goto checkSlot if [#CURRENT_LOAD+ Product_weight <= MAX_LOAD #] else too_much_weight
 	
 	State too_much_weight{
 		println("Il carico eccederebbe maxload, non è possibile eseguire la load") color yellow
 	}
 	Goto waiting_for_request
 	
-	State moveProduct{
+	State checkSlot{
 		println("[cargoservice] ingresso move product") color yellow
 		[# 
 			CURRENT_LOAD += Product_weight		      
@@ -365,6 +358,15 @@ QActor cargoservice context ctx_cargo{
 			    }
 		    }
 		#]
+		}
+		Goto moveProduct if [#Reserved_slot!=0#] else slotEsauriti
+		
+		State slotEsauriti{
+			println("[$name] slot esauriti") color yellow
+		}
+		
+		
+		State moveProduct{
 		request cargorobot -m move_product:product($Reserved_slot) 
 		println("[cargoservice] richiesta di move al cargo robot mandata") color yellow
 	}

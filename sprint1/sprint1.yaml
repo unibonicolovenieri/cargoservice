@@ -124,7 +124,6 @@ services:
        - eureka
      networks:
        - iss-network
-
 networks:
   iss-network:
     external: true

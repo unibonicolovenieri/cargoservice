@@ -187,30 +187,57 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t010",targetState="return_home",cond=whenReply("moverobotdone"))
+					 transition(edgeName="t010",targetState="arrived_at_slot",cond=whenReply("moverobotdone"))
 					transition(edgeName="t011",targetState="return_home_anyway",cond=whenReply("moverobotfailed"))
 					interrupthandle(edgeName="t012",targetState="stop",cond=whenEvent("stop"),interruptedStateTransitions)
 				}	 
-				state("return_home") { //this:State
+				state("arrived_at_slot") { //this:State
 					action { //it:State
-						delay(3000) 
-						if( checkMsgContent( Term.createTerm("moverobotdone(ok)"), Term.createTerm("moverobotdone(ok)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								
-											X = posizione["HOME"]!![0]!!
-											Y = posizione["HOME"]!![1]!!
-											
-								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
-								delivering = true 
-						}
+						CommUtils.outblack("Arrived at slot")
+						CommUtils.outblue("Direction")
+						
+									var Direction = orientamento[CurrentRequestSlot.toString()]!!
+						forward("setdirection", "dir($Direction)" ,"basicrobot" ) 
+						CommUtils.outblue("Direction $Direction")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t013",targetState="load_completed",cond=whenReply("moverobotdone"))
+					 transition( edgeName="goto",targetState="return_home", cond=doswitch() )
+				}	 
+				state("return_home") { //this:State
+					action { //it:State
+						delay(3000) 
+						
+									X = posizione["HOME"]!![0]!!
+									Y = posizione["HOME"]!![1]!!
+									
+						request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
+						delivering = true 
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t013",targetState="arrived_at_home",cond=whenReply("moverobotdone"))
 					transition(edgeName="t014",targetState="load_failed",cond=whenReply("moverobotfailed"))
 					interrupthandle(edgeName="t015",targetState="stop",cond=whenEvent("stop"),interruptedStateTransitions)
+				}	 
+				state("arrived_at_home") { //this:State
+					action { //it:State
+						CommUtils.outblack("Arrived at home")
+						CommUtils.outblue("Direction")
+						
+									var Direction = orientamento["HOME"]!!
+						forward("setdirection", "dir($Direction)" ,"basicrobot" ) 
+						CommUtils.outblue("Direction $Direction")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="load_completed", cond=doswitch() )
 				}	 
 				state("return_home_anyway") { //this:State
 					action { //it:State

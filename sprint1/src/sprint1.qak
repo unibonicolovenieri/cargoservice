@@ -26,6 +26,7 @@ Event stop: stop(X)
 Event resume: resume(X) 
 Event alarm           		: alarm(X)
 
+Dispatch setdirection : dir ( D )
 
 //alcuni messaggi basicrobot(da completare)
 Request moverobot    :  moverobot(TARGETX, TARGETY)  
@@ -185,28 +186,53 @@ QActor cargorobot context ctx_cargo{
 	
 	
 	Transition t0
-	whenReply moverobotdone -> return_home
+	whenReply moverobotdone -> arrived_at_slot
 	whenReply moverobotfailed-> return_home_anyway
 	whenInterruptEvent stop -> stop
 	
+	State arrived_at_slot{
+		println("Arrived at slot")
+		println("Direction") color blue
+		[#
+			var Direction = orientamento[CurrentRequestSlot.toString()]!!
+			#
+		]
+		forward basicrobot -m setdirection : dir($Direction)
+		println("Direction $Direction") color blue
+		
+	}
+	
+	Goto return_home
 	
 	State return_home{
 		delay 3000
-		onMsg(moverobotdone  :  moverobotdone(ok)){
+		//onMsg(moverobotdone  :  moverobotdone(ok)){
 		[#
 			X = posizione["HOME"]!![0]!!
 			Y = posizione["HOME"]!![1]!!
 			
 		#]
-			request basicrobot -m moverobot:moverobot($X,$Y)
+		request basicrobot -m moverobot:moverobot($X,$Y)
 		[#delivering = true#]
-		}
+		
 		}
 		Transition t0
-		whenReply moverobotdone -> load_completed
+		whenReply moverobotdone -> arrived_at_home
 		whenReply moverobotfailed-> load_failed
 		whenInterruptEvent stop -> stop
 		
+		State arrived_at_home{
+		println("Arrived at home")
+		println("Direction") color blue
+		[#
+			var Direction = orientamento["HOME"]!!
+			#
+		]
+		forward basicrobot -m setdirection : dir($Direction)
+		println("Direction $Direction") color blue
+		
+	}
+		Goto load_completed
 		
 		State return_home_anyway{
 			println("returnhomeanyway")

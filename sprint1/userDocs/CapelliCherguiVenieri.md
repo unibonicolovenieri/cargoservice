@@ -120,6 +120,21 @@ Come detto in precedenza ProductService è un componente già fornito dal commit
 
 ## Messaggi tra componenti
 
+### Contesti
+```
+ctx_cargo (localhost:8000)          [CORE DEL SISTEMA]
+├── cargorobot
+├── cargoservice
+├── test
+└── sonar_test
+
+ctx_basicrobot (127.0.0.1:8020)     [ROBOT FISICO]
+└── basicrobot (ExternalQActor)
+
+ctx_cargoservice (127.0.0.1:8111)   [SERVIZIO PRODOTTI]
+└── productservice (ExternalQActor)
+```
+
 #### Basicrobot
 (Messaggi gia presenti nell'attore fornito dal committente)
 ```

@@ -98,20 +98,19 @@ QActor cargorobot context ctx_cargo{
 	 whenReply engagerefused -> engage_refused
 	 whenInterruptEvent stop -> stop
 	 State stop{
-	 	onMsg(stop:stop(X)){
+	 	
 	 		emit alarm : alarm(allarme)
 	 		println("[$name] robot stopped")color yellow
-	 	}
+	 	
 	 } 
 	 Transition t0 
+	 whenReply moverobotfailed-> resume
 	 whenEvent resume -> resume
 	 
 	 	 State resume{
+					request basicrobot -m engage:engage($Myname,330) 
+	}
 
-	 		
-	 		println ("[$name] Riprendo a funzionare") color green
-			
-	 }
 	 Goto riprendocosaprecedente if [#delivering #] else continuaJob
 	 State riprendocosaprecedente{
 	 	println("[$name] robot stava consegnando e ora riprenderà il lavoro")color yellow
@@ -191,18 +190,23 @@ QActor cargorobot context ctx_cargo{
 	whenInterruptEvent stop -> stop
 	
 	State arrived_at_slot{
-		println("Arrived at slot")
+		println("Arrived at slot $CurrentRequestSlot")
 		println("Direction") color blue
 		[#
 			var Direction = orientamento[CurrentRequestSlot.toString()]!!
 			#
 		]
-		forward basicrobot -m setdirection : dir($Direction)
+		if [#CurrentRequestSlot != 3 && CurrentRequestSlot != 4#]{
+			forward basicrobot -m setdirection : dir($Direction)
 		println("Direction $Direction") color blue
+
+}
 		
 	}
 	
 	Goto return_home
+
+	
 	
 	State return_home{
 		delay 3000
@@ -458,7 +462,7 @@ QActor sonar_test context ctx_cargo {
 	
 	State start initial {
 		println("$name | started ") color green
-		delay 20000 
+		delay 2000 
 	}
 	Goto simulate_container_arrival
 	
@@ -467,7 +471,7 @@ QActor sonar_test context ctx_cargo {
 		println("$name | Simulo arrivo container") color green
 		println("$name | $Counter | numero dell'iterazione di Sonar Test") color gray       
 		emit container_trigger : container_trigger(si)
-		delay 15000
+		delay 10000
 	}
 	Goto simulate_container_absence
 	

@@ -34,7 +34,7 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				state("start") { //this:State
 					action { //it:State
 						CommUtils.outgreen("$name | started ")
-						delay(20000) 
+						delay(2000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -47,7 +47,7 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						CommUtils.outgreen("$name | Simulo arrivo container")
 						CommUtils.outgray("$name | $Counter | numero dell'iterazione di Sonar Test")
 						emit("container_trigger", "container_trigger(si)" ) 
-						delay(15000) 
+						delay(10000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

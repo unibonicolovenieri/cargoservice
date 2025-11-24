@@ -254,7 +254,7 @@ QActor cargorobot context ctx_cargo{
 		
 		
 		Transition t0
-		whenReply moverobotdone -> load_failed
+		whenReply moverobotdone -> load_failed //????? Chiedi con Luca
 		whenReply moverobotfailed-> load_failed
 		whenInterruptEvent stop -> stop	
 		 

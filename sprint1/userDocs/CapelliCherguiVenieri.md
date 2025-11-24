@@ -40,6 +40,10 @@ In questo Sprint ci siamo concentrati sull'analisi dei due componenti [*cargoser
 ### CargoService
 Il cargoservice è il componente che si occuperà di gestire le richieste di carico e scarico dei container. Le richieste arriveranno da un componente esterno e il cargo service dovrà elaborarle in base a diversi fattori, come la disponibilità degli slot, il peso totale dei container e l'ordine di arrivo, per poi accettarle o rifiutarle. Verrà implementato come un **orchestrator**: si occuperà di coordinare le attività del cargorobot, di gestire le richieste di carico in base allo stato del led e infine di comunicare con la web-gui per permettere l'interazione e il controllo da parte del committente. Il `cargoservice` riceve anche eventi dal `sonar` (mock del sensore) che simulano la presenza o assenza del container, gestendo guasti e ripristini. In caso di `sonar_error`, il `cargoservice` emette `stop` per sospendere le operazioni.
 
+La nostra scelta implementativa nello sprint0 è stata quella di non implementare nessun attore per la gestione dell'hold ma di implementare all'interno di cargoservice la logica di funzionamento.
+
+
+
 Il ciclo di funzionamento del cargoservice sarà il seguente:
 
 1. Ricezione del **PID** del prodotto (container) all'interno di una richiesta di carico (da richiesta diretta o da attore esterno).
@@ -74,8 +78,6 @@ Il cargorobot gestisce il DDRrobot e si interfaccia con il cargoservice al fine 
 
 Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), il posizionamento dell'IOport e il led.
 
-La nostra scelta implementativa nello sprint0 è stata quella di non implementare nessun attore per la gestione dell'hold ma di implementare all'interno di cargorobot la logica.
-
 Abbiamo deciso di definire un sistema di coordinate per poter identificare le posizioni degli slot e dell'IOport. La posizione (0,0) rappresenta la HOME del robot, ovvero il punto di partenza e ritorno dopo ogni operazione. Gli slot sono posizionati in coordinate fisse all'interno della stiva, ad esempio:
 - Slot 1: (1,1)
 - Slot 2: (1,3)
@@ -93,6 +95,9 @@ L'attività che il cargorobot dovrà svolgere sarà la seguente:
 3. Il cargorobot si dirige verso la pickup-position e preleva il container o attende che questo venga posizionato sull'IOport.
 4. Succesivamente dopo aver prelevato il container, si dirige verso lo slot fornito in precedenza e deposita il container.
 5. Una volta completata l'operazione cargorobot ritorna in (0,0) HOME e notifica a cargoservice il completamento dell'operazione. 
+
+Il movimento del robot viene gestito tramite funzionalità messe a disposizione da basicorbot24. Cargorobot si occcuperà di inviare i comandi di movimento tramite messaggi e di gestire le risposte che riceverà da basicrobot. Tramite il messaggio moverobot sarà possibile definire la posizione di destione del robot, basicrobot si occuperà di calcolare il percorso e di muovere il robot. Cargorobot attenderà la risposta di basicrobot per sapere se l'operazione è andata a buon fine o se è fallita (es. ostacolo imprevisto).
+Le coordinate di posizionamento del robot sono memorizzate all'interno di basicrobot, mentre il posizionamento del degli slot e  dell'IOport sono memorizzate all'interno di cargorobot.
 
 ### Considerazioni Aggiuntive (Cargorobot)
 #### Carico Completo
@@ -256,10 +261,182 @@ sonar_test -->  cargoservice -->  cargorobot -->  basicrobot
 problem_solved   stop/resume
 ```
 
-## Elaborazione
+## Implementazione
+### Cargoservice
+#### Gestione dell'occupazione degli slot
+Per la gestione dell'occupazione degli slot, abbiamo deciso di utilizzare una lista di booleani che rappresentano lo stato di ciascuno slot. In questo modo, possiamo facilmente verificare quali slot sono liberi e quali sono occupati. Inoltre, abbiamo definito delle variabili per tenere traccia del carico massimo e del carico attuale della stiva.
+```
+QActor cargoservice context ctx_cargo{
+     [#
+       	var Taken_slot=arrayListOf("false","false","false","false","true")
+    	val MAX_LOAD=500
+    	var CURRENT_LOAD=0
+    	var Product_weight = 0
+    	var Reserved_slot = 0
+     #]
+```
+#### Richiesta di carico prodotto
+Spiegazione dell'implementazione della richiesta di carico prodotto, che coinvolge la comunicazione con productservice per ottenere il peso del prodotto.
+```
+State check_product{
+		onMsg(container_trigger: container_trigger(X)){	
+			println("[cargoservice] check del prodotto")	
+			[#
+				val ID=1
+			#]			
+			request productservice -m getProduct:product($ID)	
+		}
+	}
+```
 
-È stata gestita la sincronizzazione tra `cargoservice` e `cargorobot` in presenza di errori del sonar, con l’introduzione degli eventi `stop`, `resume`, `alarm`, `sonar_error` e `problem_solved`.
-Il test `sonar_test` permette di validare il comportamento del sistema in caso di errori temporanei.
+
+### Cargorobot
+Il cargorobot al momento di ricezione di una richiesta di carico eseguirà sempre la pipeline di esecuzione.
+
+Movimento all'IOport:
+
+Movimento allo slot
+
+Ritorno alla Home:
+
+Attesa nuova richiesta o gestione richiesta in coda:
+```
+State goto_IOPort{
+		onMsg(move_product: product(SLOT)){
+            [# CurrentRequestSlot = payloadArg(0).toInt()
+            	X = posizione["IOport"]!![0]!!
+				Y = posizione["IOport"]!![1]!!
+            #]
+            println("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot") color yellow
+            println("Posizione X: $X Y: $Y") color yellow
+            request basicrobot -m moverobot:moverobot($X,$Y)
+            [#delivering = true
+            	
+            #]
+            println("sent ") color yellow
+        }
+	}
+	
+	Transition t0
+	whenReply moverobotfailed-> return_home_anyway
+	whenReply moverobotdone -> goto_slot
+	whenInterruptEvent stop -> stop
+	
+	
+	State goto_slot{
+		println("gotoslot") color yellow
+		delay 3000
+		onMsg(moverobotdone  :  moverobotdone(ok)){
+		[#
+			X = posizione[CurrentRequestSlot.toString()]!![0]!!
+			Y = posizione[CurrentRequestSlot.toString()]!![1]!!
+			
+		#]
+		println("[gotoslot] position received") color green
+		request basicrobot -m moverobot:moverobot($X,$Y)
+		[#delivering = true#]
+		println("gotoslot delivering: $delivering | position x: $X y: $Y") color green
+		}
+	}
+	
+	
+	Transition t0
+	whenReply moverobotdone -> arrived_at_slot
+	whenReply moverobotfailed-> return_home_anyway
+	whenInterruptEvent stop -> stop
+	
+	State arrived_at_slot{
+		println("Arrived at slot $CurrentRequestSlot")
+		println("Direction") color blue
+		[#
+			var Direction = orientamento[CurrentRequestSlot.toString()]!!
+			#
+		]
+		if [#CurrentRequestSlot != 3 && CurrentRequestSlot != 4#]{
+			forward basicrobot -m setdirection : dir($Direction)
+		println("Direction $Direction") color blue
+
+}
+	}	
+	Goto return_home
+	State return_home{
+		delay 3000
+		//onMsg(moverobotdone  :  moverobotdone(ok)){
+		[#
+			X = posizione["HOME"]!![0]!!
+			Y = posizione["HOME"]!![1]!!
+			
+		#]
+		request basicrobot -m moverobot:moverobot($X,$Y)
+		[#delivering = true#]
+		
+		}
+		Transition t0
+		whenReply moverobotdone -> arrived_at_home
+		whenReply moverobotfailed-> load_failed
+		whenInterruptEvent stop -> stop
+		
+		State arrived_at_home{
+		println("Arrived at home")
+		println("Direction") color blue
+		[#
+			var Direction = orientamento["HOME"]!!
+			#
+		]
+		forward basicrobot -m setdirection : dir($Direction)
+		println("Direction $Direction") color blue
+		
+	}
+		Goto load_completed
+		State return_home_anyway{
+			println("returnhomeanyway")
+			delay 3000
+			onMsg(moverobotfailed:fail(PLANDONE)){
+				[#
+				X = posizione["HOME"]!![0]!!
+				Y = posizione["HOME"]!![1]!!
+				#]
+				request basicrobot -m moverobot:moverobot($X,$Y)
+				 [#delivering = true#]
+			}
+		}
+		Transition t0
+		whenReply moverobotdone -> load_failed
+		whenReply moverobotfailed-> load_failed
+		whenInterruptEvent stop -> stop	
+```		
+#### Gestione della posizione e dello stato
+Per la gestione della posizione e dello stato del robot, abbiamo definito delle variabili e delle mappe hash per tenere traccia delle coordinate degli slot e dell'orientamento del robot in ciascuna posizione.
+```	
+QActor cargorobot context ctx_cargo{
+	
+	[#
+		val Myname = "$name"
+		var CurrentRequestSlot = 0
+		var delivering = false
+		val posizione = hashMapOf(
+		    "HOME"     to arrayOf(0, 0),
+		    "IOport"  to arrayOf(0, 4),
+		    "1"    to arrayOf(1, 1),
+		    "2"    to arrayOf(1, 3),
+		    "3"    to arrayOf(4, 1),
+		    "4"    to arrayOf(4, 3)
+		)
+		
+		val orientamento = hashMapOf(
+			"HOME"    	to "down",
+			"IOport" 	to "down",
+		    "1"   	to "right",
+		    "2" 	to "right",
+		    "3" 	to "left",
+		    "4" 	to "left"
+		)
+		
+		var X = 0
+		var Y = 0
+	#]
+```	
+
 
 ## Divisione dei task
 

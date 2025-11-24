@@ -55,9 +55,9 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t020",targetState="check_product",cond=whenRequest("load_product"))
-					interrupthandle(edgeName="t021",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
-					transition(edgeName="t022",targetState="check_product",cond=whenEvent("container_trigger"))
+					 transition(edgeName="t022",targetState="check_product",cond=whenRequest("load_product"))
+					interrupthandle(edgeName="t023",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+					transition(edgeName="t024",targetState="check_product",cond=whenEvent("container_trigger"))
 				}	 
 				state("stop") { //this:State
 					action { //it:State
@@ -65,14 +65,13 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val M=payloadArg(0) 
 								CommUtils.outyellow("[$name] sonar ha emesso un errore causa: $M")
-								emit("stop", "stop(si)" ) 
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t023",targetState="resume",cond=whenEvent("problem_solved"))
+					 transition(edgeName="t025",targetState="resume",cond=whenEvent("problem_solved"))
 				}	 
 				state("resume") { //this:State
 					action { //it:State
@@ -80,7 +79,6 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val M=payloadArg(0) 
 								CommUtils.outyellow("[$name] sonar ha risolto l'errore causa: $M")
-								emit("resume", "resume(ok)" ) 
 						}
 						returnFromInterrupt(interruptedStateTransitions)
 						//genTimer( actor, state )
@@ -88,7 +86,6 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
 				}	 
 				state("check_product") { //this:State
 					action { //it:State
@@ -96,7 +93,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outblack("[cargoservice] check del prodotto")
 								
-												val ID=1
+												val ID=payloadArg(0).toInt()
 								request("getProduct", "product($ID)" ,"productservice" )  
 						}
 						//genTimer( actor, state )
@@ -104,8 +101,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t024",targetState="check_load",cond=whenReply("getProductAnswer"))
-					interrupthandle(edgeName="t025",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+					 transition(edgeName="t026",targetState="check_load",cond=whenReply("getProductAnswer"))
+					interrupthandle(edgeName="t027",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
 				}	 
 				state("check_load") { //this:State
 					action { //it:State
@@ -177,8 +174,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t026",targetState="load_finished",cond=whenReply("movedProduct"))
-					interrupthandle(edgeName="t027",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+					 transition(edgeName="t028",targetState="load_finished",cond=whenReply("movedProduct"))
+					interrupthandle(edgeName="t029",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
 				}	 
 				state("load_finished") { //this:State
 					action { //it:State

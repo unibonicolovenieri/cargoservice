@@ -34,9 +34,9 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					action { //it:State
 						CommUtils.outblue("[test] avviato")
 						
-									val Myname = "$name"
+									
 									val Product="'{\"productId\":1,\"name\":\"p2\",\"weight\":100}'"
-						CommUtils.outblue("$Myname | creating product: $Product")
+						CommUtils.outblue("$name | creating product: $Product")
 						request("createProduct", "product($Product)" ,"productservice" )  
 						CommUtils.outyellow("[test]  mandata richiesta")
 						//genTimer( actor, state )
@@ -44,7 +44,7 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t028",targetState="createdProduct",cond=whenReply("createdProduct"))
+					 transition(edgeName="t030",targetState="createdProduct",cond=whenReply("createdProduct"))
 				}	 
 				state("createdProduct") { //this:State
 					action { //it:State
@@ -52,7 +52,7 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 						if( checkMsgContent( Term.createTerm("productid(ID)"), Term.createTerm("productid(ID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outyellow("[test]aaaaaaaaaaaaaaaaaa richiesta")
-								 val ID=payloadArg(0)+1  
+								 val ID=payloadArg(0).toInt()  
 								CommUtils.outyellow("[test] prodotto creato ID: $ID")
 								delay(50000) 
 						}
@@ -61,7 +61,7 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t029",targetState="moved",cond=whenReply("loadedProduct"))
+					 transition(edgeName="t031",targetState="moved",cond=whenReply("loadedProduct"))
 				}	 
 				state("moved") { //this:State
 					action { //it:State

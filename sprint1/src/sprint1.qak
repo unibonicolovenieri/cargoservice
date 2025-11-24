@@ -25,6 +25,8 @@ Reply   moveProductFailed:fail(failed) for move_product
 Event stop: stop(X)  
 Event resume: resume(X) 
 Event alarm           		: alarm(X)
+Dispatch nextmove     : nextmove(M)
+Dispatch nomoremove   : nomoremove(M)
 
 Dispatch setdirection : dir ( D )
 
@@ -90,32 +92,44 @@ QActor cargorobot context ctx_cargo{
 	
 	State start initial{
 		println("[cargorobot] STARTED ") color yellow
-		request basicrobot -m engage:engage($Myname,330) 
+		request basicrobot -m engage:engage($Myname,340) 
 	}
 
 	 Transition t0 
 	 whenReply engagedone -> waiting_for_request
 	 whenReply engagerefused -> engage_refused
-	 whenInterruptEvent stop -> stop
+	 whenInterruptEvent sonar_error -> stop
 	 State stop{
 	 	
-	 		emit alarm : alarm(allarme)
+	 		emit alarm           		: alarm(X)
 	 		println("[$name] robot stopped")color yellow
 	 	
 	 } 
 	 Transition t0 
 	 whenReply moverobotfailed-> resume
-	 whenEvent resume -> resume
-	 
+	 whenEvent problem_solved -> resume
+	  
 	 	 State resume{
-					request basicrobot -m engage:engage($Myname,330) 
+	 	 			forward basicrobot -m nomoremove:nomoremove(M)
+	 	 			//request basicrobot -m engage:engage($Myname,340)
+	 	 			
 	}
-
+	Transition t0 
+    whenReply moverobotfailed-> reengage
+    whenReply engagedone -> reengage
+	State reengage{
+		
+			println("$name reengage done")
+			
+		
+		
+	}
 	 Goto riprendocosaprecedente if [#delivering #] else continuaJob
 	 State riprendocosaprecedente{
+	 	
 	 	println("[$name] robot stava consegnando e ora riprenderà il lavoro")color yellow
 		request basicrobot -m moverobot:moverobot($X,$Y)
-	 	
+	 	delay 3000
 	 	println("[$name] robot rinizia il lavoro")color yellow
 	 }
 	 Transition t0
@@ -143,7 +157,7 @@ QActor cargorobot context ctx_cargo{
 	 
 	Transition t0
 	whenRequest move_product -> goto_IOPort
-	whenInterruptEvent stop -> stop
+	whenInterruptEvent sonar_error -> stop
 	
 	State goto_IOPort{
 		onMsg(move_product: product(SLOT)){
@@ -164,7 +178,7 @@ QActor cargorobot context ctx_cargo{
 	Transition t0
 	whenReply moverobotfailed-> return_home_anyway
 	whenReply moverobotdone -> goto_slot
-	whenInterruptEvent stop -> stop
+	whenInterruptEvent sonar_error -> stop
 	
 	
 	State goto_slot{
@@ -187,7 +201,7 @@ QActor cargorobot context ctx_cargo{
 	Transition t0
 	whenReply moverobotdone -> arrived_at_slot
 	whenReply moverobotfailed-> return_home_anyway
-	whenInterruptEvent stop -> stop
+	whenInterruptEvent sonar_error -> stop
 	
 	State arrived_at_slot{
 		println("Arrived at slot $CurrentRequestSlot")
@@ -223,7 +237,7 @@ QActor cargorobot context ctx_cargo{
 		Transition t0
 		whenReply moverobotdone -> arrived_at_home
 		whenReply moverobotfailed-> load_failed
-		whenInterruptEvent stop -> stop
+		whenInterruptEvent sonar_error -> stop
 		
 		State arrived_at_home{
 		println("Arrived at home")
@@ -256,7 +270,7 @@ QActor cargorobot context ctx_cargo{
 		Transition t0
 		whenReply moverobotdone -> load_failed //????? Chiedi con Luca
 		whenReply moverobotfailed-> load_failed
-		whenInterruptEvent stop -> stop	
+		whenInterruptEvent sonar_error -> stop	
 		 
 		
 		State load_completed{
@@ -319,7 +333,7 @@ QActor cargoservice context ctx_cargo{
 	[# val M=payloadArg(0)#]	
 	
 	 println("[$name] sonar ha emesso un errore causa: $M")	color yellow
-	 emit stop:stop(si) //dico al cargorobot di fermarsi
+	 //emit stop:stop(si) //dico al cargorobot di fermarsi
 	 }
 	}
 	
@@ -333,11 +347,11 @@ QActor cargoservice context ctx_cargo{
 	[# val M=payloadArg(0)#]	
 	
 	 println("[$name] sonar ha risolto l'errore causa: $M")	color yellow
-	 emit resume:resume(ok) //dico al cargorobot di riprendere ciò che stava facendo
+	 //emit resume:resume(ok) //dico al cargorobot di riprendere ciò che stava facendo
 	 }
 	 returnFromInterrupt //provo a toglierla ma occhio - 7 novembre alle 10:32
 	}
-	Goto waiting_for_request
+	
 	
 	
 	
@@ -346,7 +360,7 @@ QActor cargoservice context ctx_cargo{
 		onMsg(container_trigger: container_trigger(X)){	
 			println("[cargoservice] check del prodotto")	
 			[#
-				val ID=1
+				val ID=payloadArg(0).toInt()
 			#]			
 			request productservice -m getProduct:product($ID)	
 		}
@@ -420,10 +434,10 @@ QActor test context ctx_cargo{
 	State start initial{
 		println("[test] avviato") color blue  
 		[#
-			val Myname = "$name"
+			
 			val Product="'{\"productId\":1,\"name\":\"p2\",\"weight\":100}'"
 		#]
-		println("$Myname | creating product: $Product") color blue
+		println("$name | creating product: $Product") color blue
 		request productservice -m createProduct: product($Product)
 		println("[test]  mandata richiesta") color yellow 
 	}	
@@ -437,7 +451,7 @@ QActor test context ctx_cargo{
 		println("[test]aaaaaaaaaaaaaaaaaa richiesta") color yellow 
 		onMsg(createdProduct : productid(ID) ){
 			println("[test]aaaaaaaaaaaaaaaaaa richiesta") color yellow 
-			[# val ID=payloadArg(0)+1 #]
+			[# val ID=payloadArg(0).toInt() #]
 	           
 	   		println("[test] prodotto creato ID: $ID") color yellow
 	   		delay 50000
@@ -470,7 +484,7 @@ QActor sonar_test context ctx_cargo {
 	State simulate_container_arrival {
 		println("$name | Simulo arrivo container") color green
 		println("$name | $Counter | numero dell'iterazione di Sonar Test") color gray       
-		emit container_trigger : container_trigger(si)
+		emit container_trigger : container_trigger(1)
 		delay 10000
 	}
 	Goto simulate_container_absence
@@ -488,7 +502,7 @@ QActor sonar_test context ctx_cargo {
 	
 	State maybe_fail {
 		[# Counter++ #]
-		if [# Counter % 4 == 0 #] {
+		if [# Counter % 2 == 0 #] {
 			println("$name | Guasto sonar!") color magenta
 			emit sonar_error : sonar_error(errore)
 			delay 4000

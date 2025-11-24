@@ -35,11 +35,9 @@ with Diagram('sprint1Arch', show=False, outformat='png', graph_attr=graphattr) a
           test=Custom('test','./qakicons/symActorWithobjSmall.png')
           sonar_test=Custom('sonar_test','./qakicons/symActorWithobjSmall.png')
      cargorobot >> Edge( label='alarm', **eventedgeattr, decorate='true', fontcolor='red') >> sys
-     sys >> Edge( label='resume', **evattr, decorate='true', fontcolor='darkgreen') >> cargorobot
+     sys >> Edge( label='problem_solved', **evattr, decorate='true', fontcolor='darkgreen') >> cargorobot
      sys >> Edge( label='container_trigger', **evattr, decorate='true', fontcolor='darkgreen') >> cargoservice
-     cargoservice >> Edge( label='stop', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sys >> Edge( label='problem_solved', **evattr, decorate='true', fontcolor='darkgreen') >> cargoservice
-     cargoservice >> Edge( label='resume', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sonar_test >> Edge( label='container_trigger', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sonar_test >> Edge( label='container_absence', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sonar_test >> Edge( label='sonar_error', **eventedgeattr, decorate='true', fontcolor='red') >> sys
@@ -48,5 +46,5 @@ with Diagram('sprint1Arch', show=False, outformat='png', graph_attr=graphattr) a
      cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<getProduct<font color="darkgreen"> getProductAnswer</font> &nbsp; >',  fontcolor='magenta') >> productservice
      test >> Edge(color='magenta', style='solid', decorate='true', label='<createProduct<font color="darkgreen"> createdProduct</font> &nbsp; >',  fontcolor='magenta') >> productservice
      cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<move_product<font color="darkgreen"> movedProduct moveProductFailed</font> &nbsp; >',  fontcolor='magenta') >> cargorobot
-     cargorobot >> Edge(color='blue', style='solid',  decorate='true', label='<setdirection &nbsp; >',  fontcolor='blue') >> basicrobot
+     cargorobot >> Edge(color='blue', style='solid',  decorate='true', label='<nomoremove &nbsp; setdirection &nbsp; >',  fontcolor='blue') >> basicrobot
 diag

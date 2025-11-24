@@ -46,7 +46,7 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					action { //it:State
 						CommUtils.outgreen("$name | Simulo arrivo container")
 						CommUtils.outgray("$name | $Counter | numero dell'iterazione di Sonar Test")
-						emit("container_trigger", "container_trigger(si)" ) 
+						emit("container_trigger", "container_trigger(1)" ) 
 						delay(10000) 
 						//genTimer( actor, state )
 					}
@@ -72,7 +72,7 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				state("maybe_fail") { //this:State
 					action { //it:State
 						 Counter++  
-						if(  Counter % 4 == 0  
+						if(  Counter % 2 == 0  
 						 ){CommUtils.outmagenta("$name | Guasto sonar!")
 						emit("sonar_error", "sonar_error(errore)" ) 
 						delay(4000) 

@@ -41,7 +41,6 @@ In questo Sprint ci siamo concentrati sull'analisi dei due componenti [*cargoser
 ### CargoService
 Il cargoservice è il componente che si occuperà di gestire le richieste di carico e scarico dei container. Le richieste arriveranno da un componente esterno e il cargo service dovrà elaborarle in base a diversi fattori, come la disponibilità degli slot, il peso totale dei container e l'ordine di arrivo, per poi accettarle o rifiutarle. Verrà implementato come un **orchestrator**: si occuperà di coordinare le attività del cargorobot, di gestire le richieste di carico in base allo stato del led e infine di comunicare con la web-gui per permettere l'interazione e il controllo da parte del committente. Il `cargoservice` riceve anche eventi dal `sonar` (mock del sensore) che simulano la presenza o assenza del container, gestendo guasti e ripristini. In caso di `sonar_error`, il `cargoservice` emette `stop` per sospendere le operazioni.
 
-
 Il ciclo di funzionamento del cargoservice sarà il seguente:
 
 1. Ricezione del **PID** del prodotto (container) all'interno di una richiesta di carico (da richiesta diretta o da attore esterno).
@@ -77,14 +76,24 @@ Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di
   Request handle_load_operation : handle_load_operation(SLOT) //Start operazione di carico  
   Reply load_operation_done : load_operation_done(OK) for handle_load_operation //Conferma avvenuto carico 
 ```
-
-#### Considerazioni Aggiuntive
-In caso di evento scatenato dal led (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Per comunicare queste interruzzioni a cargorobot possiamo inoltrare gli eventi che in futuro svilupperemo sul componente led. Led in questo sprint sarà un mock. Il cargoservice scatenerà due eventi stop e resume in risposta agli eventi dell'attuale mockup Led.
+ 
+#### Considerazioni Aggiuntive (Cargoservice)
+In caso di evento scatenato dal led (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Per comunicare queste interruzzioni a cargorobot possiamo inoltrare gli eventi che in futuro svilupperemo sul componente led. Led in questo sprint sarà un mock, che per comodità abbiamo deciso di implementare come attore. Il cargoservice scatenerà due eventi stop e resume in risposta agli eventi dell'attuale mockup Led.
 
 ### Cargorobot
 Il cargorobot gestisce il DDRrobot e si interfaccia con il cargoservice al fine di eseguire le richieste che arrivano. Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva (dimensione, ostacoli, perimetro, posizionamento dell'IOport)
 
 Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), il posizionamento dell'IOport e il led.
+
+La nostra scelta implementativa nello sprint0 è stata quella di non implementare nessun attore per la gestione dell'hold ma di implementare all'interno di cargorobot la logica.
+
+Abbiamo deciso di definire un sistema di coordinate per poter identificare le posizioni degli slot e dell'IOport. La posizione (0,0) rappresenta la HOME del robot, ovvero il punto di partenza e ritorno dopo ogni operazione. Gli slot sono posizionati in coordinate fisse all'interno della stiva, ad esempio:
+- Slot 1: (1,1)
+- Slot 2: (1,3)
+- Slot 3: (4,1)
+- Slot 4: (4,3)
+- Slot 5: Slot che consideriamo sempre pieno, non utilizzabile
+- IOport: (1,5)
 
 Può gestire eventi `stop` e `resume` ricevuti dal `cargoservice`. Durante `stop` emette un `alarm` e sospende l'attività, la variabile `delivering` ci informa sullo stato. Su `resume`, se stava consegnando, riprende automaticamente dal punto in cui era rimasto.
 
@@ -96,17 +105,18 @@ L'attività che il cargorobot dovrà svolgere sarà la seguente:
 4. Succesivamente dopo aver prelevato il container, si dirige verso lo slot fornito in precedenza e deposita il container.
 5. Una volta completata l'operazione cargorobot ritorna in (0,0) HOME e notifica a cargoservice il completamento dell'operazione. 
 
-#### Considerazioni Aggiuntive
-
+### Considerazioni Aggiuntive (Cargorobot)
+#### Carico Completo
 Il cargorobot deve tornare in HOME e solo dopo aver effettuato un tune_at_home notificare al cargoservice il completamento dell'operazione. 
 
+#### Evento di allarme
 In caso di evento scatenato dal led (es. malfunzionamento, emergenza) il cargorobot deve interrompere ogni attività in corso e attendere ulteriori istruzioni. 
 Questo ci porta alla conclusione di dover gestire e mantenere memorizzate alcune informazioni:
 
 - Avanzamento della richiesta (Arrivato all'IOport, Arrivato allo slot, Arrivato a HOME)
 - Salvataggio della richiesta in corso (SLOT in cui effettuare il caricamento se non ancora eseguito)
 
-Utilizzeremo *alarm(x)* per notificae basicrobot un evento di blocco. Useremo *nome comando* per riprendere l'attività.
+Utilizzeremo *alarm(x)* per notificare a basicrobot un evento di blocco. Useremo *nome comando* per riprendere l'attività.
 
 ### ProductService
 
@@ -128,7 +138,7 @@ ctx_cargo (localhost:8000)          [CORE DEL SISTEMA]
 ├── test
 └── sonar_test
 
-ctx_basicrobot (127.0.0.1:8020)     [ROBOT FISICO]
+ctx_basicrobot (127.0.0.1:8020)     
 └── basicrobot (ExternalQActor)
 
 ctx_cargoservice (127.0.0.1:8111)   [SERVIZIO PRODOTTI]
@@ -220,7 +230,7 @@ ctx_cargoservice (127.0.0.1:8111)   [SERVIZIO PRODOTTI]
 
 ## Piano di test
 
-Abbiamo simulato tramite un mockup il funzionamento di alcune componenti del sistema che al momento non sono ancora state implementate. Tuttavia tramite i test non solo ci sarà permesso di testare correttamente il funzionamento del sistema, ma anche di poter simulare il comportamento di alcune componenti che ancora non sono state implementate.
+Abbiamo simulato  il funzionamento di alcune componenti del sistema che al momento non sono ancora state implementate. Abbiamo deciso di implementare tramite attori mokup il comportamento del test actor per la creazione dei prodotti e delle richiste di carico e scarico prodotti per una questione di comodità implementativa e ordine mentale, in quanto utilizzando lo stesso linguaggio di modellazione (QActor) ci è stato più semplice definire le interazioni tra i componenti.
 
 Nella fase di test, viene mandata una richiesta dal componente di Test e gestita da `cargoservice`.
 
@@ -261,8 +271,6 @@ problem_solved   stop/resume
 
 È stata gestita la sincronizzazione tra `cargoservice` e `cargorobot` in presenza di errori del sonar, con l’introduzione degli eventi `stop`, `resume`, `alarm`, `sonar_error` e `problem_solved`.
 Il test `sonar_test` permette di validare il comportamento del sistema in caso di errori temporanei.
-
-## Recap
 
 ## Divisione dei task
 

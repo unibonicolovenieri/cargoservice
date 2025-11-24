@@ -10,13 +10,12 @@
     - [Cargorobot](#cargorobot)
     - [ProductService](#productservice)
     - [Messaggi tra componenti](#messaggi-tra-componenti)
-      - [Cargoservice](#cargoservice-1)
-      - [Cargorobot](#cargorobot-1)
-      - [Basicrobot](#basicrobot)
-    - [ProductService](#productservice-1)
+      - [Contesti](#contesti)
+      - [Basicrobot](#messaggi-basicrobot)
+      - [ProductService](#messaggi-productservice)
+      - [Messaggi nuovi](#messaggi-nuovi)
   - [Piano di test](#piano-di-test)
   - [Elaborazione](#elaborazione)
-  - [Recap](#recap)
   - [Divisione dei task](#divisione-dei-task)
 
 ## Obbiettivi
@@ -25,10 +24,10 @@ L'obbiettivo prefissato di questo sprint è quello di analizzare i requisiti dei
 
 I requisiti che implementeremo in questo sprint sono:
 
-1. Un sistema in grado di **ricevere** una richiesta di carico, **accettarla** o **rifiutarla** in base a fattori che visualizzeremo nel prossimo punto (Analisi del problema). Qualora stia elaborando una richiesta, **metta in coda** le richieste che arrivano contemporaneamente in maniera da non perderne nessuna e poterle gestire singolarmente una volta terminata la precedente.
+1. Un sistema in grado di **ricevere** una richiesta di carico, **accettarla** o **rifiutarla** in base a fattori che visualizzeremo nel prossimo punto (Analisi del problema). 
 
 2. Un sistema che riesca ad effettuare un **carico completo**.
-    - Verifica dopo essersi posizionato all'IO port la presenza di un container
+    - Verifica la presenza di un container
     - Carico del container
     - Posizionamento e scarico del container nello slot corretto
     - Return to home
@@ -46,7 +45,7 @@ Il ciclo di funzionamento del cargoservice sarà il seguente:
 1. Ricezione del **PID** del prodotto (container) all'interno di una richiesta di carico (da richiesta diretta o da attore esterno).
 2. **Verifica del peso** tramite una richiesta al componente **productservice**. In questa richiesta viene inserito il PID del prodotto del quale si vuole conoscere il peso.
 3. La risposta di productservice può essere di due tipi:
-    - **PID non registrato (ERRORE)**: il PID inviato da cargoservice non è registrato nel sistema. Cargoservice propagherà l'errore al mittente della richiesta di carico (in questo caso non avendo ancora implementato la parte dove vengono generate le richieste di carico, il mittente sarà un mockup che simulerà questo comportamento) e si preparerà a soddisfare la prossima richiesta.
+    - **PID non registrato (ERRORE)**: il PID inviato da cargoservice non è registrato nel sistema.
     - **Peso relativo al PID**: Restituisce il peso relativo al PID inviato in precedenza.
   
 4. Una volta ottenuto il peso la procedura di carico viene eseguita sotto le seguenti condizioni:
@@ -57,7 +56,7 @@ Dunque la risposta che cargoservice darà alla richiesta di carico sarà:
 - **RIFIUTO**: In caso di mancanza di una delle due condizioni sopra - Risposta di errore
 - **ACCETTAZIONE**: Condizioni soddisfatte e nella risposta viene specificato lo slot in cui il prodotto dovrà essere caricato.
 In caso di mancanza di una delle due condizioni verrà segnalato il relativo errore.
-5. Cargoservice richiede al cargorobot di eseguire la load specificando il PID del prodotto, delegando la decisione dello slot in cui posizionarlo al cargorobot.
+5. Cargoservice richiede al cargorobot di eseguire la load specificando il PID del prodotto, scegliendo uno slot libero.
 Questo serve a dividere la logica di gestione della stiva dall'effettiva evasione del compito,
  se ad esempio il robot impiegasse meno tempo a caricare il prodotto sullo slot numero 1 piuttosto che in altri, 
  vogliamo che il cargoservice ne sia totalmente ignaro.
@@ -65,17 +64,7 @@ Questo serve a dividere la logica di gestione della stiva dall'effettiva evasion
 7. cargoservice riceve in risposta lo slot in cui è stato caricato il prodotto dal cargorobot, aggiorna lo stato della stiva(peso,numero di slot liberi) ed è pronto per gestire nuove richieste.
 
 xc
-Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di gestire gli slot e quello di coordinare l'operazione di carico. Necessiterà dunque di Request e Reply sviluppate in questo modo
-
-```
-  Request slot_request : slot_request(WEIGHT) //Richiesta di carico di un prodotto
-  Reply slot_accepted : slot_accepted(SLOT) for slot_request //Conferma accettazione carico con assegnazione slot
-  Reply slot_refused : slot_refused(REASON) for slot_request //Rifiuto con motivazione
-```
-```
-  Request handle_load_operation : handle_load_operation(SLOT) //Start operazione di carico  
-  Reply load_operation_done : load_operation_done(OK) for handle_load_operation //Conferma avvenuto carico 
-```
+Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di gestire gli slot e quello di coordinare l'operazione di carico. Necessiterà dunque di Request e Reply.
  
 #### Considerazioni Aggiuntive (Cargoservice)
 In caso di evento scatenato dal led (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Per comunicare queste interruzzioni a cargorobot possiamo inoltrare gli eventi che in futuro svilupperemo sul componente led. Led in questo sprint sarà un mock, che per comodità abbiamo deciso di implementare come attore. Il cargoservice scatenerà due eventi stop e resume in risposta agli eventi dell'attuale mockup Led.
@@ -145,7 +134,7 @@ ctx_cargoservice (127.0.0.1:8111)   [SERVIZIO PRODOTTI]
 └── productservice (ExternalQActor)
 ```
 
-#### Basicrobot
+#### Messaggi Basicrobot
 (Messaggi gia presenti nell'attore fornito dal committente)
 ```
     Dispatch cmd       	: cmd(MOVE)         
@@ -191,7 +180,7 @@ ctx_cargoservice (127.0.0.1:8111)   [SERVIZIO PRODOTTI]
     Request getenvmap     : getenvmap(X)
     Reply   envmap        : envmap(MAP)  for getenvmap
 ```
-#### ProductService
+#### Messaggi ProductService
 (Messaggi già presenti nell'attore fornito dal committente)
 
 ```

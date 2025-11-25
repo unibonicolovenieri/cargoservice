@@ -124,6 +124,28 @@ services:
        - eureka
      networks:
        - iss-network
+
+  sprint1:
+    image: lucacapelli/sprin1:1.0
+    mem_limit: 512m
+    environment:
+      - SERVICE_HOST=127.0.0.1
+      - SERVICE_IP=127.0.0.1
+    ports:
+      - "8000:8000"
+    depends_on:
+      - wenv
+      - basicrobot24
+      - eureka
+      - cargoserviceqak
+      - mongodb
+      - logstash
+      - kibana
+      - mosquitto
+      - elasticsearch
+    networks:
+      - iss-network
+
 networks:
   iss-network:
     external: true

@@ -40,6 +40,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					action { //it:State
 						CommUtils.outyellow("[cargoservice] STARTED ")
 						delay(5000) 
+						delay(30000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

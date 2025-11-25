@@ -46,8 +46,8 @@ Event sonar_error:sonar_error(CAUSA)
 Event problem_solved:problem_solved(CAUSA)
        
 //contesti  
-Context ctx_cargoservice	ip [host="127.0.0.1" port=8111]
-Context ctx_basicrobot ip [host="127.0.0.1" port=8020] 
+Context ctx_cargoservice	ip [host="cargoserviceqak" port=8111]
+Context ctx_basicrobot ip [host="basicrobot24" port=8020] 
 Context ctx_cargo	ip [host="localhost" port=8000]
 
 
@@ -91,6 +91,7 @@ QActor cargorobot context ctx_cargo{
 	#]
 	
 	State start initial{
+		delay 30000
 		println("[cargorobot] STARTED ") color yellow
 		request basicrobot -m engage:engage($Myname,340) 
 	}
@@ -314,6 +315,7 @@ QActor cargoservice context ctx_cargo{
 	State start initial{
 		println("[cargoservice] STARTED ") color yellow
 		delay 5000
+		delay 30000
 	}
 	Goto waiting_for_request
 	 
@@ -434,6 +436,7 @@ QActor cargoservice context ctx_cargo{
 
 QActor test context ctx_cargo{
 	State start initial{
+		delay 30000
 		println("[test] avviato") color blue  
 		[#
 			
@@ -479,6 +482,7 @@ QActor sonar_test context ctx_cargo {
 	State start initial {
 		println("$name | started ") color green
 		delay 2000 
+		delay 30000
 	}
 	Goto simulate_container_arrival
 	

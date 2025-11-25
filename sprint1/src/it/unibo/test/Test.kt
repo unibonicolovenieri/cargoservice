@@ -32,6 +32,7 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 		return { //this:ActionBasciFsm
 				state("start") { //this:State
 					action { //it:State
+						delay(30000) 
 						CommUtils.outblue("[test] avviato")
 						
 									

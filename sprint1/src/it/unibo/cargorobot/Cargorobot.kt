@@ -56,6 +56,7 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 		return { //this:ActionBasciFsm
 				state("start") { //this:State
 					action { //it:State
+						delay(30000) 
 						CommUtils.outyellow("[cargorobot] STARTED ")
 						request("engage", "engage($Myname,340)" ,"basicrobot" )  
 						//genTimer( actor, state )

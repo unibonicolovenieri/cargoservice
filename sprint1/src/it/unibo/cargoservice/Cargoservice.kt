@@ -31,7 +31,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 		//IF actor.withobj !== null val actor.withobj.name» = actor.withobj.method»ENDIF
 		
 		       	var Taken_slot=arrayListOf("false","false","false","false","true")
-		    	val MAX_LOAD=100
+		    	val MAX_LOAD=500
 		    	var CURRENT_LOAD=0
 		    	var Product_weight = 0
 		    	var Reserved_slot = 0
@@ -39,6 +39,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 				state("start") { //this:State
 					action { //it:State
 						CommUtils.outyellow("[cargoservice] STARTED ")
+						delay(5000) 
+						delay(30000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -54,11 +56,41 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t011",targetState="check_product",cond=whenRequest("load_product"))
+					 transition(edgeName="t021",targetState="check_product",cond=whenRequest("load_product"))
+					interrupthandle(edgeName="t022",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+					transition(edgeName="t023",targetState="check_product",cond=whenEvent("container_trigger"))
+				}	 
+				state("stop") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("sonar_error(CAUSA)"), Term.createTerm("sonar_error(CAUSA)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 val M=payloadArg(0) 
+								CommUtils.outyellow("[$name] sonar ha emesso un errore causa: $M")
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t024",targetState="resume",cond=whenEvent("problem_solved"))
+				}	 
+				state("resume") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("problem_solved(CAUSA)"), Term.createTerm("problem_solved(CAUSA)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 val M=payloadArg(0) 
+								CommUtils.outyellow("[$name] sonar ha risolto l'errore causa: $M")
+						}
+						returnFromInterrupt(interruptedStateTransitions)
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
 				}	 
 				state("check_product") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("product(ID)"), Term.createTerm("product(ID)"), 
+						if( checkMsgContent( Term.createTerm("container_trigger(X)"), Term.createTerm("container_trigger(X)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outblack("[cargoservice] check del prodotto")
 								
@@ -70,7 +102,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t012",targetState="check_load",cond=whenReply("getProductAnswer"))
+					 transition(edgeName="t025",targetState="check_load",cond=whenReply("getProductAnswer"))
+					interrupthandle(edgeName="t026",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
 				}	 
 				state("check_load") { //this:State
 					action { //it:State
@@ -86,14 +119,14 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="moveProduct", cond=doswitchGuarded({CURRENT_LOAD+ Product_weight <= MAX_LOAD  
+					 transition( edgeName="goto",targetState="checkSlot", cond=doswitchGuarded({CURRENT_LOAD+ Product_weight <= MAX_LOAD  
 					}) )
 					transition( edgeName="goto",targetState="too_much_weight", cond=doswitchGuarded({! (CURRENT_LOAD+ Product_weight <= MAX_LOAD  
 					) }) )
 				}	 
 				state("too_much_weight") { //this:State
 					action { //it:State
-						CommUtils.outblack("Il carico eccederebbe maxload, non è possibile eseguire la load")
+						CommUtils.outyellow("Il carico eccederebbe maxload, non è possibile eseguire la load")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -101,9 +134,9 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					}	 	 
 					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
 				}	 
-				state("moveProduct") { //this:State
+				state("checkSlot") { //this:State
 					action { //it:State
-						CommUtils.outblack("[cargoservice] ingresso move product")
+						CommUtils.outyellow("[cargoservice] ingresso move product")
 						 
 									CURRENT_LOAD += Product_weight		      
 								    Reserved_slot=0   
@@ -114,14 +147,36 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 										    break;		    	
 									    }
 								    }
-						request("move_product", "product($Reserved_slot)" ,"cargorobot" )  
-						CommUtils.outblack("[cargoservice] richiesta di move al basic robot mandata")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t013",targetState="load_finished",cond=whenReply("movedProduct"))
+					 transition( edgeName="goto",targetState="moveProduct", cond=doswitchGuarded({Reserved_slot!=0 
+					}) )
+					transition( edgeName="goto",targetState="slotEsauriti", cond=doswitchGuarded({! (Reserved_slot!=0 
+					) }) )
+				}	 
+				state("slotEsauriti") { //this:State
+					action { //it:State
+						CommUtils.outyellow("[$name] slot esauriti")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+				}	 
+				state("moveProduct") { //this:State
+					action { //it:State
+						request("move_product", "product($Reserved_slot)" ,"cargorobot" )  
+						CommUtils.outyellow("[cargoservice] richiesta di move al cargo robot mandata")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t027",targetState="load_finished",cond=whenReply("movedProduct"))
+					interrupthandle(edgeName="t028",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
 				}	 
 				state("load_finished") { //this:State
 					action { //it:State

@@ -9,11 +9,12 @@
     - [CargoService](#cargoservice)
     - [Cargorobot](#cargorobot)
     - [ProductService](#productservice)
-    - [Messaggi tra componenti](#messaggi-tra-componenti)
-      - [Cargoservice](#cargoservice-1)
-      - [Cargorobot](#cargorobot-1)
-      - [Basicrobot](#basicrobot)
-    - [ProductService](#productservice-1)
+	- [Basicorobot](#basicrobot)
+  - [Messaggi tra componenti](#messaggi-tra-componenti)
+    - [Contesti](#contesti)
+    - [Messaggi Basicrobot](#messaggi-basicrobot)
+    - [Messaggi ProductService](#messaggi-productservice)
+    - [Messaggi nuovi](#messaggi-nuovi)
   - [Piano di test](#piano-di-test)
   - [Elaborazione](#elaborazione)
   - [Recap](#recap)
@@ -82,7 +83,7 @@ Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di
 In caso di evento scatenato dal led (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Per comunicare queste interruzzioni a cargorobot possiamo inoltrare gli eventi che in futuro svilupperemo sul componente led. Led in questo sprint sarà un mock. Il cargoservice scatenerà due eventi stop e resume in risposta agli eventi dell'attuale mockup Led.
 
 ### Cargorobot
-Il cargorobot gestisce il DDRrobot e si interfaccia con il cargoservice al fine di eseguire le richieste che arrivano. Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva (dimensione, ostacoli, perimetro, posizionamento dell'IOport)
+Il cargorobot gestisce il basicrobot colmando **l'astraction gap** che si individua all'interno di basicrbot. Ovvero portando il DDR dalla semplice capacità di muoversi all'interno della mappa fornita alla possibilità di eseguire operazioni di carico e scarico dei container (eseguibili sotto forma di messaggi grazie all'implementazione sotto forma di attore). Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva (dimensione, ostacoli, perimetro, posizionamento dell'IOport)
 
 Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), il posizionamento dell'IOport e il led.
 
@@ -116,7 +117,26 @@ Il productservice è un componente che viene gia fornito dal committente per la 
 
 Come detto in precedenza ProductService è un componente già fornito dal committente, pertanto non verrà implementato da noi, ma ci limiteremo ad utilizzarlo per le nostre esigenze. Le interazioni che avremo con questo componente sono analizzate nel prossimo punto.
 
-#### Basicrobot
+### Basicrobot
+Basicrobot è un attore fornito dal comittente che è in grado di gestire il movimento del DDRrobot all'interno del WEnv. Basicrobot possiede una modellazione interna della stiva e delle sue caratteristiche (ostacoli, posizionamento dell'IOport e del led). Basicrobot mette a disposizione un planner con il quale si è in grado di eseguire la sequenza di mosse necessarie al fine di raggungere una determinata posizione (di coordinate X e Y). I [Messaggi Basicrobot](#messaggi-basicrobot) sono visibili [qui](#messaggi-basicrobot).
+## Messaggi tra componenti
+
+### Contesti
+```
+ctx_cargo (localhost:8000)          [CORE DEL SISTEMA]
+├── cargorobot
+├── cargoservice
+├── test
+└── sonar_test
+
+ctx_basicrobot (127.0.0.1:8020)     
+└── basicrobot (ExternalQActor)
+
+ctx_cargoservice (127.0.0.1:8111)   [SERVIZIO PRODOTTI]
+└── productservice (ExternalQActor)
+```
+
+#### Messaggi Basicrobot
 (Messaggi gia presenti nell'attore fornito dal committente)
 ```
     Dispatch cmd       	: cmd(MOVE)         

@@ -1,36 +1,43 @@
 # Sprint1
 
 ## Indice
-
-- [Sprint1](#sprint1)
-  - [Indice](#indice)
-  - [Obbiettivi](#obbiettivi)
+  - [Requisiti da Analizzare](#requisiti-da-analizzare)
   - [Analisi del problema](#analisi-del-problema)
     - [CargoService](#cargoservice)
+    - [Considerazioni Aggiuntive (Cargoservice)](#considerazioni-aggiuntive-cargoservice)
     - [Cargorobot](#cargorobot)
+    - [Considerazioni Aggiuntive (Cargorobot)](#considerazioni-aggiuntive-cargorobot)
+      - [Stato del Robot e ripresa attività](#stato-del-robot-e-ripresa-attività)
+      - [Carico Completo](#carico-completo)
+      - [Evento di allarme](#evento-di-allarme)
     - [ProductService](#productservice)
-    - [Messaggi tra componenti](#messaggi-tra-componenti)
-      - [Contesti](#contesti)
-      - [Basicrobot](#messaggi-basicrobot)
-      - [ProductService](#messaggi-productservice)
-      - [Messaggi nuovi](#messaggi-nuovi)
+  - [Messaggi tra componenti](#messaggi-tra-componenti)
+    - [Contesti](#contesti)
+    - [Messaggi Basicrobot](#messaggi-basicrobot)
+    - [Messaggi ProductService](#messaggi-productservice)
+    - [Messaggi nuovi](#messaggi-nuovi)
   - [Piano di test](#piano-di-test)
-  - [Elaborazione](#elaborazione)
+  - [Implementazione](#implementazione)
+    - [Cargoservice](#cargoservice)
+      - [Gestione dell'occupazione degli slot](#gestione-delloccupazione-degli-slot)
+      - [Richiesta di carico prodotto](#richiesta-di-carico-prodotto)
+    - [Cargorobot](#cargorobot)
+      - [Gestione della posizione e dello stato](#gestione-della-posizione-e-dello-stato)
   - [Divisione dei task](#divisione-dei-task)
 
-## Obbiettivi
+## Requisiti da Analizzare
 L'obbiettivo prefissato di questo sprint è quello di analizzare i requisiti dei componenti *cargoservice* e *cargorobot* e di ciò che sta dietro a questi. Analizzeremo il problema e affronteremo un'elaborazione di progetto. Definiremo quali sono le **interazioni** tra questi componenti e il resto del sistema, ovvero sia ciò che i componenti comunicheranno con l'esterno sia ciò che riusciranno a digerire. Al termine di questo sprint, verrà redatto un piano di test per verificare che i componenti funzionino come previsto.
 
+I requisiti che andremo prima ad analizzare e poi ad implementare in questo sprint sono:
 
-I requisiti che implementeremo in questo sprint sono:
-
-1. Un sistema in grado di **ricevere** una richiesta di carico, **accettarla** o **rifiutarla** in base a fattori che visualizzeremo nel prossimo punto (Analisi del problema). 
+1. Un sistema in grado di **ricevere** una richiesta di carico di un prodotto, **accettarla** o **rifiutarla**. Il prodotto contiene un **PID** e il sistema deve essere in grado di verificarne la presenza e il peso che non deve superare una certa soglia. 
 
 2. Un sistema che riesca ad effettuare un **carico completo**.
     - Verifica la presenza di un container
     - Carico del container
     - Posizionamento e scarico del container nello slot corretto
     - Return to home
+Dunque un sistema che sia in grado di tenere conto dello stato della stiva, tra cui slot liberi e peso totale. Deve essere in grado inoltre di indirizzare basicrobot verso gli slot o le porte di destinazione.
 
 3. Un sistema che sia in grado interrompere ogni attività in caso di malfunzionamento. Ovvero in caso di guasti o problemi tecnici, il sistema deve essere in grado di **interrompere** ogni attività e, una volta risolti i problemi, **farle ripartire**.
 
@@ -71,14 +78,20 @@ xc
 Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di gestire gli slot e quello di coordinare l'operazione di carico. Necessiterà dunque di Request e Reply.
  
 #### Considerazioni Aggiuntive (Cargoservice)
-In caso di evento scatenato dal led (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Per comunicare queste interruzzioni a cargorobot possiamo inoltrare gli eventi che in futuro svilupperemo sul componente led. Led in questo sprint sarà un mock, che per comodità abbiamo deciso di implementare come attore. Il cargoservice scatenerà due eventi stop e resume in risposta agli eventi dell'attuale mockup Led.
+In caso di evento scatenato dal Sonar (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Per comunicare queste interruzioni a cargorobot possiamo inoltrare gli eventi che in futuro svilupperemo sul componente Sonar. Sonar in questo sprint sarà un mock, che per comodità abbiamo deciso di implementare come attore.
 
 ### Cargorobot
 Il cargorobot gestisce il DDRrobot e si interfaccia con il cargoservice al fine di eseguire le richieste che arrivano. Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva (dimensione, ostacoli, perimetro, posizionamento dell'IOport)
 
 Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), il posizionamento dell'IOport e il led.
 
-Abbiamo deciso di definire un sistema di coordinate per poter identificare le posizioni degli slot e dell'IOport. La posizione (0,0) rappresenta la HOME del robot, ovvero il punto di partenza e ritorno dopo ogni operazione. Gli slot sono posizionati in coordinate fisse all'interno della stiva, ad esempio:
+Al momento la hold si presenta come una griglia dove ogni quadrato rappresenta una cella di dimensione pari a quella del robot
+
+![](../../images/grigliahold.png)
+
+La posizione degli slot e dell'IOport secondo le coordinate con cui viene modellata la hold all'interno di basicrobot sono riportate qui sotto.
+
+La posizione (0,0) rappresenta la HOME del robot, ovvero il punto di partenza e ritorno dopo ogni operazione. Gli slot sono posizionati in coordinate fisse all'interno della stiva, ad esempio:
 - Slot 1: (1,1)
 - Slot 2: (1,3)
 - Slot 3: (4,1)
@@ -86,9 +99,8 @@ Abbiamo deciso di definire un sistema di coordinate per poter identificare le po
 - Slot 5: Slot che consideriamo sempre pieno, non utilizzabile
 - IOport: (1,5)
 
-Può gestire eventi `stop` e `resume` ricevuti dal `cargoservice`. Durante `stop` emette un `alarm` e sospende l'attività, la variabile `delivering` ci informa sullo stato. Su `resume`, se stava consegnando, riprende automaticamente dal punto in cui era rimasto.
-
 ![](../../images/grigliarobot.jpg)
+
 
 L'attività che il cargorobot dovrà svolgere sarà la seguente:
 1. Il cargorobot riceve da cargoservice una richiesta di gestione di un container e lo slot in cui posizionarlo.
@@ -96,10 +108,15 @@ L'attività che il cargorobot dovrà svolgere sarà la seguente:
 4. Succesivamente dopo aver prelevato il container, si dirige verso lo slot fornito in precedenza e deposita il container.
 5. Una volta completata l'operazione cargorobot ritorna in (0,0) HOME e notifica a cargoservice il completamento dell'operazione. 
 
-Il movimento del robot viene gestito tramite funzionalità messe a disposizione da basicorbot24. Cargorobot si occcuperà di inviare i comandi di movimento tramite messaggi e di gestire le risposte che riceverà da basicrobot. Tramite il messaggio moverobot sarà possibile definire la posizione di destione del robot, basicrobot si occuperà di calcolare il percorso e di muovere il robot. Cargorobot attenderà la risposta di basicrobot per sapere se l'operazione è andata a buon fine o se è fallita (es. ostacolo imprevisto).
+Il movimento del robot viene gestito tramite funzionalità messe a disposizione da basicorbot24. Cargorobot si occcuperà di inviare i comandi di movimento tramite messaggi e di gestire le risposte che riceverà da basicrobot. Tramite il messaggio moverobot sarà possibile definire la posizione di destinazione del robot, basicrobot si occuperà di calcolare il percorso e di muovere il robot. Cargorobot attenderà la risposta di basicrobot per sapere se l'operazione è andata a buon fine o se è fallita (es. ostacolo imprevisto).
 Le coordinate di posizionamento del robot sono memorizzate all'interno di basicrobot, mentre il posizionamento del degli slot e  dell'IOport sono memorizzate all'interno di cargorobot.
 
 ### Considerazioni Aggiuntive (Cargorobot)
+#### Stato del Robot e ripresa attività
+Può gestire eventi `stop` e `resume` ricevuti dal `cargoservice`. Durante `stop` emette un `alarm` e sospende il basicrobot.
+
+A questo punto a inizialmente il problema analizzato è stato la ripresa dell'attività dopo un evento di interruzione. Abbiamo notato che è necessario memorizzare lo stato di spostamento del robot. In quando al momento della ripresa dell'attività il robot non è in grado (se non siamo noi a fornirgli queste informazioni) di sapere che cosa stava facendo prima dell'interruzione. Dunque tramite una variabile di stato interna al cargorobot, andremo a memorizzare lo stato del robot (es. in movimento o meno). In questo modo alla ripresa dell'attività se basicrobot precedentemente si stava muovendo riceverà una moverobot altrimenti rimarrà in attesa di un eventuale richiesta di movimento.
+
 #### Carico Completo
 Il cargorobot deve tornare in HOME e solo dopo aver effettuato un tune_at_home notificare al cargoservice il completamento dell'operazione. 
 
@@ -114,7 +131,7 @@ Utilizzeremo *alarm(x)* per notificare a basicrobot un evento di blocco. Useremo
 
 ### ProductService
 
-Il productservice è un componente che viene gia fornito dal committente per la registrazione e la gestione dei prodotti all'interno di un relativo Database. Esso permette la registrazione, la cancellazione e la ricerca di prodotti tramite il loro PID. Ogni prodotto ha associato un peso che verrà utilizzato dal cargoservice per verificare che il carico totale non superi la costante MAXLOAD. **Prodotto** invece sono le entità che verranno gestite, essendo passive potrebbero essere implementate come **POJO**. Gli attributi di un prodotto sono:
+Il productservice è un componente che viene gia fornito dal committente per la registrazione e la gestione dei prodotti all'interno di un relativo Database. Esso permette la registrazione, la cancellazione e la ricerca di prodotti tramite il loro PID. Ogni prodotto ha associato un peso che verrà utilizzato dal cargoservice per verificare che il carico totale non superi la costante MAXLOAD. **Prodotto** invece sono le entità che verranno gestite. Gli attributi di un prodotto sono:
 
 - PID (Valore Intero identifiativo del prodotto, deve essere maggiore di 0)
 - Peso (Valore Reale che rappresenta il peso del prodotto, deve essere maggiore di 0)
@@ -264,7 +281,7 @@ problem_solved   stop/resume
 ## Implementazione
 ### Cargoservice
 #### Gestione dell'occupazione degli slot
-Per la gestione dell'occupazione degli slot, abbiamo deciso di utilizzare una lista di booleani che rappresentano lo stato di ciascuno slot. In questo modo, possiamo facilmente verificare quali slot sono liberi e quali sono occupati. Inoltre, abbiamo definito delle variabili per tenere traccia del carico massimo e del carico attuale della stiva.
+Per la gestione dell'occupazione degli slot, abbiamo deciso di utilizzare una lista di booleani che rappresentano lo stato di ciascuno slot. In questo modo, possiamo facilmente verificare quali slot sono liberi e quali sono occupati. Inoltre, abbiamo definito delle variabili per tenere traccia del carico massimo e del carico attuale della stiva. Consideriamo il fatto che gli slot vengano occupati in maniera incrementale.
 ```
 QActor cargoservice context ctx_cargo{
      [#
@@ -437,11 +454,10 @@ QActor cargorobot context ctx_cargo{
 	#]
 ```	
 
-
 ## Divisione dei task
 
-Abbiamo impiegato in totale 20 ore di lavoro per completare questo sprint, suddivise tra le varie attività come segue:
+Abbiamo impiegato in totale 40 ore di lavoro per completare questo sprint, suddivise tra le varie attività come segue:
 - Analisi del problema: 8 ore
-- Redazione del documento: 6 ore
-- Pianificazione e Sviluppo del test: 6 ore
+- Redazione del documento: 8 ore
+- Pianificazione e Sviluppo del test: 24 ore
 

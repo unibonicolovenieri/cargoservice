@@ -32,11 +32,33 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 		
 				val Myname = "$name"
 				var CurrentRequestSlot = 0
+				var delivering = false
+				val posizione = hashMapOf(
+				    "HOME"     to arrayOf(0, 0),
+				    "IOport"  to arrayOf(0, 4),
+				    "1"    to arrayOf(1, 1),
+				    "2"    to arrayOf(1, 3),
+				    "3"    to arrayOf(4, 1),
+				    "4"    to arrayOf(4, 3)
+				)
+				
+				val orientamento = hashMapOf(
+					"HOME"    	to "down",
+					"IOport" 	to "down",
+				    "1"   	to "right",
+				    "2" 	to "right",
+				    "3" 	to "left",
+				    "4" 	to "left"
+				)
+				
+				var X = 0
+				var Y = 0
 		return { //this:ActionBasciFsm
 				state("start") { //this:State
 					action { //it:State
+						delay(30000) 
 						CommUtils.outyellow("[cargorobot] STARTED ")
-						request("engage", "engage($Myname,350)" ,"basicrobot" )  
+						request("engage", "engage($Myname,340)" ,"basicrobot" )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -44,6 +66,62 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					}	 	 
 					 transition(edgeName="t00",targetState="waiting_for_request",cond=whenReply("engagedone"))
 					transition(edgeName="t01",targetState="engage_refused",cond=whenReply("engagerefused"))
+					interrupthandle(edgeName="t02",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+				}	 
+				state("stop") { //this:State
+					action { //it:State
+						emit("alarm", "alarm(X)" ) 
+						CommUtils.outyellow("[$name] robot stopped")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t03",targetState="resume",cond=whenEvent("problem_solved"))
+				}	 
+				state("resume") { //this:State
+					action { //it:State
+						forward("nextmove", "nextmove(l)" ,"basicrobot" ) 
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t04",targetState="reengage",cond=whenReply("moverobotfailed"))
+					transition(edgeName="t05",targetState="reengage",cond=whenReply("engagedone"))
+				}	 
+				state("reengage") { //this:State
+					action { //it:State
+						CommUtils.outblack("$name reengage done")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="riprendocosaprecedente", cond=doswitch() )
+				}	 
+				state("riprendocosaprecedente") { //this:State
+					action { //it:State
+						CommUtils.outyellow("[$name] robot stava consegnando e ora riprenderà il lavoro")
+						request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
+						CommUtils.outyellow("[$name] robot rinizia il lavoro")
+						returnFromInterrupt(interruptedStateTransitions)
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t06",targetState="continuaJob",cond=whenReply("moverobotdone"))
+				}	 
+				state("continuaJob") { //this:State
+					action { //it:State
+						CommUtils.outyellow("non sto facendo niente torno al mio lavoro")
+						returnFromInterrupt(interruptedStateTransitions)
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
 				}	 
 				state("engage_refused") { //this:State
 					action { //it:State
@@ -60,6 +138,7 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				}	 
 				state("waiting_for_request") { //this:State
 					action { //it:State
+						delivering = false 
 						if( checkMsgContent( Term.createTerm("engagedone(ARG)"), Term.createTerm("engagedone(ARG)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outyellow("[cargorobot] waiting for request")
@@ -69,18 +148,21 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t02",targetState="goto_IOPort",cond=whenRequest("move_product"))
+					 transition(edgeName="t07",targetState="goto_IOPort",cond=whenRequest("move_product"))
+					interrupthandle(edgeName="t08",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
 				}	 
 				state("goto_IOPort") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("product(SLOT)"), Term.createTerm("product(SLOT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 var CurrentRequestSlot = payloadArg(0).toInt()
-								            	val X=1
-								            	val Y=5 
-								CommUtils.outblack("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot")
-								delay(3000) 
-								request("moverobot", "moverobot(0,4)" ,"basicrobot" )  
+								 CurrentRequestSlot = payloadArg(0).toInt()
+								            	X = posizione["IOport"]!![0]!!
+												Y = posizione["IOport"]!![1]!!
+								CommUtils.outyellow("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot")
+								CommUtils.outyellow("Posizione X: $X Y: $Y")
+								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
+								delivering = true
+								            	
 								CommUtils.outyellow("sent ")
 						}
 						//genTimer( actor, state )
@@ -88,60 +170,126 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t03",targetState="return_home_anyway",cond=whenReply("moverobotfailed"))
-					transition(edgeName="t04",targetState="goto_slot",cond=whenReply("moverobotdone"))
+					 transition(edgeName="t09",targetState="return_home_anyway",cond=whenReply("moverobotfailed"))
+					transition(edgeName="t010",targetState="goto_slot",cond=whenReply("moverobotdone"))
+					interrupthandle(edgeName="t011",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
 				}	 
 				state("goto_slot") { //this:State
 					action { //it:State
-						CommUtils.outblack("gotoslot")
+						CommUtils.outyellow("gotoslot")
 						delay(3000) 
 						if( checkMsgContent( Term.createTerm("moverobotdone(ok)"), Term.createTerm("moverobotdone(ok)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								
-											val XSlot=4
-											val YSlot=4
+											X = posizione[CurrentRequestSlot.toString()]!![0]!!
+											Y = posizione[CurrentRequestSlot.toString()]!![1]!!
 											
-								CommUtils.outblack("gotoslot")
-								request("moverobot", "moverobot(1,3)" ,"basicrobot" )  
+								CommUtils.outgreen("[gotoslot] position received")
+								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
+								delivering = true 
+								CommUtils.outgreen("gotoslot delivering: $delivering | position x: $X y: $Y")
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t05",targetState="return_home",cond=whenReply("moverobotdone"))
-					transition(edgeName="t06",targetState="return_home_anyway",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t012",targetState="arrived_at_slot",cond=whenReply("moverobotdone"))
+					transition(edgeName="t013",targetState="return_home_anyway",cond=whenReply("moverobotfailed"))
+					interrupthandle(edgeName="t014",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+				}	 
+				state("arrived_at_slot") { //this:State
+					action { //it:State
+						CommUtils.outblack("Arrived at slot $CurrentRequestSlot")
+						CommUtils.outblue("Direction")
+						
+									var Direction = orientamento[CurrentRequestSlot.toString()]!!
+						if( CurrentRequestSlot != 3 && CurrentRequestSlot != 4 
+						 ){forward("setdirection", "dir($Direction)" ,"basicrobot" ) 
+						CommUtils.outblue("Direction $Direction")
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="return_home", cond=doswitch() )
 				}	 
 				state("return_home") { //this:State
 					action { //it:State
 						delay(3000) 
-						if( checkMsgContent( Term.createTerm("moverobotdone(ok)"), Term.createTerm("moverobotdone(ok)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								request("moverobot", "moverobot(0,0)" ,"basicrobot" )  
-						}
+						
+									X = posizione["HOME"]!![0]!!
+									Y = posizione["HOME"]!![1]!!
+									
+						request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
+						delivering = true 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t07",targetState="waiting_for_request",cond=whenReply("moverobotdone"))
-					transition(edgeName="t08",targetState="waiting_for_request",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t015",targetState="arrived_at_home",cond=whenReply("moverobotdone"))
+					transition(edgeName="t016",targetState="load_failed",cond=whenReply("moverobotfailed"))
+					interrupthandle(edgeName="t017",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+				}	 
+				state("arrived_at_home") { //this:State
+					action { //it:State
+						CommUtils.outblack("Arrived at home")
+						CommUtils.outblue("Direction")
+						
+									var Direction = orientamento["HOME"]!!
+						forward("setdirection", "dir($Direction)" ,"basicrobot" ) 
+						CommUtils.outblue("Direction $Direction")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="load_completed", cond=doswitch() )
 				}	 
 				state("return_home_anyway") { //this:State
 					action { //it:State
 						CommUtils.outblack("returnhomeanyway")
 						delay(3000) 
-						if( checkMsgContent( Term.createTerm("moverobotfailed(PLANDONE,PLANTODO)"), Term.createTerm("moverobotfailed(PLANDONE,PLANTODO)"), 
+						if( checkMsgContent( Term.createTerm("moverobotfailed(PLANDONE,PLANTODO)"), Term.createTerm("fail(PLANDONE)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								request("moverobot", "moverobot(0,0)" ,"basicrobot" )  
+								
+												X = posizione["HOME"]!![0]!!
+												Y = posizione["HOME"]!![1]!!
+								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
+								delivering = true 
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t09",targetState="waiting_for_request",cond=whenReply("moverobotdone"))
-					transition(edgeName="t010",targetState="waiting_for_request",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t018",targetState="load_failed",cond=whenReply("moverobotdone"))
+					transition(edgeName="t019",targetState="load_failed",cond=whenReply("moverobotfailed"))
+					interrupthandle(edgeName="t020",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+				}	 
+				state("load_completed") { //this:State
+					action { //it:State
+						CommUtils.outblack("[$name] load completed")
+						answer("move_product", "movedProduct", "result(ok)"   )  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
+				}	 
+				state("load_failed") { //this:State
+					action { //it:State
+						CommUtils.outblack("[$name] load failed")
+						answer("move_product", "moveProductFailed", "fail(failed)"   )  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="waiting_for_request", cond=doswitch() )
 				}	 
 			}
 		}

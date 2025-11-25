@@ -2,7 +2,7 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10     
-    platform: linux/amd64
+    # platform: linux/amd64
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -105,27 +105,25 @@ services:
       - mongodb
       - eureka
   basicrobot24:
-    container_name: basicrobot24.1.0
-    #image: docker.io/natbodocker/basicrobot24:3.0
-    image: sha256:0cb7c4dd5a97368083a2f3e7a622dbc9491ab55b8df577955a9f0d19c8b15e24
-    mem_limit: 512m
-    ports:
-      - "8020:8020/tcp"
-      - "8020:8020/udp"
-      - "8085:8085"
-    environment:
-      - VIRTUAL_ENV=wenv                         #Used by uniborobots.robotSupport.create
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
-      - SERVICE_HOST=127.0.0.1     #basicrobot24 per app che usano basicrobot in docker
-      - SERVICE_IP=127.0.0.1
-      - MQTTBROKER=mosquitto
-    depends_on:
-      - wenv
-      - cargoserviceqak
-      - eureka
-    networks:
-      - iss-network
-  
+     container_name: basicrobot24.1.0
+     #image: docker.io/natbodocker/basicrobot24:3.0
+     image: lucacapelli/basicrobot24:1.0
+     mem_limit: 512m
+     ports:
+       - "8020:8020/tcp"
+       - "8020:8020/udp"
+       - "8085:8085"
+     environment:
+       - VIRTUAL_ENV=wenv                         #Used by uniborobots.robotSupport.create
+       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+       - SERVICE_HOST=127.0.0.1     #basicrobot24 per app che usano basicrobot in docker
+       - SERVICE_IP=127.0.0.1
+       - MQTTBROKER=mosquitto
+     depends_on:
+       - wenv
+       - eureka
+     networks:
+       - iss-network
 networks:
   iss-network:
     external: true
@@ -133,9 +131,4 @@ networks:
 ## yamls> docker network ls
 ## docker network create iss-network
 ## docker network rm xxx
-## docker-compose -f iss2025new.yaml -p up 
-
-
-
- 
-
+## docker-compose -f sprint1.yaml up

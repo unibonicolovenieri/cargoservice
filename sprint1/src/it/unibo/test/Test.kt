@@ -32,11 +32,12 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 		return { //this:ActionBasciFsm
 				state("start") { //this:State
 					action { //it:State
+						delay(30000) 
 						CommUtils.outblue("[test] avviato")
 						
-									val Myname = "$name"
+									
 									val Product="'{\"productId\":1,\"name\":\"p2\",\"weight\":100}'"
-						CommUtils.outblue("$Myname | creating product: $Product")
+						CommUtils.outblue("$name | creating product: $Product")
 						request("createProduct", "product($Product)" ,"productservice" )  
 						CommUtils.outyellow("[test]  mandata richiesta")
 						//genTimer( actor, state )
@@ -44,7 +45,7 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t014",targetState="createdProduct",cond=whenReply("createdProduct"))
+					 transition(edgeName="t029",targetState="createdProduct",cond=whenReply("createdProduct"))
 				}	 
 				state("createdProduct") { //this:State
 					action { //it:State
@@ -52,17 +53,16 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 						if( checkMsgContent( Term.createTerm("productid(ID)"), Term.createTerm("productid(ID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outyellow("[test]aaaaaaaaaaaaaaaaaa richiesta")
-								 val ID=payloadArg(0)+1  
+								 val ID=payloadArg(0).toInt()  
 								CommUtils.outyellow("[test] prodotto creato ID: $ID")
-								request("load_product", "product($ID)" ,"cargoservice" )  
-								CommUtils.outyellow("[test] Ho chiesto la load del prodotto appena creato a cargoservice")
+								delay(50000) 
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t015",targetState="moved",cond=whenReply("loadedProduct"))
+					 transition(edgeName="t030",targetState="moved",cond=whenReply("loadedProduct"))
 				}	 
 				state("moved") { //this:State
 					action { //it:State
@@ -70,24 +70,6 @@ class Test ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outblack("funzionamento")
 						}
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-				}	 
-				state("allProductsRecieved") { //this:State
-					action { //it:State
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-				}	 
-				state("productRecieved") { //this:State
-					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

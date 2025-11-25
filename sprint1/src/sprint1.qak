@@ -103,14 +103,15 @@ QActor cargorobot context ctx_cargo{
 	 	
 	 		emit alarm           		: alarm(X)
 	 		println("[$name] robot stopped")color yellow
-	 	
+	 		
 	 } 
 	 Transition t0 
-	 whenReply moverobotfailed-> resume
+	 //whenReply moverobotfailed-> resume
 	 whenEvent problem_solved -> resume
 	  
 	 	 State resume{
-	 	 			forward basicrobot -m nomoremove:nomoremove(M)
+	 	 			
+	 	 			forward basicrobot -m nextmove:nextmove(l)
 	 	 			//request basicrobot -m engage:engage($Myname,340)
 	 	 			
 	}
@@ -124,13 +125,14 @@ QActor cargorobot context ctx_cargo{
 		
 		
 	}
-	 Goto riprendocosaprecedente if [#delivering #] else continuaJob
+	 Goto riprendocosaprecedente
 	 State riprendocosaprecedente{
 	 	
 	 	println("[$name] robot stava consegnando e ora riprenderà il lavoro")color yellow
 		request basicrobot -m moverobot:moverobot($X,$Y)
-	 	delay 3000
+	 	
 	 	println("[$name] robot rinizia il lavoro")color yellow
+	 	returnFromInterrupt
 	 }
 	 Transition t0
 	 whenReply moverobotdone-> continuaJob

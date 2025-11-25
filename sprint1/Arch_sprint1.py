@@ -46,5 +46,5 @@ with Diagram('sprint1Arch', show=False, outformat='png', graph_attr=graphattr) a
      cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<getProduct<font color="darkgreen"> getProductAnswer</font> &nbsp; >',  fontcolor='magenta') >> productservice
      test >> Edge(color='magenta', style='solid', decorate='true', label='<createProduct<font color="darkgreen"> createdProduct</font> &nbsp; >',  fontcolor='magenta') >> productservice
      cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<move_product<font color="darkgreen"> movedProduct moveProductFailed</font> &nbsp; >',  fontcolor='magenta') >> cargorobot
-     cargorobot >> Edge(color='blue', style='solid',  decorate='true', label='<nomoremove &nbsp; setdirection &nbsp; >',  fontcolor='blue') >> basicrobot
+     cargorobot >> Edge(color='blue', style='solid',  decorate='true', label='<nextmove &nbsp; setdirection &nbsp; >',  fontcolor='blue') >> basicrobot
 diag

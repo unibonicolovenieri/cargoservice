@@ -27,26 +27,28 @@
   - [Divisione dei task](#divisione-dei-task)
 
 ## Requisiti da Analizzare
-L'obbiettivo prefissato di questo sprint è quello di analizzare i requisiti dei componenti *cargoservice* e *cargorobot* e di ciò che sta dietro a questi. Analizzeremo il problema e affronteremo un'elaborazione di progetto. Definiremo quali sono le **interazioni** tra questi componenti e il resto del sistema, ovvero sia ciò che i componenti comunicheranno con l'esterno sia ciò che riusciranno a digerire. Al termine di questo sprint, verrà redatto un piano di test per verificare che i componenti funzionino come previsto.
+L'obiettivo prefissato di questo sprint è quello di analizzare i requisiti dei componenti *cargoservice* e *cargorobot* e di ciò che sta dietro a questi. Analizzeremo il problema e affronteremo un'elaborazione di progetto. Definiremo quali sono le **interazioni** tra questi componenti e il resto del sistema, ovvero sia ciò che i componenti comunicheranno con l'esterno sia ciò che riusciranno a digerire. Al termine di questo sprint, verrà redatto un piano di test per verificare che i componenti funzionino come previsto.
 
 I requisiti che andremo prima ad analizzare e poi ad implementare in questo sprint sono:
 
-1. Un sistema in grado di **ricevere** una richiesta di carico di un prodotto, **accettarla** o **rifiutarla**. Il prodotto contiene un **PID** e il sistema deve essere in grado di verificarne la presenza e il peso che non deve superare una certa soglia. 
+1. Un sistema in grado di **ricevere** una richiesta di carico di un prodotto, **accettarla** o **rifiutarla**. Il prodotto contiene un **PID** associato e il sistema deve essere in grado di verificarne la presenza nel database e il peso che non deve superare la costante MAXLOAD. 
 
 2. Un sistema che riesca ad effettuare un **carico completo**.
-    - Verifica la presenza di un container
-    - Carico del container
+    - Verifica la presenza di un container, il suo peso e la disponibilità di uno slot
+    - Carico del container recandosi all'IOPort
     - Posizionamento e scarico del container nello slot corretto
     - Return to home
-Dunque un sistema che sia in grado di tenere conto dello stato della stiva, tra cui slot liberi e peso totale. Deve essere in grado inoltre di indirizzare basicrobot verso gli slot o le porte di destinazione.
+Dunque un sistema che sia in grado di tenere conto dello stato della stiva, tra cui slot liberi e peso totale. Deve essere in grado inoltre di indirizzare il DDR verso gli slot o la porta di destinazione.
 
-3. Un sistema che sia in grado interrompere ogni attività in caso di malfunzionamento. Ovvero in caso di guasti o problemi tecnici, il sistema deve essere in grado di **interrompere** ogni attività e, una volta risolti i problemi, **farle ripartire**.
+3. Un sistema che sia in grado interrompere ogni attività in caso di malfunzionamento. Ovvero in caso di sollevamento di un evento di guasto da parte del sonar, il sistema deve essere in grado di **interrompere** ogni attività e, una volta risolti i problemi, **farle ripartire**.
 
 ## Analisi del problema
 In questo Sprint ci siamo concentrati sull'analisi dei due componenti [*cargoservice*](#cargoservice) e [*cargorobot*](#cargorobot). Abbiamo analizzato il problema e le interazioni che questi componenti avranno con il resto del sistema.
 
 ### CargoService
-Il cargoservice è il componente che si occuperà di gestire le richieste di carico e scarico dei container. Le richieste arriveranno da un componente esterno e il cargo service dovrà elaborarle in base a diversi fattori, come la disponibilità degli slot, il peso totale dei container e l'ordine di arrivo, per poi accettarle o rifiutarle. Verrà implementato come un **orchestrator**: si occuperà di coordinare le attività del cargorobot, di gestire le richieste di carico in base allo stato del led e infine di comunicare con la web-gui per permettere l'interazione e il controllo da parte del committente. Il `cargoservice` riceve anche eventi dal `sonar` (mock del sensore) che simulano la presenza o assenza del container, gestendo guasti e ripristini. In caso di `sonar_error`, il `cargoservice` emette `stop` per sospendere le operazioni.
+Il cargoservice è il componente che si occuperà di gestire le richieste di carico e scarico dei container. Le richieste arriveranno da un componente esterno( il sonar emetterà un evento) e il cargoservice dovrà elaborarle in base a diversi fattori tra cui la disponibilità degli slot, il peso totale dei container e l'ordine di arrivo, per poi accettarle o rifiutarle. Verrà implementato come un **orchestrator**: si occuperà di coordinare le attività del cargorobot, di gestire le richieste di carico in base allo stato del led e infine di comunicare con la web-gui per permettere l'interazione e il controllo da parte del committente. Il `cargoservice` riceve anche eventi dal `sonar` (mock del sensore) che simulano la presenza o assenza del container, gestendo guasti e ripristini. In caso di `sonar_error`, il `cargoservice` emette `stop` per sospendere le operazioni.
+
+# Aggiungere la comunicazione con la web gui 
 
 La nostra scelta implementativa nello sprint0 è stata quella di non implementare nessun attore per la gestione dell'hold ma di implementare all'interno di cargoservice la logica di funzionamento.
 

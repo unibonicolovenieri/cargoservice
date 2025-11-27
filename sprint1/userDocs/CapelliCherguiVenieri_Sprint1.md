@@ -46,18 +46,16 @@ Dunque un sistema che sia in grado di tenere conto dello stato della stiva, tra 
 In questo Sprint ci siamo concentrati sull'analisi dei due componenti [*cargoservice*](#cargoservice) e [*cargorobot*](#cargorobot). Abbiamo analizzato il problema e le interazioni che questi componenti avranno con il resto del sistema.
 
 ### CargoService
-Il cargoservice è il componente che si occuperà di gestire le richieste di carico e scarico dei container. Le richieste arriveranno da un componente esterno( il sonar emetterà un evento) e il cargoservice dovrà elaborarle in base a diversi fattori tra cui la disponibilità degli slot, il peso totale dei container e l'ordine di arrivo, per poi accettarle o rifiutarle. Verrà implementato come un **orchestrator**: si occuperà di coordinare le attività del cargorobot, di gestire le richieste di carico in base allo stato del led e infine di comunicare con la web-gui per permettere l'interazione e il controllo da parte del committente. Il `cargoservice` riceve anche eventi dal `sonar` (mock del sensore) che simulano la presenza o assenza del container, gestendo guasti e ripristini. In caso di `sonar_error`, il `cargoservice` emette `stop` per sospendere le operazioni.
+Il cargoservice è il componente che si occuperà di gestire le richieste di carico e scarico dei container. Le richieste arriveranno da un componente esterno( il sonar emetterà un evento) e il cargoservice dovrà elaborarle in base a diversi fattori tra cui la disponibilità degli slot, il peso totale dei container e l'ordine di arrivo, per poi accettarle o rifiutarle. Verrà implementato come un **orchestrator**: si occuperà di coordinare le attività del cargorobot, di gestire le richieste di carico in base allo stato del led e infine di comunicare con la web-gui per permettere l'interazione e il controllo da parte del committente. Il `cargoservice` riceve anche eventi dal `sonar` (mock del sensore) che simulano la presenza o assenza del container, gestendo guasti e ripristini. In caso di `sonar_error`.
 
-# Aggiungere la comunicazione con la web gui 
-
-La nostra scelta implementativa nello sprint0 è stata quella di non implementare nessun attore per la gestione dell'hold ma di implementare all'interno di cargoservice la logica di funzionamento.
+La nostra scelta nello sprint0 è stata quella di non modellare nessun attore per la gestione separata dell'hold ma di implementarne all'interno di cargoservice la logica di funzionamento.
 
 
 
 Il ciclo di funzionamento del cargoservice sarà il seguente:
 
-1. Ricezione del **PID** del prodotto (container) all'interno di una richiesta di carico (da richiesta diretta o da attore esterno).
-2. **Verifica del peso** tramite una richiesta al componente **productservice**. In questa richiesta viene inserito il PID del prodotto del quale si vuole conoscere il peso.
+1. Ricezione del **PID** del prodotto (container) all'interno di una richiesta di carico grazie all'evento di container_trigger sollevato dal sonar.
+2. **Verifica del peso** tramite una richiesta all'attore **productservice**. In questa richiesta viene inserito il PID del prodotto del quale si vuole conoscere il peso.
 3. La risposta di productservice può essere di due tipi:
     - **PID non registrato (ERRORE)**: il PID inviato da cargoservice non è registrato nel sistema.
     - **Peso relativo al PID**: Restituisce il peso relativo al PID inviato in precedenza.
@@ -70,25 +68,28 @@ Dunque la risposta che cargoservice darà alla richiesta di carico sarà:
 - **RIFIUTO**: In caso di mancanza di una delle due condizioni sopra - Risposta di errore
 - **ACCETTAZIONE**: Condizioni soddisfatte e nella risposta viene specificato lo slot in cui il prodotto dovrà essere caricato.
 In caso di mancanza di una delle due condizioni verrà segnalato il relativo errore.
-5. Cargoservice richiede al cargorobot di eseguire la load specificando il PID del prodotto, scegliendo uno slot libero.
-Questo serve a dividere la logica di gestione della stiva dall'effettiva evasione del compito,
- se ad esempio il robot impiegasse meno tempo a caricare il prodotto sullo slot numero 1 piuttosto che in altri, 
- vogliamo che il cargoservice ne sia totalmente ignaro.
-6. Il cargoservice attende che il cargorobot ritorni alla HOME (posizione 0,0 dell'hold)
-7. cargoservice riceve in risposta lo slot in cui è stato caricato il prodotto dal cargorobot, aggiorna lo stato della stiva(peso,numero di slot liberi) ed è pronto per gestire nuove richieste.
+5. Cargoservice richiede al cargorobot di eseguire la load specificando lo slot in cui mettere il container.	
+6. Il cargoservice attende che il cargorobot ritorni alla HOME (posizione 0,0 dell'hold).La risposta può essere una load_completed o una load_failed in base all'esito del caricamento.
+7. cargoservice riceve in risposta l'esito della load dal cargorobot, aggiorna lo stato della stiva(peso,numero di slot liberi), emette gli eventi per ggiornare la web-gui ed è pronto per gestire nuove richieste.
 
-xc
-Abbiamo deciso che Cargoservice avrà due compiti fondamentali, ovvero quello di gestire gli slot e quello di coordinare l'operazione di carico. Necessiterà dunque di Request e Reply.
- 
+
 #### Considerazioni Aggiuntive (Cargoservice)
-In caso di evento scatenato dal Sonar (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Per comunicare queste interruzioni a cargorobot possiamo inoltrare gli eventi che in futuro svilupperemo sul componente Sonar. Sonar in questo sprint sarà un mock, che per comodità abbiamo deciso di implementare come attore.
+In caso di evento scatenato dal Sonar (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Per comunicare queste interruzioni a cargorobot possiamo inoltrare gli eventi che in futuro svilupperemo sul componente Sonar. Sonar in questo sprint sarà un mock.
+
+
+Ogni volta che lo stato interno della hold cambia, cargoservice emetterà i seguenti eventi:
+Event slot_changed : slot_changed(ID,status) 
+Event sonar_changed : sonar_changed(status)
+Event led_changed : led_changed(status)
+
+Essi permetteranno alla web-gui di aggiornare dinamicamente lo stato dell'hold visualizzato.
 
 ### Cargorobot
-Il cargorobot gestisce il basicrobot colmando **l'astraction gap** che si individua all'interno di basicrbot. Ovvero portando il DDR dalla semplice capacità di muoversi all'interno della mappa fornita alla possibilità di eseguire operazioni di carico e scarico dei container (eseguibili sotto forma di messaggi grazie all'implementazione sotto forma di attore). Ha conoscenza percui della posizione degli slot e del loro stato oltre alle informazioni della stiva (dimensione, ostacoli, perimetro, posizionamento dell'IOport)
+Il cargorobot gestisce il basicrobot colmando **l'astraction gap** che si individua all'interno di basicrbot. Ovvero portando il DDR dalla semplice capacità di muoversi all'interno della mappa fornita alla possibilità di eseguire operazioni di carico e scarico dei container (eseguibili sotto forma di messaggi grazie all'implementazione sotto forma di attore). Ha conoscenza percui della posizione degli slot oltre alle informazioni della stiva (dimensione, ostacoli, perimetro, posizionamento dell'IOport).
 
-Il cargorobot dovrà condividere con il basicrobot la modellazione della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), il posizionamento dell'IOport e il led.
+Il cargorobot dovrà condividere con il basicrobot la conoscenza della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), il posizionamento dell'IOport e il led.
 
-Al momento la hold si presenta come una griglia dove ogni quadrato rappresenta una cella di dimensione pari a quella del robot
+La hold si presenta come una griglia dove ogni quadrato rappresenta una cella di dimensione pari a quella del robot
 
 ![](../../images/grigliahold.png)
 
@@ -106,31 +107,31 @@ La posizione (0,0) rappresenta la HOME del robot, ovvero il punto di partenza e 
 
 
 L'attività che il cargorobot dovrà svolgere sarà la seguente:
-1. Il cargorobot riceve da cargoservice una richiesta di gestione di un container e lo slot in cui posizionarlo.
-3. Il cargorobot si dirige verso la pickup-position e preleva il container o attende che questo venga posizionato sull'IOport.
+1. Il cargorobot riceve da cargoservice una richiesta di carico di un container e lo slot in cui posizionarlo.
+3. Il cargorobot si dirige verso la pickup-position e preleva il container dall'IOport.
 4. Succesivamente dopo aver prelevato il container, si dirige verso lo slot fornito in precedenza e deposita il container.
 5. Una volta completata l'operazione cargorobot ritorna in (0,0) HOME e notifica a cargoservice il completamento dell'operazione. 
 
 Il movimento del robot viene gestito tramite funzionalità messe a disposizione da basicorbot24. Cargorobot si occcuperà di inviare i comandi di movimento tramite messaggi e di gestire le risposte che riceverà da basicrobot. Tramite il messaggio moverobot sarà possibile definire la posizione di destinazione del robot, basicrobot si occuperà di calcolare il percorso e di muovere il robot. Cargorobot attenderà la risposta di basicrobot per sapere se l'operazione è andata a buon fine o se è fallita (es. ostacolo imprevisto).
-Le coordinate di posizionamento del robot sono memorizzate all'interno di basicrobot, mentre il posizionamento del degli slot e  dell'IOport sono memorizzate all'interno di cargorobot.
+Le coordinate di posizionamento del robot sono memorizzate all'interno di basicrobot(disponibili tramite messaggio), mentre il posizionamento del degli slot e dell'IOport sono memorizzate all'interno di cargorobot.
 
 ### Considerazioni Aggiuntive (Cargorobot)
 #### Stato del Robot e ripresa attività
 Può gestire eventi `stop` e `resume` ricevuti dal `cargoservice`. Durante `stop` emette un `alarm` e sospende il basicrobot.
 
-A questo punto a inizialmente il problema analizzato è stato la ripresa dell'attività dopo un evento di interruzione. Abbiamo notato che è necessario memorizzare lo stato di spostamento del robot. In quando al momento della ripresa dell'attività il robot non è in grado (se non siamo noi a fornirgli queste informazioni) di sapere che cosa stava facendo prima dell'interruzione. Dunque tramite una variabile di stato interna al cargorobot, andremo a memorizzare lo stato del robot (es. in movimento o meno). In questo modo alla ripresa dell'attività se basicrobot precedentemente si stava muovendo riceverà una moverobot altrimenti rimarrà in attesa di un eventuale richiesta di movimento.
+A questo punto inizialmente il problema analizzato è stato la ripresa dell'attività dopo un evento di interruzione. Abbiamo notato che è necessario memorizzare lo stato di spostamento del robot. In quando al momento della ripresa dell'attività il robot non è in grado (se non siamo noi a fornirgli queste informazioni) di sapere che cosa stava facendo prima dell'interruzione. Dunque tramite una variabile di stato interna al cargorobot, andremo a memorizzare lo stato del robot (es. in movimento o meno). In questo modo alla ripresa dell'attività se basicrobot precedentemente si stava muovendo riceverà una moverobot altrimenti rimarrà in attesa di un eventuale richiesta di movimento. Questo problema viene risolta dalla "returnFromInterrupt" di qak nonostante sia deprecata. Una volta analizzato il problema demandiamo all'implementatore la strada migliore da intraprendere.
 
 #### Carico Completo
-Il cargorobot deve tornare in HOME e solo dopo aver effettuato un tune_at_home notificare al cargoservice il completamento dell'operazione. 
+Il cargorobot deve tornare in HOME e notificare al cargoservice il completamento dell'operazione. 
 
 #### Evento di allarme
-In caso di evento scatenato dal led (es. malfunzionamento, emergenza) il cargorobot deve interrompere ogni attività in corso e attendere ulteriori istruzioni. 
+In caso di evento scatenato dal sonar (es. malfunzionamento, emergenza) il cargorobot deve interrompere ogni attività in corso e attendere ulteriori istruzioni. 
 Questo ci porta alla conclusione di dover gestire e mantenere memorizzate alcune informazioni:
 
 - Avanzamento della richiesta (Arrivato all'IOport, Arrivato allo slot, Arrivato a HOME)
 - Salvataggio della richiesta in corso (SLOT in cui effettuare il caricamento se non ancora eseguito)
 
-Utilizzeremo *alarm(x)* per notificare a basicrobot un evento di blocco. Useremo *nome comando* per riprendere l'attività.
+Utilizzeremo *alarm(x)* per notificare a basicrobot un evento di blocco.
 
 ### ProductService
 
@@ -142,11 +143,9 @@ Il productservice è un componente che viene gia fornito dal committente per la 
 
 Come detto in precedenza ProductService è un componente già fornito dal committente, pertanto non verrà implementato da noi, ma ci limiteremo ad utilizzarlo per le nostre esigenze. Le interazioni che avremo con questo componente sono analizzate nel prossimo punto.
 
-### Basicrobot
-Basicrobot è un attore fornito dal comittente che è in grado di gestire il movimento del DDRrobot all'interno del WEnv. Basicrobot possiede una modellazione interna della stiva e delle sue caratteristiche (ostacoli, posizionamento dell'IOport e del led). Basicrobot mette a disposizione un planner con il quale si è in grado di eseguire la sequenza di mosse necessarie al fine di raggungere una determinata posizione (di coordinate X e Y). I [Messaggi Basicrobot](#messaggi-basicrobot) sono visibili [qui](#messaggi-basicrobot).
 ## Messaggi tra componenti
 
-### Contesti
+### Contesti //DA CORREGGERE
 ```
 ctx_cargo (localhost:8000)          [CORE DEL SISTEMA]
 ├── cargorobot
@@ -225,9 +224,10 @@ ctx_cargoservice (127.0.0.1:8111)   [SERVIZIO PRODOTTI]
 ```
 #### Messaggi nuovi
 ```
+//cargoservice
   Request load_product : product(ID)
   Reply   loadedProduct : slot(SLOT) for load_product
-
+//cargorobot
   Request move_product : product(SLOT)
   Reply   movedProduct : result(SLOT) for move_product
   Reply   moveProductFailed : fail(failed) for move_product
@@ -235,18 +235,20 @@ ctx_cargoservice (127.0.0.1:8111)   [SERVIZIO PRODOTTI]
   Event stop : stop(X)
   Event resume : resume(X)
   Event alarm : alarm(X)
-
+//sonar
   Event container_trigger : container_trigger(X)
   Event container_absence : container_absence(X)
   Event sonar_error : sonar_error(CAUSA)
   Event problem_solved : problem_solved(CAUSA)
 
 ```
-
+## Architettura di riferimento
+Qak ci fornisce l'architettura di riferimento del prototipo che realizzeremo:
+![](../../images/sprint1arch.png)
 
 ## Piano di test
 
-Abbiamo simulato  il funzionamento di alcune componenti del sistema che al momento non sono ancora state implementate. Abbiamo deciso di implementare tramite attori mokup il comportamento del test actor per la creazione dei prodotti e delle richiste di carico e scarico prodotti per una questione di comodità implementativa e ordine mentale, in quanto utilizzando lo stesso linguaggio di modellazione (QActor) ci è stato più semplice definire le interazioni tra i componenti.
+Abbiamo simulato  il funzionamento di alcune componenti del sistema che al momento non sono ancora state implementate. Abbiamo deciso di implementare tramite attori mokup il comportamento del test Actor per la creazione dei prodotti e delle richiste di carico per una questione di comodità implementativa e ordine mentale, in quanto utilizzando lo stesso linguaggio di modellazione (QActor) ci è stato più semplice definire le interazioni tra i componenti.
 
 Nella fase di test, viene mandata una richiesta dal componente di Test e gestita da `cargoservice`.
 
@@ -257,13 +259,7 @@ test actor:
   |
   createdProduct
   |
-  request load_product al cargoservice
-  |
   cargoservice chiama productservice
-  |
-  assegna slot
-  |
-  invia move_product a cargorobot
   |
   cargorobot completa e notifica
   |
@@ -283,6 +279,8 @@ sonar_test -->  cargoservice -->  cargorobot -->  basicrobot
 problem_solved   stop/resume
 ```
 
+Prevediamo un test anche per l'interazione con la web-gui.
+
 ## Implementazione
 ### Cargoservice
 #### Gestione dell'occupazione degli slot
@@ -301,10 +299,10 @@ QActor cargoservice context ctx_cargo{
 Spiegazione dell'implementazione della richiesta di carico prodotto, che coinvolge la comunicazione con productservice per ottenere il peso del prodotto.
 ```
 State check_product{
-		onMsg(container_trigger: container_trigger(X)){	
+		onMsg(container_trigger: container_trigger(ID)){	
 			println("[cargoservice] check del prodotto")	
 			[#
-				val ID=1
+				val ID=payloadArg(0)
 			#]			
 			request productservice -m getProduct:product($ID)	
 		}

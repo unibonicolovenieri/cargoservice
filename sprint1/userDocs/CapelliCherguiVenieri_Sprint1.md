@@ -145,19 +145,30 @@ Come detto in precedenza ProductService è un componente già fornito dal commit
 
 ## Messaggi tra componenti
 
-### Contesti //DA CORREGGERE
+### Contesti
 ```
-ctx_cargo (localhost:8000)          [CORE DEL SISTEMA]
+Context ctx_productservice	ip [host="cargoserviceqak" port=8111]
+Context ctx_basicrobot ip [host="basicrobot24" port=8020] 
+Context ctx_cargo	ip [host="localhost" port=8000]
+Context ctx_webgui ip [host="webgui" port=8998] 
+Context ctx_sonarhost ip[host="sonarhost" port=8999]
+
+ctx_cargo (host="localhost" port=8000)          
 ├── cargorobot
 ├── cargoservice
-├── test
-└── sonar_test
+└──  productservice_test
 
-ctx_basicrobot (127.0.0.1:8020)     
+ctx_basicrobot (host="basicrobot24" port=8020)     		
 └── basicrobot (ExternalQActor)
 
-ctx_cargoservice (127.0.0.1:8111)   [SERVIZIO PRODOTTI]
+ctx_productservice (host="cargoserviceqak" port=8111)  
 └── productservice (ExternalQActor)
+
+ctx_webgui (host="webgui" port=8998)
+└── webgui_test
+
+ctx_sonar (host="sonarhost" port=8999)
+└── sonar_test
 ```
 
 #### Messaggi Basicrobot

@@ -33,9 +33,10 @@ with Diagram('sprint1Arch', show=False, outformat='png', graph_attr=graphattr) a
           cargorobot=Custom('cargorobot','./qakicons/symActorWithobjSmall.png')
           cargoservice=Custom('cargoservice','./qakicons/symActorWithobjSmall.png')
           producservice_test=Custom('producservice_test','./qakicons/symActorWithobjSmall.png')
-          sonar_test=Custom('sonar_test','./qakicons/symActorWithobjSmall.png')
      with Cluster('ctx_webgui', graph_attr=nodeattr):
           webgui_test=Custom('webgui_test','./qakicons/symActorWithobjSmall.png')
+     with Cluster('ctx_sonartest', graph_attr=nodeattr):
+          sonar_test=Custom('sonar_test','./qakicons/symActorWithobjSmall.png')
      cargorobot >> Edge( label='alarm', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sys >> Edge( label='problem_solved', **evattr, decorate='true', fontcolor='darkgreen') >> cargorobot
      cargorobot >> Edge( label='slot_changed', **eventedgeattr, decorate='true', fontcolor='red') >> sys

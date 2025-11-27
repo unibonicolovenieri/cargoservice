@@ -57,6 +57,7 @@ Context ctx_productservice	ip [host="cargoserviceqak" port=8111]
 Context ctx_basicrobot ip [host="basicrobot24" port=8020] 
 Context ctx_cargo	ip [host="localhost" port=8000]
 Context ctx_webgui ip [host="webgui" port=8998] 
+Context ctx_sonartest ip [host="sonartest" port=8999]
 
 
 
@@ -490,7 +491,7 @@ QActor producservice_test context ctx_cargo{
 } 
 
 
-QActor sonar_test context ctx_cargo {
+QActor sonar_test context ctx_sonartest {
 	[# var Counter = 1 #]
 	
 	State start initial {

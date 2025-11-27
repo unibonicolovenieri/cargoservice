@@ -9,6 +9,9 @@ request( getProduct, product(ID) ).
 reply( getProductAnswer, product(JSonString) ).  %%for getProduct
 request( load_product, product(ID) ).
 reply( loadedProduct, slot(SLOT) ).  %%for load_product
+event( slot_changed, slot_changed(ID,status) ).
+event( sonar_changed, sonar_changed(status) ).
+event( led_changed, led_changed(status) ).
 request( move_product, product(SLOT) ).
 reply( movedProduct, result(SLOT) ).  %%for move_product
 reply( moveProductFailed, fail(failed) ).  %%for move_product
@@ -29,16 +32,19 @@ event( container_absence, container_absence(X) ).
 event( sonar_error, sonar_error(CAUSA) ).
 event( problem_solved, problem_solved(CAUSA) ).
 %====================================================================================
-context(ctx_cargoservice, "cargoserviceqak",  "TCP", "8111").
+context(ctx_productservice, "cargoserviceqak",  "TCP", "8111").
 context(ctx_basicrobot, "basicrobot24",  "TCP", "8020").
 context(ctx_cargo, "localhost",  "TCP", "8000").
+context(ctx_webgui, "webgui",  "TCP", "8998").
  qactor( basicrobot, ctx_basicrobot, "external").
-  qactor( productservice, ctx_cargoservice, "external").
+  qactor( productservice, ctx_productservice, "external").
   qactor( cargorobot, ctx_cargo, "it.unibo.cargorobot.Cargorobot").
  static(cargorobot).
   qactor( cargoservice, ctx_cargo, "it.unibo.cargoservice.Cargoservice").
  static(cargoservice).
-  qactor( test, ctx_cargo, "it.unibo.test.Test").
- static(test).
+  qactor( producservice_test, ctx_cargo, "it.unibo.producservice_test.Producservice_test").
+ static(producservice_test).
   qactor( sonar_test, ctx_cargo, "it.unibo.sonar_test.Sonar_test").
  static(sonar_test).
+  qactor( webgui_test, ctx_webgui, "it.unibo.webgui_test.Webgui_test").
+ static(webgui_test).

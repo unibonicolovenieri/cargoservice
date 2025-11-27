@@ -66,6 +66,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val M=payloadArg(0) 
 								CommUtils.outyellow("[$name] sonar ha emesso un errore causa: $M")
+								emit("led_changed", "led_changed("Acceso")" ) 
 						}
 						//genTimer( actor, state )
 					}
@@ -80,6 +81,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val M=payloadArg(0) 
 								CommUtils.outyellow("[$name] sonar ha risolto l'errore causa: $M")
+								emit("led_changed", "led_changed("Spento")" ) 
 						}
 						returnFromInterrupt(interruptedStateTransitions)
 						//genTimer( actor, state )

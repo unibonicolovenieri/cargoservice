@@ -17,6 +17,10 @@ Reply   getProductAnswer: product( JSonString ) for getProduct
 Request load_product 		: product( ID )  
 Reply   loadedProduct 		: slot( SLOT ) for load_product 
 
+//hold 
+Event slot_changed : slot_changed(ID,status) 
+Event sonar_changed : sonar_changed(status)
+Event led_changed : led_changed(status)
 
 //messaggi tra cargoservice e cargorobot
 Request move_product 		: product(SLOT)  
@@ -44,19 +48,22 @@ Event container_trigger : container_trigger(X)
 Event container_absence  : container_absence(X)    
 Event sonar_error:sonar_error(CAUSA) 
 Event problem_solved:problem_solved(CAUSA)
+
+// Eventi
+
        
 //contesti  
-Context ctx_cargoservice	ip [host="cargoserviceqak" port=8111]
+Context ctx_productservice	ip [host="cargoserviceqak" port=8111]
 Context ctx_basicrobot ip [host="basicrobot24" port=8020] 
 Context ctx_cargo	ip [host="localhost" port=8000]
-
+Context ctx_webgui ip [host="webgui" port=8998] 
 
 
 
 
 //attori esterni (basicrobot utilizzato da cargorobot e productservice utilizzato da cargoservice 
 ExternalQActor basicrobot context ctx_basicrobot
-ExternalQActor productservice context ctx_cargoservice
+ExternalQActor productservice context ctx_productservice
 
 
 
@@ -216,6 +223,8 @@ QActor cargorobot context ctx_cargo{
 		if [#CurrentRequestSlot != 3 && CurrentRequestSlot != 4#]{
 			forward basicrobot -m setdirection : dir($Direction)
 		println("Direction $Direction") color blue
+		//Si occupa lo slot quindi faccio una emit di cambio di stato (	Serve a WebGui)
+		emit slot_changed : slot_changed($CurrentRequestsSlot,"True")
 
 }
 		
@@ -338,6 +347,8 @@ QActor cargoservice context ctx_cargo{
 	
 	 println("[$name] sonar ha emesso un errore causa: $M")	color yellow
 	 //emit stop:stop(si) //dico al cargorobot di fermarsi
+	 //Si rompe il sonar quindi emetto un segnale led 
+	 emit led_changed : led_changed("Acceso")
 	 }
 	}
 	
@@ -352,6 +363,9 @@ QActor cargoservice context ctx_cargo{
 	
 	 println("[$name] sonar ha risolto l'errore causa: $M")	color yellow
 	 //emit resume:resume(ok) //dico al cargorobot di riprendere ciò che stava facendo
+	 //Il sonar si è fixato e quindi ora metto il led a spento
+	emit led_changed : led_changed("Spento")
+	 
 	 }
 	 returnFromInterrupt //provo a toglierla ma occhio - 7 novembre alle 10:32
 	}
@@ -434,7 +448,7 @@ QActor cargoservice context ctx_cargo{
 }
 
 
-QActor test context ctx_cargo{
+QActor producservice_test context ctx_cargo{
 	State start initial{
 		delay 30000
 		println("[test] avviato") color blue  
@@ -491,7 +505,10 @@ QActor sonar_test context ctx_cargo {
 		println("$name | Simulo arrivo container") color green
 		println("$name | $Counter | numero dell'iterazione di Sonar Test") color gray       
 		emit container_trigger : container_trigger(1)
+		// Sonar misura una distanza piu piccola e quindi c'è un container
+		emit sonar_changed :sonar_changed("Container_Individuato")
 		delay 10000
+		
 	}
 	Goto simulate_container_absence
 	
@@ -500,6 +517,8 @@ QActor sonar_test context ctx_cargo {
 		if [# Counter % 5 == 0 #] {
 			println("$name | Simulo sparizione container") color yellow
 			emit container_absence : container_absence(no)
+			//Sonar rileva DFREE e quindi non c'è niente e quindi è vuoto
+			emit sonar_changed :sonar_changed("Container_Assente")
 			delay 10000
 		}
 	}
@@ -511,6 +530,7 @@ QActor sonar_test context ctx_cargo {
 		if [# Counter % 2 == 0 #] {
 			println("$name | Guasto sonar!") color magenta
 			emit sonar_error : sonar_error(errore)
+			
 			delay 4000
 			println("$name | Sonar ripristinato!") color magenta
 			emit problem_solved : problem_solved(solved)
@@ -522,7 +542,17 @@ QActor sonar_test context ctx_cargo {
 
 
 
-
+QActor webgui_test context ctx_webgui{
+	
+	State start initial {
+		println("WebGui | Started! ") color blue
+		delay 2000
+	}
+	Transition t0
+	
+	
+	
+}
 
 
 
@@ -565,12 +595,12 @@ QActor sonar_test context ctx_cargo {
 //Reply   load_accepted : load_accepted(SLOT) for load_product 	//restituisce lo slot assegnato
 //Reply   load_refused  : load_refused(CAUSA) for load_product 	//ritorna la causa del mancato carico
 //
-//Context ctx_cargoservice	ip [host="localhost" port=10000]
+//Context ctx_productservice	ip [host="localhost" port=10000]
 //Context ctx_iodev			ip [host="localhost" port=10001]
 //Context ctx_test			ip [host="localhost" port=10002]
 //Context ctx_gui				ip [host="localhost" port=10003]
 //
-//QActor cargoservice context ctx_cargoservice {
+//QActor cargoservice context ctx_productservice {
 //           [#
 //           	var Taken_slot=arrayListOf("true","true","true","false","true")
 //        	val MAX_LOAD=2

@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CapelliCherguiVenieri_Sprint1.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="sprint1">Sprint1</h1>
+<h2 id="indice">Indice</h2>
+<ul>
+<li><a href="#requisiti-da-analizzare">Requisiti da Analizzare</a></li>
+<li><a href="#analisi-del-problema">Analisi del problema</a>
+<ul>
+<li><a href="#cargoservice">CargoService</a></li>
+<li><a href="#considerazioni-aggiuntive-cargoservice">Considerazioni Aggiuntive (Cargoservice)</a></li>
+<li><a href="#cargorobot">Cargorobot</a></li>
+<li><a href="#considerazioni-aggiuntive-cargorobot">Considerazioni Aggiuntive (Cargorobot)</a>
+<ul>
+<li><a href="#stato-del-robot-e-ripresa-attivit%C3%A0">Stato del Robot e ripresa attività</a></li>
+<li><a href="#carico-completo">Carico Completo</a></li>
+<li><a href="#evento-di-allarme">Evento di allarme</a></li>
+</ul>
+</li>
+<li><a href="#productservice">ProductService</a></li>
+<li><a href="#basicrobot">Basicorobot</a></li>
+</ul>
+</li>
+<li><a href="#messaggi-tra-componenti">Messaggi tra componenti</a>
+<ul>
+<li><a href="#contesti">Contesti</a></li>
+<li><a href="#messaggi-basicrobot">Messaggi Basicrobot</a></li>
+<li><a href="#messaggi-productservice">Messaggi ProductService</a></li>
+<li><a href="#messaggi-nuovi">Messaggi nuovi</a></li>
+</ul>
+</li>
+<li><a href="#piano-di-test">Piano di test</a></li>
+<li><a href="#implementazione">Implementazione</a>
+<ul>
+<li><a href="#cargoservice">Cargoservice</a>
+<ul>
+<li><a href="#gestione-delloccupazione-degli-slot">Gestione dell'occupazione degli slot</a></li>
+<li><a href="#richiesta-di-carico-prodotto">Richiesta di carico prodotto</a></li>
+</ul>
+</li>
+<li><a href="#cargorobot">Cargorobot</a>
+<ul>
+<li><a href="#gestione-della-posizione-e-dello-stato">Gestione della posizione e dello stato</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#divisione-dei-task">Divisione dei task</a></li>
+</ul>
+<h2 id="requisiti-da-analizzare">Requisiti da Analizzare</h2>
+<p>L'obiettivo prefissato di questo sprint è quello di analizzare i requisiti dei componenti <em>cargoservice</em> e <em>cargorobot</em> e di ciò che sta dietro a questi. Analizzeremo il problema e affronteremo un'elaborazione di progetto. Definiremo quali sono le <strong>interazioni</strong> tra questi componenti e il resto del sistema, ovvero sia ciò che i componenti comunicheranno con l'esterno sia ciò che riusciranno a digerire. Al termine di questo sprint, verrà redatto un piano di test per verificare che i componenti funzionino come previsto.</p>
+<p>I requisiti che andremo prima ad analizzare e poi ad implementare in questo sprint sono:</p>
+<ol>
+<li>
+<p>Un sistema in grado di <strong>ricevere</strong> una richiesta di carico di un prodotto, <strong>accettarla</strong> o <strong>rifiutarla</strong>. Il prodotto contiene un <strong>PID</strong> associato e il sistema deve essere in grado di verificarne la presenza nel database e il peso che non deve superare la costante MAXLOAD.</p>
+</li>
+<li>
+<p>Un sistema che riesca ad effettuare un <strong>carico completo</strong>.</p>
+<ul>
+<li>Verifica la presenza di un container, il suo peso e la disponibilità di uno slot</li>
+<li>Carico del container recandosi all'IOPort</li>
+<li>Posizionamento e scarico del container nello slot corretto</li>
+<li>Return to home
+Dunque un sistema che sia in grado di tenere conto dello stato della stiva, tra cui slot liberi e peso totale. Deve essere in grado inoltre di indirizzare il DDR verso gli slot o la porta di destinazione.</li>
+</ul>
+</li>
+<li>
+<p>Un sistema che sia in grado interrompere ogni attività in caso di malfunzionamento. Ovvero in caso di sollevamento di un evento di guasto da parte del sonar, il sistema deve essere in grado di <strong>interrompere</strong> ogni attività e, una volta risolti i problemi, <strong>farle ripartire</strong>.</p>
+</li>
+</ol>
+<h2 id="analisi-del-problema">Analisi del problema</h2>
+<p>In questo Sprint ci siamo concentrati sull'analisi dei due componenti <a href="#cargoservice"><em>cargoservice</em></a> e <a href="#cargorobot"><em>cargorobot</em></a>. Abbiamo analizzato il problema e le interazioni che questi componenti avranno con il resto del sistema.</p>
+<h3 id="cargoservice">CargoService</h3>
+<p>Il cargoservice è il componente che si occuperà di gestire le richieste di carico e scarico dei container. Le richieste arriveranno da un componente esterno( il sonar emetterà un evento) e il cargoservice dovrà elaborarle in base a diversi fattori tra cui la disponibilità degli slot, il peso totale dei container e l'ordine di arrivo, per poi accettarle o rifiutarle. Verrà implementato come un <strong>orchestrator</strong>: si occuperà di coordinare le attività del cargorobot, di gestire le richieste di carico in base allo stato del led e infine di comunicare con la web-gui per permettere l'interazione e il controllo da parte del committente. Il <code>cargoservice</code> riceve anche eventi dal <code>sonar</code> (mock del sensore) che simulano la presenza o assenza del container, gestendo guasti e ripristini. In caso di <code>sonar_error</code>.</p>
+<p>La nostra scelta nello sprint0 è stata quella di non modellare nessun attore per la gestione separata dell'hold ma di implementarne all'interno di cargoservice la logica di funzionamento.</p>
+<p>Il ciclo di funzionamento del cargoservice sarà il seguente:</p>
+<ol>
+<li>
+<p>Ricezione del <strong>PID</strong> del prodotto (container) all'interno di una richiesta di carico grazie all'evento di container_trigger sollevato dal sonar.</p>
+</li>
+<li>
+<p><strong>Verifica del peso</strong> tramite una richiesta all'attore <strong>productservice</strong>. In questa richiesta viene inserito il PID del prodotto del quale si vuole conoscere il peso.</p>
+</li>
+<li>
+<p>La risposta di productservice può essere di due tipi:</p>
+<ul>
+<li><strong>PID non registrato (ERRORE)</strong>: il PID inviato da cargoservice non è registrato nel sistema.</li>
+<li><strong>Peso relativo al PID</strong>: Restituisce il peso relativo al PID inviato in precedenza.</li>
+</ul>
+</li>
+<li>
+<p>Una volta ottenuto il peso la procedura di carico viene eseguita sotto le seguenti condizioni:</p>
+</li>
+</ol>
+<ul>
+<li>il carico attualmente ospitato sommato al carico dell'eventuale prodotto da caricare non deve la costante <code>MAXLOAD</code> (<code>CURRENTLOAD</code> + <code>PRODUCT_WEIGHT</code> &lt;= <code>MAXLOAD</code>)</li>
+<li>uno dei 5 slot (4 disponibili) deve essere libero per poter ospitare il prodotto</li>
+</ul>
+<p>Dunque la risposta che cargoservice darà alla richiesta di carico sarà:</p>
+<ul>
+<li><strong>RIFIUTO</strong>: In caso di mancanza di una delle due condizioni sopra - Risposta di errore</li>
+<li><strong>ACCETTAZIONE</strong>: Condizioni soddisfatte e nella risposta viene specificato lo slot in cui il prodotto dovrà essere caricato.
+In caso di mancanza di una delle due condizioni verrà segnalato il relativo errore.</li>
+</ul>
+<ol start="5">
+<li>Cargoservice richiede al cargorobot di eseguire la load specificando lo slot in cui mettere il container.</li>
+<li>Il cargoservice attende che il cargorobot ritorni alla HOME (posizione 0,0 dell'hold).La risposta può essere una load_completed o una load_failed in base all'esito del caricamento.</li>
+<li>cargoservice riceve in risposta l'esito della load dal cargorobot, aggiorna lo stato della stiva(peso,numero di slot liberi), emette gli eventi per ggiornare la web-gui ed è pronto per gestire nuove richieste.</li>
+</ol>
+<h4 id="considerazioni-aggiuntive-cargoservice">Considerazioni Aggiuntive (Cargoservice)</h4>
+<p>In caso di evento scatenato dal Sonar (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Per comunicare queste interruzioni a cargorobot possiamo inoltrare gli eventi che in futuro svilupperemo sul componente Sonar. Sonar in questo sprint sarà un mock.</p>
+<p>Ogni volta che lo stato interno della hold cambia, cargoservice emetterà i seguenti eventi:
+Event slot_changed : slot_changed(ID,status)
+Event sonar_changed : sonar_changed(status)
+Event led_changed : led_changed(status)</p>
+<p>Essi permetteranno alla web-gui di aggiornare dinamicamente lo stato dell'hold visualizzato.</p>
+<h3 id="cargorobot">Cargorobot</h3>
+<p>Il cargorobot gestisce il basicrobot colmando <strong>l'astraction gap</strong> che si individua all'interno di basicrbot. Ovvero portando il DDR dalla semplice capacità di muoversi all'interno della mappa fornita alla possibilità di eseguire operazioni di carico e scarico dei container (eseguibili sotto forma di messaggi grazie all'implementazione sotto forma di attore). Ha conoscenza percui della posizione degli slot oltre alle informazioni della stiva (dimensione, ostacoli, perimetro, posizionamento dell'IOport).</p>
+<p>Il cargorobot dovrà condividere con il basicrobot la conoscenza della stiva. Il basicrobot fornito dal committente possiede una sua modellazione dell'hold che consiste in un rettangolo di celle della dimensione del robot, gli ostacoli(i nostri slot), il posizionamento dell'IOport e il led.</p>
+<p>La hold si presenta come una griglia dove ogni quadrato rappresenta una cella di dimensione pari a quella del robot</p>
+<p><img src="../../images/grigliahold.png" alt=""></p>
+<p>La posizione degli slot e dell'IOport secondo le coordinate con cui viene modellata la hold all'interno di basicrobot sono riportate qui sotto.</p>
+<p>La posizione (0,0) rappresenta la HOME del robot, ovvero il punto di partenza e ritorno dopo ogni operazione. Gli slot sono posizionati in coordinate fisse all'interno della stiva, ad esempio:</p>
+<ul>
+<li>Slot 1: (1,1)</li>
+<li>Slot 2: (1,3)</li>
+<li>Slot 3: (4,1)</li>
+<li>Slot 4: (4,3)</li>
+<li>Slot 5: Slot che consideriamo sempre pieno, non utilizzabile</li>
+<li>IOport: (1,5)</li>
+</ul>
+<p><img src="../../images/grigliarobot.jpg" alt=""></p>
+<p>L'attività che il cargorobot dovrà svolgere sarà la seguente:</p>
+<ol>
+<li>Il cargorobot riceve da cargoservice una richiesta di carico di un container e lo slot in cui posizionarlo.</li>
+<li>Il cargorobot si dirige verso la pickup-position e preleva il container dall'IOport.</li>
+<li>Succesivamente dopo aver prelevato il container, si dirige verso lo slot fornito in precedenza e deposita il container.</li>
+<li>Una volta completata l'operazione cargorobot ritorna in (0,0) HOME e notifica a cargoservice il completamento dell'operazione.</li>
+</ol>
+<p>Il movimento del robot viene gestito tramite funzionalità messe a disposizione da basicorbot24. Cargorobot si occcuperà di inviare i comandi di movimento tramite messaggi e di gestire le risposte che riceverà da basicrobot. Tramite il messaggio moverobot sarà possibile definire la posizione di destinazione del robot, basicrobot si occuperà di calcolare il percorso e di muovere il robot. Cargorobot attenderà la risposta di basicrobot per sapere se l'operazione è andata a buon fine o se è fallita (es. ostacolo imprevisto).
+Le coordinate di posizionamento del robot sono memorizzate all'interno di basicrobot(disponibili tramite messaggio), mentre il posizionamento del degli slot e dell'IOport sono memorizzate all'interno di cargorobot.</p>
+<h3 id="considerazioni-aggiuntive-cargorobot">Considerazioni Aggiuntive (Cargorobot)</h3>
+<h4 id="stato-del-robot-e-ripresa-attivit%C3%A0">Stato del Robot e ripresa attività</h4>
+<p>Può gestire eventi <code>stop</code> e <code>resume</code> ricevuti dal <code>cargoservice</code>. Durante <code>stop</code> emette un <code>alarm</code> e sospende il basicrobot.</p>
+<p>A questo punto inizialmente il problema analizzato è stato la ripresa dell'attività dopo un evento di interruzione. Abbiamo notato che è necessario memorizzare lo stato di spostamento del robot. In quando al momento della ripresa dell'attività il robot non è in grado (se non siamo noi a fornirgli queste informazioni) di sapere che cosa stava facendo prima dell'interruzione. Dunque tramite una variabile di stato interna al cargorobot, andremo a memorizzare lo stato del robot (es. in movimento o meno). In questo modo alla ripresa dell'attività se basicrobot precedentemente si stava muovendo riceverà una moverobot altrimenti rimarrà in attesa di un eventuale richiesta di movimento. Questo problema viene risolta dalla &quot;returnFromInterrupt&quot; di qak nonostante sia deprecata. Una volta analizzato il problema demandiamo all'implementatore la strada migliore da intraprendere.</p>
+<h4 id="carico-completo">Carico Completo</h4>
+<p>Il cargorobot deve tornare in HOME e notificare al cargoservice il completamento dell'operazione.</p>
+<h4 id="evento-di-allarme">Evento di allarme</h4>
+<p>In caso di evento scatenato dal sonar (es. malfunzionamento, emergenza) il cargorobot deve interrompere ogni attività in corso e attendere ulteriori istruzioni.
+Questo ci porta alla conclusione di dover gestire e mantenere memorizzate alcune informazioni:</p>
+<ul>
+<li>Avanzamento della richiesta (Arrivato all'IOport, Arrivato allo slot, Arrivato a HOME)</li>
+<li>Salvataggio della richiesta in corso (SLOT in cui effettuare il caricamento se non ancora eseguito)</li>
+</ul>
+<p>Utilizzeremo <em>alarm(x)</em> per notificare a basicrobot un evento di blocco.</p>
+<h3 id="productservice">ProductService</h3>
+<p>Il productservice è un componente che viene gia fornito dal committente per la registrazione e la gestione dei prodotti all'interno di un relativo Database. Esso permette la registrazione, la cancellazione e la ricerca di prodotti tramite il loro PID. Ogni prodotto ha associato un peso che verrà utilizzato dal cargoservice per verificare che il carico totale non superi la costante MAXLOAD. <strong>Prodotto</strong> invece sono le entità che verranno gestite. Gli attributi di un prodotto sono:</p>
+<ul>
+<li>PID (Valore Intero identifiativo del prodotto, deve essere maggiore di 0)</li>
+<li>Peso (Valore Reale che rappresenta il peso del prodotto, deve essere maggiore di 0)</li>
+<li>Nome (Stringa)</li>
+</ul>
+<p>Come detto in precedenza ProductService è un componente già fornito dal committente, pertanto non verrà implementato da noi, ma ci limiteremo ad utilizzarlo per le nostre esigenze. Le interazioni che avremo con questo componente sono analizzate nel prossimo punto.</p>
+<h2 id="messaggi-tra-componenti">Messaggi tra componenti</h2>
+<h3 id="contesti">Contesti</h3>
+<pre class="hljs"><code><div>Context ctx_productservice	ip [host=&quot;cargoserviceqak&quot; port=8111]
+Context ctx_basicrobot ip [host=&quot;basicrobot24&quot; port=8020] 
+Context ctx_cargo	ip [host=&quot;localhost&quot; port=8000]
+Context ctx_webgui ip [host=&quot;webgui&quot; port=8998] 
+Context ctx_sonarhost ip[host=&quot;sonarhost&quot; port=8999]
+
+ctx_cargo (host=&quot;localhost&quot; port=8000)          
+├── cargorobot
+├── cargoservice
+└──  productservice_test
+
+ctx_basicrobot (host=&quot;basicrobot24&quot; port=8020)     		
+└── basicrobot (ExternalQActor)
+
+ctx_productservice (host=&quot;cargoserviceqak&quot; port=8111)  
+└── productservice (ExternalQActor)
+
+ctx_webgui (host=&quot;webgui&quot; port=8998)
+└── webgui_test
+
+ctx_sonar (host=&quot;sonarhost&quot; port=8999)
+└── sonar_test
+</div></code></pre>
+<h4 id="messaggi-basicrobot">Messaggi Basicrobot</h4>
+<p>(Messaggi gia presenti nell'attore fornito dal committente)</p>
+<pre class="hljs"><code><div>    Dispatch cmd       	: cmd(MOVE)         
+    Dispatch end       	: end(ARG)         
+    
+    Request step       : step(TIME)	
+    Reply stepdone     : stepdone(V)                 for step
+    Reply stepfailed   : stepfailed(DURATION, CAUSE) for step
+
+    Event  sonardata   : sonar( DISTANCE ) 	   
+    Event obstacle     : obstacle(X) 
+    Event info         : info(X)    
+
+    Request  doplan     : doplan( PATH, STEPTIME )
+    Reply doplandone    : doplandone( ARG )    for doplan
+    Reply doplanfailed  : doplanfailed( ARG )  for doplan
+
+    Dispatch setrobotstate: setpos(X,Y,D) //D =up|down!left|right
+
+    Request engage        : engage(OWNER, STEPTIME)	
+    Reply   engagedone    : engagedone(ARG)    for engage
+    Reply   engagerefused : engagerefused(ARG) for engage
+
+    Dispatch disengage    : disengage(ARG)
+
+    Request checkowner    : checkowner(CALLER)
+    Reply checkownerok    : checkownerok(ARG)      for checkowner
+    Reply checkownerfailed: checkownerfailed(ARG)  for checkowner
+    
+    Event alarm           : alarm(X)
+    Dispatch nextmove     : nextmove(M)
+    Dispatch nomoremove   : nomoremove(M)
+    
+    Dispatch setdirection : dir( D )  //D =up|down!left|right
+
+    Request moverobot    :  moverobot(TARGETX, TARGETY)  
+    Reply moverobotdone  :  moverobotok(ARG)                    for moverobot
+    Reply moverobotfailed:  moverobotfailed(PLANDONE, PLANTODO) for moverobot
+     
+    Request getrobotstate : getrobotstate(ARG)
+    Reply robotstate      : robotstate(POS,DIR)  for getrobotstate
+
+    Request getenvmap     : getenvmap(X)
+    Reply   envmap        : envmap(MAP)  for getenvmap
+</div></code></pre>
+<h4 id="messaggi-productservice">Messaggi ProductService</h4>
+<p>(Messaggi già presenti nell'attore fornito dal committente)</p>
+<pre class="hljs"><code><div>  Request createProduct : product(String)                    
+  Reply   createdProduct: productid(ID) for createProduct   
+        
+  Request deleteProduct  : product( ID ) 
+  Reply   deletedProduct : product(String) for deleteProduct
+
+  Request getProduct : product( ID )  
+  Reply   getProductAnswer: product( JSonString ) for getProduct 
+    
+  Request getAllProducts : dummy( ID )
+  Reply   getAllProductsAnswer: products(  String ) for getAllProducts 
+</div></code></pre>
+<h4 id="messaggi-nuovi">Messaggi nuovi</h4>
+<pre class="hljs"><code><div>//cargoservice
+  Request load_product : product(ID)
+  Reply   loadedProduct : slot(SLOT) for load_product
+//cargorobot
+  Request move_product : product(SLOT)
+  Reply   movedProduct : result(SLOT) for move_product
+  Reply   moveProductFailed : fail(failed) for move_product
+
+  Event stop : stop(X)
+  Event resume : resume(X)
+  Event alarm : alarm(X)
+//sonar
+  Event container_trigger : container_trigger(X)
+  Event container_absence : container_absence(X)
+  Event sonar_error : sonar_error(CAUSA)
+  Event problem_solved : problem_solved(CAUSA)
+
+</div></code></pre>
+<h2 id="architettura-di-riferimento">Architettura di riferimento</h2>
+<p>Qak ci fornisce l'architettura di riferimento del prototipo che realizzeremo:
+<img src="../../images/sprint1arch.png" alt=""></p>
+<h2 id="piano-di-test">Piano di test</h2>
+<p>Abbiamo simulato  il funzionamento di alcune componenti del sistema che al momento non sono ancora state implementate. Abbiamo deciso di implementare tramite attori mokup il comportamento del test Actor per la creazione dei prodotti e delle richiste di carico per una questione di comodità implementativa e ordine mentale, in quanto utilizzando lo stesso linguaggio di modellazione (QActor) ci è stato più semplice definire le interazioni tra i componenti.</p>
+<p>Nella fase di test, viene mandata una richiesta dal componente di Test e gestita da <code>cargoservice</code>.</p>
+<p>Il flusso di lavoro è il seguente:</p>
+<pre class="hljs"><code><div>test actor:
+  createProduct
+  |
+  createdProduct
+  |
+  cargoservice chiama productservice
+  |
+  cargorobot completa e notifica
+  |
+  cargoservice aggiorna stato
+</div></code></pre>
+<p>Aggiunto: attore <code>sonar_test</code> che simula il comportamento del sensore sonar, gestendo ciclicamente eventi di:</p>
+<ul>
+<li>arrivo container (<code>container_trigger</code>)</li>
+<li>assenza (<code>container_absence</code>)</li>
+<li>guasti (<code>sonar_error</code>)</li>
+<li>ripristino (<code>problem_solved</code>)
+Lo scopo è testare la capacità del sistema di interrompere e riprendere le attività automaticamente.</li>
+</ul>
+<pre class="hljs"><code><div>sonar_test --&gt;  cargoservice --&gt;  cargorobot --&gt;  basicrobot  
+      ↑               ↓
+problem_solved   stop/resume
+</div></code></pre>
+<p>Prevediamo un test anche per l'interazione con la web-gui.</p>
+<h2 id="implementazione">Implementazione</h2>
+<h3 id="cargoservice">Cargoservice</h3>
+<h4 id="gestione-delloccupazione-degli-slot">Gestione dell'occupazione degli slot</h4>
+<p>Per la gestione dell'occupazione degli slot, abbiamo deciso di utilizzare una lista di booleani che rappresentano lo stato di ciascuno slot. In questo modo, possiamo facilmente verificare quali slot sono liberi e quali sono occupati. Inoltre, abbiamo definito delle variabili per tenere traccia del carico massimo e del carico attuale della stiva. Consideriamo il fatto che gli slot vengano occupati in maniera incrementale.</p>
+<pre class="hljs"><code><div>QActor cargoservice context ctx_cargo{
+     [#
+       	var Taken_slot=arrayListOf(&quot;false&quot;,&quot;false&quot;,&quot;false&quot;,&quot;false&quot;,&quot;true&quot;)
+    	val MAX_LOAD=500
+    	var CURRENT_LOAD=0
+    	var Product_weight = 0
+    	var Reserved_slot = 0
+     #]
+</div></code></pre>
+<h4 id="richiesta-di-carico-prodotto">Richiesta di carico prodotto</h4>
+<p>Spiegazione dell'implementazione della richiesta di carico prodotto, che coinvolge la comunicazione con productservice per ottenere il peso del prodotto.</p>
+<pre class="hljs"><code><div>State check_product{
+		onMsg(container_trigger: container_trigger(ID)){	
+			println(&quot;[cargoservice] check del prodotto&quot;)	
+			[#
+				val ID=payloadArg(0)
+			#]			
+			request productservice -m getProduct:product($ID)	
+		}
+	}
+</div></code></pre>
+<h3 id="cargorobot">Cargorobot</h3>
+<p>Il cargorobot al momento di ricezione di una richiesta di carico eseguirà sempre la pipeline di esecuzione.</p>
+<p>Movimento all'IOport:</p>
+<p>Movimento allo slot</p>
+<p>Ritorno alla Home:</p>
+<p>Attesa nuova richiesta o gestione richiesta in coda:</p>
+<pre class="hljs"><code><div>State goto_IOPort{
+		onMsg(move_product: product(SLOT)){
+            [# CurrentRequestSlot = payloadArg(0).toInt()
+            	X = posizione[&quot;IOport&quot;]!![0]!!
+				Y = posizione[&quot;IOport&quot;]!![1]!!
+            #]
+            println(&quot;[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot&quot;) color yellow
+            println(&quot;Posizione X: $X Y: $Y&quot;) color yellow
+            request basicrobot -m moverobot:moverobot($X,$Y)
+            [#delivering = true
+            	
+            #]
+            println(&quot;sent &quot;) color yellow
+        }
+	}
+	
+	Transition t0
+	whenReply moverobotfailed-&gt; return_home_anyway
+	whenReply moverobotdone -&gt; goto_slot
+	whenInterruptEvent stop -&gt; stop
+	
+	
+	State goto_slot{
+		println(&quot;gotoslot&quot;) color yellow
+		delay 3000
+		onMsg(moverobotdone  :  moverobotdone(ok)){
+		[#
+			X = posizione[CurrentRequestSlot.toString()]!![0]!!
+			Y = posizione[CurrentRequestSlot.toString()]!![1]!!
+			
+		#]
+		println(&quot;[gotoslot] position received&quot;) color green
+		request basicrobot -m moverobot:moverobot($X,$Y)
+		[#delivering = true#]
+		println(&quot;gotoslot delivering: $delivering | position x: $X y: $Y&quot;) color green
+		}
+	}
+	
+	
+	Transition t0
+	whenReply moverobotdone -&gt; arrived_at_slot
+	whenReply moverobotfailed-&gt; return_home_anyway
+	whenInterruptEvent stop -&gt; stop
+	
+	State arrived_at_slot{
+		println(&quot;Arrived at slot $CurrentRequestSlot&quot;)
+		println(&quot;Direction&quot;) color blue
+		[#
+			var Direction = orientamento[CurrentRequestSlot.toString()]!!
+			#
+		]
+		if [#CurrentRequestSlot != 3 &amp;&amp; CurrentRequestSlot != 4#]{
+			forward basicrobot -m setdirection : dir($Direction)
+		println(&quot;Direction $Direction&quot;) color blue
+
+}
+	}	
+	Goto return_home
+	State return_home{
+		delay 3000
+		//onMsg(moverobotdone  :  moverobotdone(ok)){
+		[#
+			X = posizione[&quot;HOME&quot;]!![0]!!
+			Y = posizione[&quot;HOME&quot;]!![1]!!
+			
+		#]
+		request basicrobot -m moverobot:moverobot($X,$Y)
+		[#delivering = true#]
+		
+		}
+		Transition t0
+		whenReply moverobotdone -&gt; arrived_at_home
+		whenReply moverobotfailed-&gt; load_failed
+		whenInterruptEvent stop -&gt; stop
+		
+		State arrived_at_home{
+		println(&quot;Arrived at home&quot;)
+		println(&quot;Direction&quot;) color blue
+		[#
+			var Direction = orientamento[&quot;HOME&quot;]!!
+			#
+		]
+		forward basicrobot -m setdirection : dir($Direction)
+		println(&quot;Direction $Direction&quot;) color blue
+		
+	}
+		Goto load_completed
+		State return_home_anyway{
+			println(&quot;returnhomeanyway&quot;)
+			delay 3000
+			onMsg(moverobotfailed:fail(PLANDONE)){
+				[#
+				X = posizione[&quot;HOME&quot;]!![0]!!
+				Y = posizione[&quot;HOME&quot;]!![1]!!
+				#]
+				request basicrobot -m moverobot:moverobot($X,$Y)
+				 [#delivering = true#]
+			}
+		}
+		Transition t0
+		whenReply moverobotdone -&gt; load_failed
+		whenReply moverobotfailed-&gt; load_failed
+		whenInterruptEvent stop -&gt; stop	
+</div></code></pre>
+<h4 id="gestione-della-posizione-e-dello-stato">Gestione della posizione e dello stato</h4>
+<p>Per la gestione della posizione e dello stato del robot, abbiamo definito delle variabili e delle mappe hash per tenere traccia delle coordinate degli slot e dell'orientamento del robot in ciascuna posizione.</p>
+<pre class="hljs"><code><div>QActor cargorobot context ctx_cargo{
+	
+	[#
+		val Myname = &quot;$name&quot;
+		var CurrentRequestSlot = 0
+		var delivering = false
+		val posizione = hashMapOf(
+		    &quot;HOME&quot;     to arrayOf(0, 0),
+		    &quot;IOport&quot;  to arrayOf(0, 4),
+		    &quot;1&quot;    to arrayOf(1, 1),
+		    &quot;2&quot;    to arrayOf(1, 3),
+		    &quot;3&quot;    to arrayOf(4, 1),
+		    &quot;4&quot;    to arrayOf(4, 3)
+		)
+		
+		val orientamento = hashMapOf(
+			&quot;HOME&quot;    	to &quot;down&quot;,
+			&quot;IOport&quot; 	to &quot;down&quot;,
+		    &quot;1&quot;   	to &quot;right&quot;,
+		    &quot;2&quot; 	to &quot;right&quot;,
+		    &quot;3&quot; 	to &quot;left&quot;,
+		    &quot;4&quot; 	to &quot;left&quot;
+		)
+		
+		var X = 0
+		var Y = 0
+	#]
+</div></code></pre>
+<h2 id="divisione-dei-task">Divisione dei task</h2>
+<p>Abbiamo impiegato in totale 40 ore di lavoro per completare questo sprint, suddivise tra le varie attività come segue:</p>
+<ul>
+<li>Analisi del problema: 8 ore</li>
+<li>Redazione del documento: 8 ore</li>
+<li>Pianificazione e Sviluppo del test: 24 ore</li>
+</ul>
+
+</body>
+</html>

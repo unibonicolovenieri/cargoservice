@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CapelliCherguiVenieri_Sprint0_v1.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="sprint-0-v1">Sprint 0 V1</h1>
+<h1 id="indice">Indice</h1>
+<ul>
+<li><a href="#obiettivi">Obiettivi</a></li>
+<li><a href="#requisiti-del-commitente">Requisiti forniti dal Commitente</a></li>
+<li><a href="#analisi-dei-requisiti">Analisi dei Requisiti</a></li>
+<li><a href="#macrocomponenti">Macrocomponenti</a></li>
+<li><a href="#architettura-di-riferimento">Architettura di Riferimento</a></li>
+<li><a href="#piano-di-test">Piano di Test</a></li>
+<li><a href="#piano-di-lavoro">Piano di Lavoro</a></li>
+</ul>
+<h1 id="obiettivi">Obiettivi</h1>
+<p>In questo sprint0 i nostri obiettivi sono di formalizzare i requisiti forniti dal committente e definire il nostro problema, in questa formalizzazione saremo in grado di definire problemi che saranno poi gestiti e sviluppati in sprint da eseguire eventualmente anche in parallelo, improntare le componenti della nostra archiettura (macrocomponenti principali &amp; interazioni tra loro sotto forma di messaggi).</p>
+<h1 id="requisiti-del-commitente">Requisiti del commitente</h1>
+<p><a href="../../requirements/README.md">Requisiti del commitente</a></p>
+<h1 id="analisi-dei-requisiti">Analisi dei requisiti</h1>
+<h3 id="hold">Hold</h3>
+<p>È la stiva della nave, cioè l’<a href="#area-di-lavoro">area di lavoro</a> in cui si muove il nostro robot e si trovano i container. In questo progetto la modelliamo come una zona rettangolare(idealmente una matrice in cui ogni posizione raffigura una cella) con degli slot e una porta di ingresso/uscita (IOPort). Il modello di questa permetterà al cargoservice di eseguire le operazioni richieste dal committente.</p>
+<h3 id="ddr---differential-drive">DDR - Differential Drive</h3>
+<p>È il robot a guida differenziale (Differential Drive Robot) incaricato di spostare i container dentro la stiva e piazzarli nello slot assegnato. Dopo il lavoro torna sempre alla sua posizione “HOME”. Cargorobot gestirà le azioni del DDR affinchè rispecchi i requisiti del committente.</p>
+<h3 id="products">Products</h3>
+<p>Sono i beni/merci che devono essere caricati sulla nave. Ogni prodotto viene messo in un container di dimensioni prefissate e registrato in un sistema.</p>
+<h3 id="weight">Weight</h3>
+<p>Il peso del prodotto/container. Serve per verificare che non venga superato il limite massimo di carico della nave (<code>MaxLoad</code>).</p>
+<h3 id="pid">PID</h3>
+<p>PID o Product Id è l'identificativo di prodotto restituito da productservice. E' un numero naturale maggiore di 0</p>
+<h3 id="cargoservice">CargoService</h3>
+<p>È il servizio software che si occupa di gestire l'hold, decidendo dove e quando muovere i prodotti e gestire gli errori del sonar.</p>
+<h3 id="io-port">Io-port</h3>
+<p>È la porta di ingresso/uscita della stiva. Davanti a questa porta c’è un sensore sonar che rileva se un container è presente. È il punto dove il prodotto viene consegnato prima che il robot lo carichi. Si trova sul perimetro della stiva.</p>
+<h2 id="componenti-fornite-dal-committente">Componenti fornite dal committente</h2>
+<p>Si elencano di seguito le componenti software fornite dal committente</p>
+<h3 id="basicrobot">BasicRobot</h3>
+<p>Componente che governa il movimento del DDR-robot all'interno della mappa. Non è a conoscenza della tecnologia con il quale il robot è stato implementato (potrebbe trattarsi di un robot fisico come di uno virtuale). Dato un punto di arrivo è capace far raggiungere il DDR quel determinato punto. Pertanto conosce l'Hold e i suoi vincoli. Comunica tramite messaggi.</p>
+<h3 id="sonarled2025">SonarLed2025</h3>
+<p>Software per la misurazione della distanza dal sonar (componente hardware) e per accendere un LED</p>
+<h3 id="wenv">WENV</h3>
+<p>WENV è un ambiente di simulazione software (“Web Environment”) usato per testare il sistema, mostrare la stiva e i movimenti del robot tramite un’interfaccia grafica web.</p>
+<h3 id="web-gui">Web-gui</h3>
+<p>Interfaccia grafica web che consente la supervisione dello stato dell'hold,quindi dei singoli slot, del sonar e del led. Deve essere aggiornata dinamicamente (possibile utilizzo di eventi)</p>
+<h2 id="area-di-lavoro">Area di Lavoro</h2>
+<p><img src="../../images/tf25sceneAnnotated.jpg" alt=""></p>
+<h2 id="plain-old-java-objects-pojo">Plain Old Java Objects (POJO)</h2>
+<p>I POJO sono essenziali per costruire il modello di dominio in DDD.<br>
+Sono usati per:<br>
+• Rappresentare entità con identità persistente
+• Definire value object immutabili
+• Formare aggregati, unità coerenti per la consistenza dei dati<br>
+• Incapsulare logica di business passiva e stateless</p>
+<p>I POJO sono passivi, non gestiscono il loro stato in autonomia nel tempo in risposta a eventi esterni e non hanno code di messaggi proprie</p>
+<h2 id="attori">Attori</h2>
+<p>Il modello ad Attori si basa su entità autonome che comunicano tramite messaggi. Un Attore Qak è un componente attivo con un proprio flusso di controllo autonomo e uno stato interno.</p>
+<p>Le loro caratteristiche principali includono:</p>
+<p>• <strong>Comunicazione a messaggi</strong>: Interagiscono esclusivamente inviando e ricevendo messaggi (Dispatch, Request, Reply, Event), promuovendo isolamento e resilienza<br>
+• <strong>Coda di messaggi locale</strong>: Ogni Attore ha una coda (msgQueue) per processare i messaggi sequenzialmente, gestendo naturalmente l'esigenza di non elaborare più richieste contemporaneamente<br>
+• <strong>Comportamento come FSM</strong>: Il loro comportamento può essere modellato come una macchina a stati finiti (FSM)<br>
+• <strong>Adatti a sistemi distribuiti e microservizi</strong>: Il modello Qak è specificamente pensato per la progettazione di prototipi di sistemi distribuiti, con attori che si comportano come FSM, strettamente correlati all'architettura a microservizi<br>
+• <strong>Qak come DSL</strong>: Il linguaggio Qak è un Domain Specific Language (DSL) che fornisce un alto livello di astrazione per definire modelli eseguibili di sistemi basati su attori, aiutando a colmare l'abstraction gap<br>
+• <strong>Raggruppamento in contesti</strong>: Gli attori sono raggruppati in contesti che gestiscono le interazioni di rete tramite protocolli come TCP, CoAP, MQTT</p>
+<h1 id="macrocomponenti">Macrocomponenti</h1>
+<p>Ora che sono stati definiti i requisiti ed i concetti fondamentali che utilizzeremo iniziamo a ragionare su come potremmo modellarne i macrocomponenti.</p>
+<h3 id="cargorobot">Cargorobot</h3>
+<p>Il cargorobot sarà un attore in quanto sarà incaricato di reagire ad eventi come l'arrivo di un container. Esso aggiungerà al basicrobot la possibilità di caricare e scaricare container negli appositi slot dell'Hold.</p>
+<h3 id="cargoservice">CargoService</h3>
+<p>Il CargoService rappresenta il nucleo della logica di business del sistema, allineandosi al concetto di &quot;Gestione Carico&quot; (Loading Management) identificato come Bounded Context</p>
+<p>Le sue responsabilità principali sono:</p>
+<p><strong>• Gestire le richieste di carico</strong>: Riceve le richieste esterne per il carico di un prodotto e ne gestisce l'intero ciclo di vita.<br>
+<strong>• Orchestrare il processo</strong>: Decide se accettare o rifiutare una richiesta dopo aver eseguito le necessarie validazioni, come il controllo del peso massimo e la disponibilità di slot nella stiva<br>
+<strong>• Coordinare gli altri componenti</strong>: Interagisce con gli altri macro-componenti per portare a termine il processo. Richiede informazioni sul prodotto (come il peso) a productservice, verifica la disponibilità di slot nella stiva, e comanda al cargorobot di eseguire il caricamento.</p>
+<p>Verrà modellato come un attore in quanto la comunicazione avverà con elementi eterogenei e pertanto riteniamo sia piu congruo lo scambio di messaggi come metodo comunicativo. Inoltre prevediamo l'utilizzo di eventi quindi il concetto di attore QAK ci potrebbe tornare utile.</p>
+<h3 id="sonar">Sonar</h3>
+<p>Il sonar si interfaccia con il sensore a ultrasuoni fisico, verrà montato in un nodo fisico separato (raspberry) e pertanto,facendo parte di un sistema distribuito, potremmo modellarlo come attore anche se il suo ruolo sarà di emettere messaggi in modo passivo quindi demandiamo questa decisione agli sprint futuri.</p>
+<h3 id="led">Led</h3>
+<p>Il led anche esso si trova su un nodo fisico separato e per lo stesso motivo del sonar demanderemo la decisione sulla tipologia di modellazione allo sprint futuro. Di seguito le sue responsabilità principali:</p>
+<p><strong>• Fornire feedback visivo</strong>: La sua funzione primaria è quella di segnalare visivamente la presenza di container.<br>
+<strong>• Esporre un'interfaccia di controllo</strong>: Deve offrire un'interfaccia semplice per essere comandato da altri componenti, accettando messaggi come <code>turnOn</code> e <code>turnOff</code>.</p>
+<h3 id="web-gui">Web-gui</h3>
+<p>Interfaccia grafica web che consente la supervisione dello stato dell'hold,quindi dei singoli slot, del sonar e del led. Deve essere aggiornata dinamicamente (possibile utilizzo di eventi) per cui prevediamo la sua modellazione come attore. Inoltre potremmo così permettere a questa interfaccia di essere un componente attivo fornendogli dei bottoni con cui modificare lo stato dell'hold.</p>
+<h1 id="architettura-di-riferimento">Architettura di Riferimento</h1>
+<h2 id="modello-di-comunicazione-a-messaggi">Modello di comunicazione a Messaggi</h2>
+<p>Il modello ad attori sfrutta la comunicazione tramite messaggi e dai requisiti forniti siamo in grado di comprendere alcune delle interazioni che avvengo tra gli attori. Si indicano di seguito i messaggi che sono in grado di scambiarsi tra di loro.</p>
+<ul>
+<li>
+<p><code>Request load_product  : load_product(PID) </code>
+richiesta di carico di un prodotto con PID</p>
+</li>
+<li>
+<p><code>Reply   load_accepted : load_accepted(SLOT) for load_product</code> 	restituisce lo slot assegnato</p>
+</li>
+<li>
+<p><code>Reply   load_refused  : load_refused(CAUSA) for load_product</code>
+ritorna la causa del mancato carico</p>
+</li>
+</ul>
+<p>Serviranno successive decisioni per la modellazione e l'implementazioni di messaggi tra attori per ulteriori funzionalità.</p>
+<h1 id="schema-dellarchitettura">Schema dell'architettura</h1>
+<p><img src="../../images/sprint0arch_v1.png" alt=""></p>
+<h1 id="piano-di-test">Piano di Test</h1>
+<p>In questa prima fase i test servono a controllare che i prototipi dei componenti interagiscano come richiesto dal committente.</p>
+<ul>
+<li>tentativo accettato di carico</li>
+<li>tentativo rifiutato di carico per troppo peso</li>
+<li>tentativo rifiutato per mancanza di slot</li>
+</ul>
+<pre class="hljs"><code><div>State richiesta {
+    println(<span class="hljs-string">"[cargotest] Invia una nuova richiesta"</span>) color yellow
+    // Invio della richiesta
+    request cargoservice -m load_product:load_product(1) 
+    request cargoservice -m load_product:load_product(1) 
+    request cargoservice -m load_product:load_product(1) 
+}
+Goto waiting_for_response 
+
+State waiting_for_response {
+}
+
+Transition t0 
+    whenReply load_accepted -&gt; loadAccepted
+    whenReply load_refused  -&gt; loadRefused
+
+State loadAccepted {
+    println(<span class="hljs-string">"[cargotest] risposta arrivata"</span>) color blue  
+
+    onMsg(load_accepted : load_accepted(SLOT)) {
+        [<span class="hljs-comment"># val Msg = payloadArg(0).toInt() #]</span>
+        println(<span class="hljs-string">"[cargotest] Richiesta accettata, slot n. <span class="hljs-variable">$Msg</span> "</span>) color yellow
+    }
+} 
+Goto waiting_for_response
+
+State loadRefused {
+    onMsg(load_refused : load_refused(CAUSA)) {
+        [<span class="hljs-comment">#</span>
+        var Msg = payloadArg(0)
+        <span class="hljs-comment">#]</span>
+        println(<span class="hljs-string">"[cargotest] Richiesta rifiutata causa : <span class="hljs-variable">$Msg</span> "</span>) color yellow
+    }
+}
+</div></code></pre>
+<h1 id="piano-di-lavoro">Piano di Lavoro</h1>
+<p>Successivi allo sprint0 si distinuguono i seguenti sprint operativi del nostro processo Scrum</p>
+<ol>
+<li>Sprint 1 (30h)
+<ul>
+<li>CargoService (core buisness del sistema)</li>
+<li>Cargorobot</li>
+</ul>
+</li>
+<li>Sprint 2(20h)
+<ul>
+<li>Sonar</li>
+<li>Led</li>
+</ul>
+</li>
+<li>Sprint 3(10h)
+<ul>
+<li>Web Gui</li>
+</ul>
+</li>
+</ol>
+
+</body>
+</html>

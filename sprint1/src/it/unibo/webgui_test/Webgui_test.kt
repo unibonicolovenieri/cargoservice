@@ -34,6 +34,18 @@ class Webgui_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 					action { //it:State
 						CommUtils.outblue("WebGui | Started! ")
 						delay(2000) 
+						if( checkMsgContent( Term.createTerm("slot_changed(ID,status)"), Term.createTerm("slot_changed(ID,X)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								CommUtils.outmagenta("WebGui | Slot Occupato! ")
+						}
+						if( checkMsgContent( Term.createTerm("sonar_changed(status)"), Term.createTerm("sonar_changed(X)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								CommUtils.outmagenta("WebGui | sonar Rileva qualcosa! ")
+						}
+						if( checkMsgContent( Term.createTerm("led_changed(status)"), Term.createTerm("led_changed(X)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								CommUtils.outmagenta("WebGui | Il Sonar si è rotto LED ACCESO! ")
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

@@ -547,6 +547,18 @@ QActor webgui_test context ctx_webgui{
 	State start initial {
 		println("WebGui | Started! ") color blue
 		delay 2000
+		
+		onMsg(slot_changed : slot_changed(ID,X)){
+			println("WebGui | Slot Occupato! ") color magenta
+		}
+		
+		onMsg(sonar_changed : sonar_changed(X)){
+			println("WebGui | sonar Rileva qualcosa! ") color magenta
+		}
+		
+		onMsg(led_changed : led_changed(X)){
+			println("WebGui | Il Sonar si è rotto LED ACCESO! ") color magenta
+		}
 	}
 	Transition t0
 	

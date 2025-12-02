@@ -48,7 +48,7 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						CommUtils.outgreen("$name | Simulo arrivo container")
 						CommUtils.outgray("$name | $Counter | numero dell'iterazione di Sonar Test")
 						emit("container_trigger", "container_trigger(1)" ) 
-						emit("sonar_changed", "sonar_changed("Container_Individuato")" ) 
+						emit("sonar_changed", "sonar_changed(Container_Individuato)" ) 
 						delay(10000) 
 						//genTimer( actor, state )
 					}
@@ -62,7 +62,7 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						if(  Counter % 5 == 0  
 						 ){CommUtils.outyellow("$name | Simulo sparizione container")
 						emit("container_absence", "container_absence(no)" ) 
-						emit("sonar_changed", "sonar_changed("Container_Assente")" ) 
+						emit("sonar_changed", "sonar_changed(Container_Assente)" ) 
 						delay(10000) 
 						}
 						//genTimer( actor, state )

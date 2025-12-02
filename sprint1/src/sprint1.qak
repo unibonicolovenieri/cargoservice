@@ -49,6 +49,7 @@ Event container_absence  : container_absence(X)
 Event sonar_error:sonar_error(CAUSA) 
 Event problem_solved:problem_solved(CAUSA)
 
+
 // Eventi
 
        
@@ -225,7 +226,7 @@ QActor cargorobot context ctx_cargo{
 			forward basicrobot -m setdirection : dir($Direction)
 		println("Direction $Direction") color blue
 		//Si occupa lo slot quindi faccio una emit di cambio di stato (	Serve a WebGui)
-		emit slot_changed : slot_changed($CurrentRequestsSlot,"True")
+		emit slot_changed : slot_changed($CurrentRequestSlot,true)
 
 }
 		
@@ -349,7 +350,7 @@ QActor cargoservice context ctx_cargo{
 	 println("[$name] sonar ha emesso un errore causa: $M")	color yellow
 	 //emit stop:stop(si) //dico al cargorobot di fermarsi
 	 //Si rompe il sonar quindi emetto un segnale led 
-	 emit led_changed : led_changed("Acceso")
+	 emit led_changed : led_changed(Acceso)
 	 }
 	}
 	
@@ -365,7 +366,7 @@ QActor cargoservice context ctx_cargo{
 	 println("[$name] sonar ha risolto l'errore causa: $M")	color yellow
 	 //emit resume:resume(ok) //dico al cargorobot di riprendere ciò che stava facendo
 	 //Il sonar si è fixato e quindi ora metto il led a spento
-	emit led_changed : led_changed("Spento")
+	emit led_changed : led_changed(Spento)
 	 
 	 }
 	 returnFromInterrupt //provo a toglierla ma occhio - 7 novembre alle 10:32
@@ -507,7 +508,7 @@ QActor sonar_test context ctx_sonartest {
 		println("$name | $Counter | numero dell'iterazione di Sonar Test") color gray       
 		emit container_trigger : container_trigger(1)
 		// Sonar misura una distanza piu piccola e quindi c'è un container
-		emit sonar_changed :sonar_changed("Container_Individuato")
+		emit sonar_changed :sonar_changed(Container_Individuato)
 		delay 10000
 		
 	}
@@ -519,7 +520,7 @@ QActor sonar_test context ctx_sonartest {
 			println("$name | Simulo sparizione container") color yellow
 			emit container_absence : container_absence(no)
 			//Sonar rileva DFREE e quindi non c'è niente e quindi è vuoto
-			emit sonar_changed :sonar_changed("Container_Assente")
+			emit sonar_changed :sonar_changed(Container_Assente)
 			delay 10000
 		}
 	}

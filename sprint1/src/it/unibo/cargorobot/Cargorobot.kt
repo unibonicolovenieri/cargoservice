@@ -207,7 +207,7 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						if( CurrentRequestSlot != 3 && CurrentRequestSlot != 4 
 						 ){forward("setdirection", "dir($Direction)" ,"basicrobot" ) 
 						CommUtils.outblue("Direction $Direction")
-						emit("slot_changed", "slot_changed($CurrentRequestsSlot,"True")" ) 
+						emit("slot_changed", "slot_changed($CurrentRequestSlot,true)" ) 
 						}
 						//genTimer( actor, state )
 					}

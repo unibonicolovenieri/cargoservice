@@ -1,0 +1,70 @@
+System sprint2
+
+// messaggi product service
+Request createProduct : product(String)                    
+Reply   createdProduct: productid(ID) for createProduct 
+
+Request getAllProducts : dummy( ID )
+Reply   getAllProductsAnswer: products(  String ) for getAllProducts 
+
+Request getProduct 		: product( ID )  
+Reply   getProductAnswer: product( JSonString ) for getProduct 
+
+
+//messaggi cargoservice
+Request load_product 		: product( ID )  
+Reply   loadedProduct 		: slot( SLOT ) for load_product 
+
+//hold 
+Event slot_changed : slot_changed(ID,status) 
+Event sonar_changed : sonar_changed(status)
+Event led_changed : led_changed(status)
+
+//messaggi tra cargoservice e cargorobot
+Request move_product 		: product(SLOT)  
+Reply   movedProduct 		: result( SLOT ) for move_product
+Reply   moveProductFailed:fail(failed) for move_product 
+Event stop: stop(X)  
+Event resume: resume(X) 
+Event alarm           		: alarm(X)
+Dispatch nextmove     : nextmove(M)
+Dispatch nomoremove   : nomoremove(M)
+
+Dispatch setdirection : dir ( D )
+
+//alcuni messaggi basicrobot(da completare)
+Request moverobot    :  moverobot(TARGETX, TARGETY)   
+Reply moverobotdone  :  moverobotdone(ok)                    for moverobot
+Reply moverobotfailed:  moverobotfailed(PLANDONE, PLANTODO) for moverobot
+Request engage        : engage(OWNER, STEPTIME)	
+Reply   engagedone    : engagedone(ARG)    for engage
+Reply   engagerefused : engagerefused(ARG) for engage
+    
+
+//per sonar test
+Event container_trigger : container_trigger(X) 
+Event container_absence  : container_absence(X)    
+Event sonar_error:sonar_error(CAUSA) 
+Event problem_solved:problem_solved(CAUSA)
+
+
+// Eventi
+
+       
+//contesti  
+//Context ctx_productservice	ip [host="cargoserviceqak" port=8111]
+//Context ctx_basicrobot ip [host="basicrobot24" port=8020] 
+//Context ctx_cargo	ip [host="localhost" port=8000]
+//Context ctx_webgui ip [host="webgui" port=8998] 
+//Context ctx_sonartest ip [host="sonartest" port=8999]
+
+
+QActor test context ctx_cargo {
+	
+	State start initial {
+		println("$name | started ") color green
+		delay 2000 
+		delay 30000
+	}
+}
+

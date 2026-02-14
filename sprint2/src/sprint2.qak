@@ -59,12 +59,4 @@ Event problem_solved:problem_solved(CAUSA)
 //Context ctx_sonartest ip [host="sonartest" port=8999]
 
 
-QActor test context ctx_cargo {
-	
-	State start initial {
-		println("$name | started ") color green
-		delay 2000 
-		delay 30000
-	}
-}
 

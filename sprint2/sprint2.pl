@@ -12,6 +12,7 @@ event( sonardata, distance(D) ).
 %====================================================================================
 context(ctx_iodevices, "localhost",  "TCP", "7777").
 context(ctx_sprint1, "10.249.112.148",  "TCP", "8000").
+context(ctx_webgui, "10.249.112.146",  "TCP", "8080").
  qactor( sprint1, ctx_sprint1, "external").
   qactor( sonar, ctx_iodevices, "it.unibo.sonar.Sonar").
  static(sonar).

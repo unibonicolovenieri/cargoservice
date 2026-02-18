@@ -37,7 +37,7 @@ QActor sonar context ctx_iodevices{
 			p       = Runtime.getRuntime().exec("python sonar.py")
 			reader  = java.io.BufferedReader(java.io.InputStreamReader(p.getInputStream()))	
 		#]	
-		
+		delay 3000
 	}
 Goto measurement
 	

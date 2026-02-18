@@ -40,6 +40,7 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false, is
 						
 									p       = Runtime.getRuntime().exec("python sonar.py")
 									reader  = java.io.BufferedReader(java.io.InputStreamReader(p.getInputStream()))	
+						delay(3000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

@@ -66,7 +66,7 @@ Goto measurement
 		    println("$name | misurato $Distance cm") color yellow	
 		    emit sonardata: distanza($Distance)	 
 		}
-		delay 3000
+		delay 1000
 	}
 	Goto measurement
 }

@@ -72,7 +72,7 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false, is
 						 ){CommUtils.outyellow("$name | misurato $Distance cm")
 						emit("sonardata", "distanza($Distance)" ) 
 						}
-						delay(3000) 
+						delay(1000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

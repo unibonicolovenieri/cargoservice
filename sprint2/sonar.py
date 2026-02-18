@@ -11,7 +11,7 @@ GPIO.setup(TRIG, GPIO.OUT)
 GPIO.setup(ECHO, GPIO.IN)
 GPIO.output(TRIG, False)   # TRIG parte LOW
 
-print ('Waiting a few seconds for the sensor to settle')
+#print ('Waiting a few seconds for the sensor to settle')
 time.sleep(2)
 
 while True:
@@ -33,6 +33,6 @@ while True:
   # il tempo ottenuto misura un roundtrip -> distanza = v*t/2
   distance = pulse_duration * 17165
   distance = round(distance, 1)
-  print ('Distance:', distance,'cm')
+  print (distance)
   sys.stdout.flush()
   time.sleep(1)

@@ -66,6 +66,12 @@ Goto measurement
 		    println("$name | misurato $Distance cm") color yellow	
 		    emit sonardata: distanza($Distance)	 
 		}
+				[#val DFREE = 5#]
+				if [# Distance < DFREE #] { 
+		    println("$name | misurato $Distance cm") color yellow	
+		    emit sonardata: distanza($Distance)	 
+		    emit container_trigger: container_trigger(1)
+		}
 		delay 1000
 	}
 	Goto measurement

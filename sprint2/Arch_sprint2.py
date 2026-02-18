@@ -30,4 +30,5 @@ with Diagram('sprint2Arch', show=False, outformat='png', graph_attr=graphattr) a
      with Cluster('ctx_sprint1', graph_attr=nodeattr):
           sprint1=Custom('sprint1(ext)','./qakicons/externalQActor.png')
      sonar >> Edge( label='sonardata', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+     sonar >> Edge( label='container_trigger', **eventedgeattr, decorate='true', fontcolor='red') >> sys
 diag

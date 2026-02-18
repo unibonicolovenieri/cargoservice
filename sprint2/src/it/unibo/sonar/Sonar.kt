@@ -72,6 +72,12 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false, is
 						 ){CommUtils.outyellow("$name | misurato $Distance cm")
 						emit("sonardata", "distanza($Distance)" ) 
 						}
+						val DFREE = 5 
+						if(  Distance < DFREE  
+						 ){CommUtils.outyellow("$name | misurato $Distance cm")
+						emit("sonardata", "distanza($Distance)" ) 
+						emit("container_trigger", "container_trigger(1)" ) 
+						}
 						delay(1000) 
 						//genTimer( actor, state )
 					}

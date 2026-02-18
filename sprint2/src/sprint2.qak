@@ -1,45 +1,9 @@
 System sprint2
 
-// messaggi product service
-Request createProduct : product(String)                    
-Reply   createdProduct: productid(ID) for createProduct 
-
-Request getAllProducts : dummy( ID )
-Reply   getAllProductsAnswer: products(  String ) for getAllProducts 
-
-Request getProduct 		: product( ID )  
-Reply   getProductAnswer: product( JSonString ) for getProduct 
-
-
-//messaggi cargoservice
-Request load_product 		: product( ID )  
-Reply   loadedProduct 		: slot( SLOT ) for load_product 
-
 //hold 
 Event slot_changed : slot_changed(ID,status) 
 Event sonar_changed : sonar_changed(status)
 Event led_changed : led_changed(status)
-
-//messaggi tra cargoservice e cargorobot
-Request move_product 		: product(SLOT)  
-Reply   movedProduct 		: result( SLOT ) for move_product
-Reply   moveProductFailed:fail(failed) for move_product 
-Event stop: stop(X)  
-Event resume: resume(X) 
-Event alarm           		: alarm(X)
-Dispatch nextmove     : nextmove(M)
-Dispatch nomoremove   : nomoremove(M)
-
-Dispatch setdirection : dir ( D )
-
-//alcuni messaggi basicrobot(da completare)
-Request moverobot    :  moverobot(TARGETX, TARGETY)   
-Reply moverobotdone  :  moverobotdone(ok)                    for moverobot
-Reply moverobotfailed:  moverobotfailed(PLANDONE, PLANTODO) for moverobot
-Request engage        : engage(OWNER, STEPTIME)	
-Reply   engagedone    : engagedone(ARG)    for engage
-Reply   engagerefused : engagerefused(ARG) for engage
-    
 
 //per sonar test
 Event container_trigger : container_trigger(X) 
@@ -47,7 +11,7 @@ Event container_absence  : container_absence(X)
 Event sonar_error:sonar_error(CAUSA) 
 Event problem_solved:problem_solved(CAUSA)
 
-
+Event sonardata :distance(D)
 // Eventi
 
        
@@ -56,7 +20,177 @@ Event problem_solved:problem_solved(CAUSA)
 //Context ctx_basicrobot ip [host="basicrobot24" port=8020] 
 //Context ctx_cargo	ip [host="localhost" port=8000]
 //Context ctx_webgui ip [host="webgui" port=8998] 
-//Context ctx_sonartest ip [host="sonartest" port=8999]
+Context ctx_iodevices ip [host="localhost" port=7777]
+Context ctx_sprint1 ip [host="10.249.112.148" port=8000]
+ExternalQActor sprint1 context ctx_sprint1
+QActor sonar context ctx_iodevices{ 
+		[# 
+		lateinit var reader : java.io.BufferedReader
+	    lateinit var p : Process	
+	    var Distance = 0
+		#]
+	
+	State start initial{
+		println("$name | start") 
+		
+	 	[#
+			p       = Runtime.getRuntime().exec("python sonar.py")
+			reader  = java.io.BufferedReader(java.io.InputStreamReader(p.getInputStream()))	
+		#]	
+		
+	}
+Goto measurement
+	
+	State measurement{
+		println("nuova misurazione")
+		[# 
+			var data = reader.readLine()
+			if( data != null ){
+				try{ 
+					val vd = data.toFloat()
+					val v  = vd.toInt()
+					
+					// filter the data maybe?
+					if(v <= 100) 
+						Distance = v				
+					else 
+						Distance = 0
+				}catch(e: Exception){
+					CommUtils.outred("$name readSonarDataERROR: $e")
+				}
+			}
+			
+		#]	
+		println("$data")
+		if [# Distance > 0 #] { 
+		    println("$name | misurato $Distance cm") color yellow	
+		    emit sonardata: distanza($Distance)	 
+		}
+		delay 3000
+	}
+	Goto measurement
+}
 
-
-
+//QActor measure_processor context ctx_iodevices {
+//	import "main.java.IntervalliMisurazioni"
+//
+//	[# 
+//		val DFREE = 30 
+//        // uso degli enumerativi
+//		var CurrentIntervallo = IntervalliMisurazioni.PRIMA_MISURAZIONE
+//		var LastIntervallo = IntervalliMisurazioni.PRIMA_MISURAZIONE
+//		// conta quanti misurazioni di fila sono cadute nello stesso intervallo
+//		var CounterIntervallo = 1
+//		// flag che mi dice se sono in uno stato di malfunzionamento
+//		var Guasto = false
+//	#]	
+//	
+//	State s0 initial{
+//		println("$name | start") 
+//	 	subscribeTo sonar for measure
+//	}
+//	Goto listen_for_measurement
+//
+//	
+//	State listen_for_measurement {
+//		//aspetto
+//	}
+//	Transition t0
+//		whenEvent measure -> process_measurement
+//		
+//		
+//	State process_measurement {
+//		onMsg(measure : measure(X)) {
+//			[# 
+//				val M = payloadArg(0).toInt()	
+//				CounterIntervallo++
+//			#]
+//			
+//			if [#  M < DFREE/2 #] { 
+////				println("$name | container presente") color blue // DEBUG
+//				[# 
+//                    CurrentIntervallo =
+//                        IntervalliMisurazioni.CONTAINER_PRESENTE
+//                #]
+//
+//				if [# Guasto #] {
+//					println("$name | sonar ripristinato") color green
+//					[# Guasto = false #]
+//					emit problem_solved:problem_solved(CAUSA)
+//				}
+//			}
+//			
+//			if [# M >= DFREE/2 && M <= DFREE #] { 
+////				println("$name | container assente") color blue // DEBUG
+//				[# 
+//                    CurrentIntervallo =
+//                        IntervalliMisurazioni.CONTAINER_ASSENTE
+//                #]
+//
+//				if [# Guasto #] {
+//					println("$name | sonar ripristinato") color green
+//					[# Guasto = false #]
+//					emit problem_solved:problem_solved(CAUSA)
+//				}
+//			}
+//			
+//			if [# M > DFREE #] { 
+////				println("$name | guasto!!!") color blue // DEBUG
+//				[# CurrentIntervallo = IntervalliMisurazioni.GUASTO #]
+//			} 
+//			
+//			[#
+//				if(CurrentIntervallo==LastIntervallo &&
+//                   LastIntervallo!=IntervalliMisurazioni.PRIMA_MISURAZIONE)
+//                {
+//					// switch di Kotlin
+//					when(CurrentIntervallo) {
+//					    IntervalliMisurazioni.CONTAINER_PRESENTE -> {
+//					        if(CounterIntervallo == 3) {
+//					        	CommUtils.outmagenta("Container presente
+//                                                      consistentemente")
+//        	#]
+//								emit container_trigger : container_trigger(si) 
+//			[#
+//					    		CounterIntervallo = 0
+//					    	}
+//					    }
+//					    IntervalliMisurazioni.CONTAINER_ASSENTE -> {
+//					    	if(CounterIntervallo == 3) {
+//					        	CommUtils.outmagenta("Container assente
+//                                                      consistentemente")
+//        	#]
+//								emit container_absence  : container_absence(X)
+//			[#
+//					    		CounterIntervallo = 0
+//					    	}
+//					    }
+//					    IntervalliMisurazioni.GUASTO -> {
+//					    	if(CounterIntervallo == 3) {
+//								CommUtils.outred("Guasto consistente")	
+//								Guasto = true
+//			#]
+//								emit sonar_error:sonar_error(CAUSA)
+//			[#
+//								CounterIntervallo = 0			    		
+//					    	}
+//					    }
+//					    else -> {
+//					    	// ci vuole se no kotlin si lamenta in quanto
+//					    	// i casi sopra non sono esausitivi
+//					    }
+//					}
+//				} 
+//				else {
+//					// 1 in quanto questa è la prima misurazione 
+//                    // appartenente al suo intervallo
+//					CounterIntervallo = 1
+//				}
+//				
+//				LastIntervallo = CurrentIntervallo
+//			#]
+//		}
+//	}
+//	Goto listen_for_measurement
+//}
+//

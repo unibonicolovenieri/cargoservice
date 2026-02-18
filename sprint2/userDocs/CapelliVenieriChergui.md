@@ -17,16 +17,27 @@ Il problema iniziale che ci sorge è quello di poter permettere ai Componenti Ha
 
 La prima opzione può essere presa in considerazione per la comodità di avere un unico componente di gestione, risultà però essere meno flessibile in quanto non permette ai componenti di comunicare direttamente con il corebuisness e inoltre non rispetta il Single Responsability Principle. La seconda opzione invece permette la comunicazione con il corebuisness da parte dei singoli attori e inoltre mantiene valido il principio preceentemente citato. 
 ### Sonar
-Il sonar si deve interfacciare con il core-buisness sarà quindi necessario comunicare ogni evento scatenato utile alla modifica dello stato del sistema ( E quindi non comunicare ogni singola misurazione effettuata).Le comunicazioni che il Sonar avrà con il resto del sistema sono state definite nello sprint precedente e sono: 
+Il sonar si deve interfacciare con il core-buisness sarà quindi necessario comunicare ogni evento scatenato utile alla modifica dello stato del sistema ( E quindi non comunicare ogni singola misurazione effettuata). Si evidenzia in questa fase la necessità di prendere una decisione archietturale in seguito ad una problematica che evidenziamo. Vogliamo comunicare al cargoservice solo informazioni utili alla modifica dello stato del robot. Pertanto, tutte le misurazioni non saranno necessarie al robot, cosi come non sarà necessario che lo stesso attore oltre al compito di comunicare al cargoservice (scatenando eventi) abbia anche il compito di leggere le misurazioni costantemente. Indi per cui la decisione è stata quella di separare queste due logiche. Permettendoci di rispettare il SingleResponsabilityPrinciple. Dunque avremo sonar_edge che sarà l'attore che avrà come compito quello di leggere tutte le misurazioni effettuate e di decidere quali saranno comunicate al secondo attore che chiameremo sonar_handler.
+
+Le comunicazioni che il sonar_handler avrà con il resto del sistema sono le seguenti: 
 
 ```
 ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆
 INSERIRE QUI GLI EVENTI CON RELATIVA SPIEGAZIONE
+
+Event container_trigger : container_trigger(X)    
+Event sonar_error:sonar_error(CAUSA) 
+Event problem_solved:problem_solved(CAUSA)
 ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆
 ```
 
+- L'evento **container_trigger** si scatena se D < DFREE/2 per 3 secondi
+- L'evento **sonar_error** si scatena se D > DFREE per 3 secondi
+- L'evento **problem_solved** si scatena se D < DFREE in seguito ad un evento che ha evidenziato un problemacon il sonar
+
+
 #### Componente Fisico
-Per l'interazione tra il componente software e il componente hardware sfrutteremo il codice python fornito dal committente per interagire con il RaspberryPI.
+Per l'interazione tra il componente software e il componente hardware sfrutteremo il codice python fornito dal committente che eseguirà sul RaspberryPI.
 
 ``` python
 # Sonar Controller

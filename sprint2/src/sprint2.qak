@@ -21,9 +21,9 @@ Event sonardata :distance(D)
 //Context ctx_cargo	ip [host="localhost" port=8000]
 //Context ctx_webgui ip [host="webgui" port=8998] 
 Context ctx_iodevices ip [host="localhost" port=7777]
-Context ctx_sprint1 ip [host="10.249.112.148" port=8000]
-Context ctx_webgui ip [host="10.249.112.146" port=8080]
-ExternalQActor sprint1 context ctx_sprint1
+Context ctx_cargo ip [host="10.249.112.148" port=8000]
+//Context ctx_webgui ip [host="10.249.112.146" port=8080]
+ExternalQActor sprint1 context ctx_cargo
 QActor sonar context ctx_iodevices{ 
 		[# 
 		lateinit var reader : java.io.BufferedReader

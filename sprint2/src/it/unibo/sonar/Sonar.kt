@@ -69,7 +69,7 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false, is
 									
 						if(  Distance > 0  
 						 ){CommUtils.outyellow("$name | misurato $Distance cm")
-						emitLocalStreamEvent("sonardata", "distance($Distance)" ) 
+						emit("sonardata", "distance($Distance)" ) 
 						}
 						delay(300) 
 						//genTimer( actor, state )

@@ -68,7 +68,7 @@ Goto measurement
 		//println("$data")
 		if [# Distance > 0 #] { 
 		    println("$name | misurato $Distance cm") color yellow	
-		    emitlocalstream sonardata: distance($Distance)	 
+		    emit sonardata: distance($Distance)	 
 		}
 		delay 300
 	}
@@ -199,6 +199,15 @@ QActor led context ctx_iodevices{
 	
 	State s0 initial{
 		println("$name : starting") color cyan
+		[#
+ 			p       = Runtime.getRuntime().exec("python ledPython25On.py")	
+ 		#]
+		delay 4000
+		[#
+ 			p       = Runtime.getRuntime().exec("python ledPython25Off.py")	
+ 		#
+		]
+		
  	}
  	Goto wait
  	

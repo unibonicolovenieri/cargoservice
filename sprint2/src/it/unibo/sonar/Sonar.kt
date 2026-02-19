@@ -50,7 +50,6 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false, is
 				}	 
 				state("measurement") { //this:State
 					action { //it:State
-						CommUtils.outblack("nuova misurazione")
 						 
 									var data = reader.readLine()
 									if( data != null ){
@@ -68,18 +67,11 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false, is
 										}
 									}
 									
-						CommUtils.outblack("$data")
 						if(  Distance > 0  
 						 ){CommUtils.outyellow("$name | misurato $Distance cm")
-						emit("sonardata", "distanza($Distance)" ) 
+						emitLocalStreamEvent("sonardata", "distanza($Distance)" ) 
 						}
-						val DFREE = 5 
-						if(  Distance < DFREE  
-						 ){CommUtils.outyellow("$name | misurato $Distance cm")
-						emit("sonardata", "distanza($Distance)" ) 
-						emit("container_trigger", "container_trigger(1)" ) 
-						}
-						delay(1000) 
+						delay(300) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

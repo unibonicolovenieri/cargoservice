@@ -11,6 +11,9 @@ Event container_absence  : container_absence(X)
 Event sonar_error:sonar_error(CAUSA) 
 Event problem_solved:problem_solved(CAUSA)
 
+Event led_on: led_on(X)
+Event led_off: led_off(X)
+
 Event sonardata :distance(D)
 // Eventi
 
@@ -22,7 +25,7 @@ Event sonardata :distance(D)
 //Context ctx_webgui ip [host="webgui" port=8998] 
 Context ctx_iodevices ip [host="localhost" port=7777]
 Context ctx_cargo ip [host="10.249.112.148" port=8000]
-//Context ctx_webgui ip [host="10.249.112.146" port=8080]
+//Context ctx_webgui ip host="10.249.112.146" port=8080]
 ExternalQActor sprint1 context ctx_cargo
 QActor sonar context ctx_iodevices{ 
 		[# 
@@ -43,7 +46,7 @@ QActor sonar context ctx_iodevices{
 Goto measurement
 	
 	State measurement{
-		println("nuova misurazione")
+		//println("nuova misurazione")
 		[# 
 			var data = reader.readLine()
 			if( data != null ){
@@ -62,142 +65,167 @@ Goto measurement
 			}
 			
 		#]	
-		println("$data")
+		//println("$data")
 		if [# Distance > 0 #] { 
 		    println("$name | misurato $Distance cm") color yellow	
-		    emit sonardata: distanza($Distance)	 
+		    emitlocalstream sonardata: distanza($Distance)	 
 		}
-				[#val DFREE = 5#]
-				if [# Distance < DFREE #] { 
-		    println("$name | misurato $Distance cm") color yellow	
-		    emit sonardata: distanza($Distance)	 
-		    emit container_trigger: container_trigger(1)
-		}
-		delay 1000
+		delay 300
 	}
 	Goto measurement
 }
 
-//QActor measure_processor context ctx_iodevices {
-//	import "main.java.IntervalliMisurazioni"
-//
-//	[# 
-//		val DFREE = 30 
-//        // uso degli enumerativi
-//		var CurrentIntervallo = IntervalliMisurazioni.PRIMA_MISURAZIONE
-//		var LastIntervallo = IntervalliMisurazioni.PRIMA_MISURAZIONE
-//		// conta quanti misurazioni di fila sono cadute nello stesso intervallo
-//		var CounterIntervallo = 1
-//		// flag che mi dice se sono in uno stato di malfunzionamento
-//		var Guasto = false
-//	#]	
-//	
-//	State s0 initial{
-//		println("$name | start") 
-//	 	subscribeTo sonar for measure
-//	}
-//	Goto listen_for_measurement
-//
-//	
-//	State listen_for_measurement {
-//		//aspetto
-//	}
-//	Transition t0
-//		whenEvent measure -> process_measurement
-//		
-//		
-//	State process_measurement {
-//		onMsg(measure : measure(X)) {
-//			[# 
-//				val M = payloadArg(0).toInt()	
-//				CounterIntervallo++
-//			#]
-//			
-//			if [#  M < DFREE/2 #] { 
-////				println("$name | container presente") color blue // DEBUG
-//				[# 
-//                    CurrentIntervallo =
-//                        IntervalliMisurazioni.CONTAINER_PRESENTE
-//                #]
-//
-//				if [# Guasto #] {
-//					println("$name | sonar ripristinato") color green
-//					[# Guasto = false #]
-//					emit problem_solved:problem_solved(CAUSA)
-//				}
-//			}
-//			
-//			if [# M >= DFREE/2 && M <= DFREE #] { 
-////				println("$name | container assente") color blue // DEBUG
-//				[# 
-//                    CurrentIntervallo =
-//                        IntervalliMisurazioni.CONTAINER_ASSENTE
-//                #]
-//
-//				if [# Guasto #] {
-//					println("$name | sonar ripristinato") color green
-//					[# Guasto = false #]
-//					emit problem_solved:problem_solved(CAUSA)
-//				}
-//			}
-//			
-//			if [# M > DFREE #] { 
-////				println("$name | guasto!!!") color blue // DEBUG
-//				[# CurrentIntervallo = IntervalliMisurazioni.GUASTO #]
-//			} 
-//			
-//			[#
-//				if(CurrentIntervallo==LastIntervallo &&
-//                   LastIntervallo!=IntervalliMisurazioni.PRIMA_MISURAZIONE)
-//                {
-//					// switch di Kotlin
-//					when(CurrentIntervallo) {
-//					    IntervalliMisurazioni.CONTAINER_PRESENTE -> {
-//					        if(CounterIntervallo == 3) {
-//					        	CommUtils.outmagenta("Container presente
-//                                                      consistentemente")
-//        	#]
-//								emit container_trigger : container_trigger(si) 
-//			[#
-//					    		CounterIntervallo = 0
-//					    	}
-//					    }
-//					    IntervalliMisurazioni.CONTAINER_ASSENTE -> {
-//					    	if(CounterIntervallo == 3) {
-//					        	CommUtils.outmagenta("Container assente
-//                                                      consistentemente")
-//        	#]
-//								emit container_absence  : container_absence(X)
-//			[#
-//					    		CounterIntervallo = 0
-//					    	}
-//					    }
-//					    IntervalliMisurazioni.GUASTO -> {
-//					    	if(CounterIntervallo == 3) {
-//								CommUtils.outred("Guasto consistente")	
-//								Guasto = true
-//			#]
-//								emit sonar_error:sonar_error(CAUSA)
-//			[#
-//								CounterIntervallo = 0			    		
-//					    	}
-//					    }
-//					    else -> {
-//					    	// ci vuole se no kotlin si lamenta in quanto
-//					    	// i casi sopra non sono esausitivi
-//					    }
-//					}
-//				} 
-//				else {
-//					// 1 in quanto questa è la prima misurazione 
-//                    // appartenente al suo intervallo
-//					CounterIntervallo = 1
-//				}
-//				
-//				LastIntervallo = CurrentIntervallo
-//			#]
-//		}
-//	}
-//	Goto listen_for_measurement
-//}
-//
+QActor measure_handler context ctx_iodevices {
+
+	[# 
+		val DFREE = 20 
+		
+		//stati
+        val START = 0
+        val CONTAINER_PRESENTE = 1
+        val CONTAINER_ASSENTE = 2
+        val GUASTO = 3
+        
+		var Stato = START
+		var Stato_precedente = START
+		var CounterMisurazioni = 0
+		
+		var Guasto = false
+	#]	
+	
+	State s0 initial{
+		println("$name | start") 
+	 	subscribeTo sonar for sonardata
+	}
+	Goto waiting_for_measurement
+
+	
+	State waiting_for_measurement {
+		println("$name | start") 
+	}
+	Transition t0
+		whenEvent sonardata -> handle_measurement
+		
+		
+	State handle_measurement {
+		onMsg(sonardata : distance(X)) {
+			[# 
+				val M = payloadArg(0).toInt()	
+				CounterMisurazioni++
+			#]
+
+			
+			if [#  M < DFREE/2 #] { 
+				[# 
+                    Stato = CONTAINER_PRESENTE
+                #]				
+			if [# Guasto #] {
+					println("$name | sonar ripristinato") color green
+					[# Guasto = false #]
+					emit problem_solved:problem_solved(CAUSA)
+				}
+				}
+
+			
+			if [# M >= DFREE/2 && M <= DFREE #] { 
+				println("$name | container assente") color blue // DEBUG
+				[# 
+                    Stato = CONTAINER_ASSENTE
+                #]
+
+				if [# Guasto #] {
+					println("$name | sonar ripristinato") color green
+					[# Guasto = false #]
+					emit problem_solved:problem_solved(CAUSA)
+				}
+			}
+			
+			if [# M > DFREE #] { 
+				println("$name | guasto!!!") color blue // DEBUG
+				[# 
+					Stato = GUASTO
+				#]
+			} 
+			
+			[#
+				if(Stato == Stato_precedente &&
+                   Stato_precedente!=START)
+                {
+					when(Stato) {
+					    CONTAINER_PRESENTE -> {
+					        if(CounterMisurazioni == 3) {
+					        	CommUtils.outmagenta("Ho letto 3 volte una misura congruente quindi procedo a segnalare la presenza di un container")
+        						#]
+								emit container_trigger : container_trigger(si) 
+								[#
+					    		CounterMisurazioni = 0
+					    			}
+					    		}
+					    CONTAINER_ASSENTE -> {
+					    	if(CounterMisurazioni == 3) {
+					        	CommUtils.outmagenta("Ho letto 3 volte una misura congruente quindi non c'è più il container'")
+					    		CounterMisurazioni = 0
+					    							}
+					    					}
+					    GUASTO -> {
+					    	if(CounterMisurazioni == 3) {
+								CommUtils.outred("Guasto")	
+								Guasto = true
+								#]
+								emit sonar_error:sonar_error(CAUSA)
+								[#
+								CounterMisurazioni = 0			    		
+					    								}
+					    		}
+					    else -> {
+					    	println("Non posso entrare in questo stato, preoccupati")
+					    }
+					}
+				} 
+				else {
+					Stato_precedente = Stato
+					CounterMisurazioni = 1
+				}
+				
+			#]
+		}
+	}
+	Goto waiting_for_measurement
+}
+
+QActor led context ctx_iodevices{
+	
+	[# lateinit var p : Process #]
+	
+	State s0 initial{
+		println("$name : starting") color cyan
+ 	}
+ 	Goto wait
+ 	
+ 	State wait{
+ 		println("$name : waiting for interrupts") color cyan
+ 	}
+ 	
+ 	Transition t
+ 		whenEvent led_on -> led_on
+ 		whenEvent led_off -> led_off
+ 		
+ 	State led_on{
+ 		println("$name : acceso") color red
+ 		[#
+ 			p       = Runtime.getRuntime().exec("python ledPython25On.py")	
+ 		#
+ 		]
+ 		
+ 	}
+ 	Goto wait
+ 	
+ 	State led_off{
+ 		println("$name : spento") color green
+ 		[#
+ 			p       = Runtime.getRuntime().exec("python ledPython25Off.py")	
+ 		#
+ 		]
+ 	}
+ 	Goto wait
+}

@@ -104,7 +104,7 @@ class Measure_handler ( name: String, scope: CoroutineScope, isconfined: Boolean
 													    CONTAINER_PRESENTE -> {
 													        if(CounterMisurazioni == 3) {
 													        	CommUtils.outmagenta("Ho letto 3 volte una misura congruente quindi procedo a segnalare la presenza di un container")
-								emit("container_trigger", "container_trigger(si)" ) 
+								emit("container_trigger", "container_trigger(1)" ) 
 								
 													    		CounterMisurazioni = 0
 													    			}

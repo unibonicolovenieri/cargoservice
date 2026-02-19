@@ -10,7 +10,7 @@ event( sonar_error, sonar_error(CAUSA) ).
 event( problem_solved, problem_solved(CAUSA) ).
 event( led_on, led_on(X) ).
 event( led_off, led_off(X) ).
-event( sonardata, distance(D) ).
+event( sonardata, distance(X) ).
 %====================================================================================
 context(ctx_iodevices, "localhost",  "TCP", "7777").
 context(ctx_cargo, "10.249.112.148",  "TCP", "8000").

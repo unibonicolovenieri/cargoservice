@@ -67,7 +67,7 @@ class Measure_handler ( name: String, scope: CoroutineScope, isconfined: Boolean
 				}	 
 				state("handle_measurement") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("distance(D)"), Term.createTerm("distanza(X)"), 
+						if( checkMsgContent( Term.createTerm("distance(X)"), Term.createTerm("distance(X)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 
 												val M = payloadArg(0).toInt()	

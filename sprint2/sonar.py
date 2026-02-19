@@ -35,4 +35,4 @@ while True:
   distance = round(distance, 1)
   print (distance)
   sys.stdout.flush()
-  time.sleep(0.2)
+  time.sleep(0.3)

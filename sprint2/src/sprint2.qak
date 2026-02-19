@@ -14,7 +14,7 @@ Event problem_solved:problem_solved(CAUSA)
 Event led_on: led_on(X)
 Event led_off: led_off(X)
 
-Event sonardata :distance(D)
+Event sonardata: distance(X)
 // Eventi
 
        
@@ -68,7 +68,7 @@ Goto measurement
 		//println("$data")
 		if [# Distance > 0 #] { 
 		    println("$name | misurato $Distance cm") color yellow	
-		    emitlocalstream sonardata: distanza($Distance)	 
+		    emitlocalstream sonardata: distance($Distance)	 
 		}
 		delay 300
 	}
@@ -108,7 +108,7 @@ QActor measure_handler context ctx_iodevices {
 		
 		
 	State handle_measurement {
-		onMsg(sonardata : distanza(X)) {
+		onMsg(sonardata: distance(X)) {
 			[# 
 				val M = payloadArg(0).toInt()	
 				CounterMisurazioni++

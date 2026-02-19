@@ -12,7 +12,7 @@ GPIO.setup(ECHO, GPIO.IN)
 GPIO.output(TRIG, False)   # TRIG parte LOW
 
 #print ('Waiting a few seconds for the sensor to settle')
-time.sleep(2)
+time.sleep(1)
 
 while True:
   GPIO.output(TRIG, True)    #invia impulso TRIG
@@ -35,4 +35,4 @@ while True:
   distance = round(distance, 1)
   print (distance)
   sys.stdout.flush()
-  time.sleep(1)
+  time.sleep(0.2)

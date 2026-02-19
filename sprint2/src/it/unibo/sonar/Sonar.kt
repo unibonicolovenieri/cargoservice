@@ -57,7 +57,7 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false, is
 											val vd = data.toFloat()
 											val v  = vd.toInt()
 											
-											// filter the data maybe?
+											// per evitare che misure a caso vengano considerate
 											if(v <= 100) 
 												Distance = v				
 											else 

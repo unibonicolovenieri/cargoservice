@@ -57,7 +57,6 @@ class Measure_handler ( name: String, scope: CoroutineScope, isconfined: Boolean
 				}	 
 				state("waiting_for_measurement") { //this:State
 					action { //it:State
-						CommUtils.outblack("$name | start")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -82,8 +81,7 @@ class Measure_handler ( name: String, scope: CoroutineScope, isconfined: Boolean
 								}
 								}
 								if(  M >= DFREE/2 && M <= DFREE  
-								 ){CommUtils.outblue("$name | container assente")
-								 
+								 ){ 
 								                    Stato = CONTAINER_ASSENTE
 								if(  Guasto  
 								 ){CommUtils.outgreen("$name | sonar ripristinato")
@@ -93,8 +91,7 @@ class Measure_handler ( name: String, scope: CoroutineScope, isconfined: Boolean
 								}
 								}
 								if(  M > DFREE  
-								 ){CommUtils.outblue("$name | guasto!!!")
-								 
+								 ){ 
 													Stato = GUASTO
 								emitLocalStreamEvent("led_on", "led_on(yes)" ) 
 								}
@@ -108,13 +105,13 @@ class Measure_handler ( name: String, scope: CoroutineScope, isconfined: Boolean
 													        	CommUtils.outmagenta("Ho letto 3 volte una misura congruente quindi procedo a segnalare la presenza di un container")
 								emit("container_trigger", "container_trigger(1)" ) 
 								
-													    		CounterMisurazioni = 0
+													    		//CounterMisurazioni = 0 non voglio che arrivi più volte l'evento
 													    			}
 													    		}
 													    CONTAINER_ASSENTE -> {
 													    	if(CounterMisurazioni == 3) {
 													        	CommUtils.outmagenta("Ho letto 3 volte una misura congruente quindi non c'è più il container'")
-													    		CounterMisurazioni = 0
+													    		//CounterMisurazioni = 0
 													    							}
 													    					}
 													    GUASTO -> {
@@ -123,7 +120,7 @@ class Measure_handler ( name: String, scope: CoroutineScope, isconfined: Boolean
 																Guasto = true
 								emit("sonar_error", "sonar_error(CAUSA)" ) 
 								
-																CounterMisurazioni = 0			    		
+																//CounterMisurazioni = 0			    		
 													    								}
 													    		}
 													    else -> {

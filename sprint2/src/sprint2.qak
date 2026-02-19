@@ -53,7 +53,7 @@ Goto measurement
 					val vd = data.toFloat()
 					val v  = vd.toInt()
 					
-					// filter the data maybe?
+					// per evitare che misure a caso vengano considerate
 					if(v <= 100) 
 						Distance = v				
 					else 
@@ -99,7 +99,7 @@ QActor measure_handler context ctx_iodevices {
 
 	
 	State waiting_for_measurement {
-		println("$name | start") 
+		//println("$name | attendo") 
 	}
 	Transition t0
 		whenEvent sonardata -> handle_measurement
@@ -126,7 +126,6 @@ QActor measure_handler context ctx_iodevices {
 
 			
 			if [# M >= DFREE/2 && M <= DFREE #] { 
-				println("$name | container assente") color blue // DEBUG
 				[# 
                     Stato = CONTAINER_ASSENTE
                 #]
@@ -140,7 +139,6 @@ QActor measure_handler context ctx_iodevices {
 			}
 			
 			if [# M > DFREE #] { 
-				println("$name | guasto!!!") color blue // DEBUG
 				[# 
 					Stato = GUASTO
 				#]
@@ -158,13 +156,13 @@ QActor measure_handler context ctx_iodevices {
         						#]
 								emit container_trigger : container_trigger(1) 
 								[#
-					    		CounterMisurazioni = 0
+					    		//CounterMisurazioni = 0 non voglio che arrivi più volte l'evento
 					    			}
 					    		}
 					    CONTAINER_ASSENTE -> {
 					    	if(CounterMisurazioni == 3) {
 					        	CommUtils.outmagenta("Ho letto 3 volte una misura congruente quindi non c'è più il container'")
-					    		CounterMisurazioni = 0
+					    		//CounterMisurazioni = 0
 					    							}
 					    					}
 					    GUASTO -> {
@@ -174,7 +172,7 @@ QActor measure_handler context ctx_iodevices {
 								#]
 								emit sonar_error:sonar_error(CAUSA)
 								[#
-								CounterMisurazioni = 0			    		
+								//CounterMisurazioni = 0			    		
 					    								}
 					    		}
 					    else -> {

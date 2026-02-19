@@ -1,0 +1,15 @@
+# Usare un'immagine base con Java
+FROM eclipse-temurin:17-jdk
+
+# Impostare la working directory
+WORKDIR /app
+
+# Copiare il jar nella working directory
+COPY build/libs/sprint3-1.0.jar  app.jar
+
+# Esporre la porta su cui gira Spring Boot
+EXPOSE 8080
+
+# Comando per eseguire l'app
+ENTRYPOINT ["java", "-jar", "app.jar"]
+

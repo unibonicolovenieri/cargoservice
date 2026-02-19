@@ -1,0 +1,90 @@
+// sprint3.qak
+// QAK descriptor for sprint3 (webgui) that mirrors sprint1 contexts
+// so the webgui can communicate with actors running in sprint1.
+System sprint3
+
+// Events (mirror definitions from sprint1)
+Event slot_changed    : slot_changed(ID,status)
+Event sonar_changed   : sonar_changed(status)
+Event led_changed     : led_changed(status)
+Event container_trigger : container_trigger(X)
+Event container_absence  : container_absence(X)
+Event sonar_error     : sonar_error(CAUSA)
+Event problem_solved  : problem_solved(CAUSA)
+
+// Contexts
+
+Context ctx_sonartest      ip [host="localhost"      port=8999]
+
+// External actors (proxies) present in sprint1 that the webgui may
+// interact with. Marked as external so messages are forwarded to the
+// remote contexts above.
+
+
+// Notes:
+// - If you run sprint1 services in Docker and want to reach them from
+//   the host, either expose the container ports (e.g. 8111,8020,8000)
+//   or replace the host names above with container IPs or localhost
+//   mapped ports.
+// - If the webgui expects a specific actor name (e.g. holdmanager),
+//   ensure that actor exists in sprint1 or add an ExternalQActor mapping
+//   here that points to the appropriate sprint1 actor.
+
+// Simple sonar simulator actor for sprint3: it periodically emits
+// `sonar_changed` events and prints/logs received sonar-related
+// messages. Useful to test webgui subscription and message flows.
+QActor sonar_sim context ctx_sonartest{
+	[#
+		var counter = 0
+	#]
+
+	State start initial{
+		println("[sonar_sim] started") color green
+		// small startup delay
+		delay 2000
+		// emit periodic sonar_changed events
+		emit sonar_changed : sonar_changed(OK)
+		delay 3000
+		emit sonar_changed : sonar_changed(WARNING)
+		delay 3000
+		emit sonar_changed : sonar_changed(ERROR)
+		// continue emitting in a simple loop
+		delay 2000
+	}
+	
+	Goto emit_loop
+
+	State emit_loop{
+//		onEntry{
+//			[# counter = 0 #]
+//		}
+		// a simple repeating pattern
+		delay 2000
+		emit sonar_changed : sonar_changed(OK)
+		delay 4000
+		emit sonar_changed : sonar_changed(WARNING)
+		delay 4000
+		emit sonar_changed : sonar_changed(OK)
+		delay 6000
+		// re-enter loop
+	}
+	
+	Goto emit_loop
+
+	State handle_msgs{
+		// react to sonar_error events sent to this actor
+		onMsg(sonar_error: sonar_error(CAUSA)){
+			[# val M = payloadArg(0) #]
+			println("[sonar_sim] received sonar_error cause: $M") color yellow
+			// forward a problem_solved event after handling
+			emit problem_solved : problem_solved(resolved)
+		}
+
+		onMsg(container_trigger: container_trigger(X)){
+			[# val id = payloadArg(0) #]
+			println("[sonar_sim] container_trigger for id: $id") color blue
+		}
+	}
+
+}
+

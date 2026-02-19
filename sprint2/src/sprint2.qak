@@ -66,8 +66,7 @@ Goto measurement
 		#]	
 		//println("$data")
 		if [# Distance > 0 #] { 
-		    println("$name | misurato $Distance cm") color yellow	
-		    emit sonardata: distance($Distance)	 
+		    emitlocalstream sonardata: distance($Distance)	 
 		}
 		delay 300
 	}
@@ -135,6 +134,7 @@ QActor measure_handler context ctx_iodevices {
 				if [# Guasto #] {
 					println("$name | sonar ripristinato") color green
 					[# Guasto = false #]
+					emitlocalstream led_off:led_off(yes)
 					emit problem_solved:problem_solved(CAUSA)
 				}
 			}
@@ -144,6 +144,7 @@ QActor measure_handler context ctx_iodevices {
 				[# 
 					Stato = GUASTO
 				#]
+				emitlocalstream led_on:led_on(yes)
 			} 
 			
 			[#
@@ -201,12 +202,13 @@ QActor led context ctx_iodevices{
 		[#
  			p       = Runtime.getRuntime().exec("python ledPython25On.py")	
  		#]
-		delay 4000
+		delay 1000
 		[#
  			p       = Runtime.getRuntime().exec("python ledPython25Off.py")	
  		#
 		]
-		
+		subscribeTo measure_handler for led_on
+		subscribeTo measure_handler for led_off
  	}
  	Goto wait
  	

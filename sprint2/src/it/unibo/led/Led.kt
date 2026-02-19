@@ -36,9 +36,11 @@ class Led ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdy
 						CommUtils.outcyan("$name : starting")
 						
 						 			p       = Runtime.getRuntime().exec("python ledPython25On.py")	
-						delay(4000) 
+						delay(1000) 
 						
 						 			p       = Runtime.getRuntime().exec("python ledPython25Off.py")	
+						subscribeToLocalActor("measure_handler") 
+						subscribeToLocalActor("measure_handler") 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

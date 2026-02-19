@@ -88,6 +88,7 @@ class Measure_handler ( name: String, scope: CoroutineScope, isconfined: Boolean
 								if(  Guasto  
 								 ){CommUtils.outgreen("$name | sonar ripristinato")
 								 Guasto = false  
+								emitLocalStreamEvent("led_off", "led_off(yes)" ) 
 								emit("problem_solved", "problem_solved(CAUSA)" ) 
 								}
 								}
@@ -95,6 +96,7 @@ class Measure_handler ( name: String, scope: CoroutineScope, isconfined: Boolean
 								 ){CommUtils.outblue("$name | guasto!!!")
 								 
 													Stato = GUASTO
+								emitLocalStreamEvent("led_on", "led_on(yes)" ) 
 								}
 								
 												if(Stato == Stato_precedente &&

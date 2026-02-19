@@ -31,11 +31,11 @@ with Diagram('sprint2Arch', show=False, outformat='png', graph_attr=graphattr) a
           led=Custom('led','./qakicons/symActorWithobjSmall.png')
      with Cluster('ctx_cargo', graph_attr=nodeattr):
           sprint1=Custom('sprint1(ext)','./qakicons/externalQActor.png')
-     sonar >> Edge( label='sonardata', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sonar >> Edge( label='sonardata', **eventedgeattr, decorate='true', fontcolor='red') >> measure_handler
      measure_handler >> Edge( label='problem_solved', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      measure_handler >> Edge( label='container_trigger', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      measure_handler >> Edge( label='sonar_error', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+     measure_handler >> Edge( label='led_on', **eventedgeattr, decorate='true', fontcolor='red') >> led
+     measure_handler >> Edge( label='led_off', **eventedgeattr, decorate='true', fontcolor='red') >> led
      sys >> Edge( label='led_on', **evattr, decorate='true', fontcolor='darkgreen') >> led
-     sys >> Edge( label='led_off', **evattr, decorate='true', fontcolor='darkgreen') >> led
 diag

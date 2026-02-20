@@ -67,7 +67,6 @@ ExternalQActor productservice context ctx_productservice
 
 
 
-
 //cargorobot
 QActor cargorobot context ctx_cargo{
 	
@@ -467,9 +466,8 @@ QActor producservice_test context ctx_cargo{
 
         
     State createdProduct{
-		println("[test]aaaaaaaaaaaaaaaaaa richiesta") color yellow 
-		onMsg(createdProduct : productid(ID) ){
-			println("[test]aaaaaaaaaaaaaaaaaa richiesta") color yellow 
+		println("[test] richiesta registrazione prodotto") color yellow 
+		onMsg(createdProduct : productid(ID) ){ 
 			[# val ID=payloadArg(0).toInt() #]
 	           
 	   		println("[test] prodotto creato ID: $ID") color yellow

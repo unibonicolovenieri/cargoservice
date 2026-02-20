@@ -49,10 +49,9 @@ class Producservice_test ( name: String, scope: CoroutineScope, isconfined: Bool
 				}	 
 				state("createdProduct") { //this:State
 					action { //it:State
-						CommUtils.outyellow("[test]aaaaaaaaaaaaaaaaaa richiesta")
+						CommUtils.outyellow("[test] richiesta registrazione prodotto")
 						if( checkMsgContent( Term.createTerm("productid(ID)"), Term.createTerm("productid(ID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								CommUtils.outyellow("[test]aaaaaaaaaaaaaaaaaa richiesta")
 								 val ID=payloadArg(0).toInt()  
 								CommUtils.outyellow("[test] prodotto creato ID: $ID")
 								delay(50000) 

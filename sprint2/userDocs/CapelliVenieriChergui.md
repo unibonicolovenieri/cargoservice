@@ -17,23 +17,19 @@ Il problema iniziale che ci sorge è quello di poter permettere ai Componenti Ha
 
 La prima opzione può essere presa in considerazione per la comodità di avere un unico componente di gestione, risultà però essere meno flessibile in quanto non permette ai componenti di comunicare direttamente con il corebuisness e inoltre non rispetta il Single Responsability Principle. La seconda opzione invece permette la comunicazione con il corebuisness da parte dei singoli attori e inoltre mantiene valido il principio preceentemente citato. 
 ### Sonar
-Il sonar si deve interfacciare con il core-buisness sarà quindi necessario comunicare ogni evento scatenato utile alla modifica dello stato del sistema ( E quindi non comunicare ogni singola misurazione effettuata). Si evidenzia in questa fase la necessità di prendere una decisione archietturale in seguito ad una problematica che evidenziamo. Vogliamo comunicare al cargoservice solo informazioni utili alla modifica dello stato del robot. Pertanto, tutte le misurazioni non saranno necessarie al robot, cosi come non sarà necessario che lo stesso attore oltre al compito di comunicare al cargoservice (scatenando eventi) abbia anche il compito di leggere le misurazioni costantemente. Indi per cui la decisione è stata quella di separare queste due logiche. Permettendoci di rispettare il SingleResponsabilityPrinciple. Dunque avremo sonar_edge che sarà l'attore che avrà come compito quello di leggere tutte le misurazioni effettuate e di decidere quali saranno comunicate al secondo attore che chiameremo sonar_handler.
+Il sonar si deve interfacciare con il core-buisness sarà quindi necessario comunicare ogni evento scatenato **utile** alla modifica dello stato del sistema ( E quindi non comunicare ogni singola misurazione effettuata). Si evidenzia in questa fase la necessità di prendere una decisione archietturale in seguito ad una problematica che evidenziamo. Vogliamo comunicare al cargoservice solo informazioni utili alla modifica dello stato del robot. Pertanto, tutte le misurazioni non saranno necessarie al robot, cosi come non sarà necessario che lo stesso attore oltre al compito di comunicare al cargoservice (scatenando eventi) abbia anche il compito di leggere le misurazioni costantemente. Indi per cui la decisione è stata quella di separare queste due logiche. Permettendoci di rispettare il SingleResponsabilityPrinciple. Dunque avremo sonar_edge che sarà l'attore che avrà come compito quello di leggere tutte le misurazioni effettuate e di decidere quali saranno comunicate al secondo attore che chiameremo sonar_handler.
 
 Le comunicazioni che il sonar_handler avrà con il resto del sistema sono le seguenti: 
 
 ```
-◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆
-INSERIRE QUI GLI EVENTI CON RELATIVA SPIEGAZIONE
-
 Event container_trigger : container_trigger(X)    
 Event sonar_error:sonar_error(CAUSA) 
 Event problem_solved:problem_solved(CAUSA)
-◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆
 ```
 
 - L'evento **container_trigger** si scatena se D < DFREE/2 per 3 secondi
 - L'evento **sonar_error** si scatena se D > DFREE per 3 secondi
-- L'evento **problem_solved** si scatena se D < DFREE in seguito ad un evento che ha evidenziato un problemacon il sonar
+- L'evento **problem_solved** si scatena se D < DFREE in seguito ad un evento che ha evidenziato un problema con il sonar
 
 
 #### Componente Fisico
@@ -83,8 +79,7 @@ while True:
 ```
 
 ### LED
-Il led è un componente hardware che permette di segnalare visivamente lo stato del sistema. Abbiamo la necessità di rilevare lo stato del sonar per poi poter comandare lo stato del led (acceso/spento). Il led dunque, dovrà intercettare gli eventi inviati dal sonar a cargoservice (relativi al led) e accendersi o spegnersi in base a quest'ultimi.
-
+Il led è un componente hardware che permette di segnalare visivamente lo stato del sistema. Abbiamo la necessità di rilevare lo stato del sonar per poi poter comandare lo stato del led (acceso/spento). Il led dunque, dovrà intercettare gli eventi inviati dal sonar a cargoservice (relativi al led) e accendersi o spegnersi in base a quest'ultimi. Vogliamo modellare il led come un componente autonomo non dipendente da altre componenti.
 #### Componente Fisico
 Anche per il led sfrutteremo il codice python fornito dal committente per interagire con il RaspberryPI.
 
@@ -135,15 +130,242 @@ main activity
 
 GPIO.output(25,GPIO.LOW)
 ```
+## System Build
+Come detto in precedenza il nostro obbiettivo è quello di seguire il single responsability principle ed è per questo motivo che abbiamo deciso di suddividere gli attori in base al loro compito.
+### Sonar
+Il componente software che andremo a sviluppare avrà come obbiettivi quello di interfacciarsi con il raspberry per reperire le distanze misurate e quello di comunicare tali distanze al cargoservice. Tuttavia come detto in precedenza non abbiamo intenzione di comunicare tutte le misurazioni effettuate, solamente quelle necessarie. Per questo motivo sorge la necessità inanzitutto di un filtro e successivamente anche quella di gestire la comunicazione con cargoservice. 
+Per gestire questi due obbiettivi e seperare le responsabilità abbiamo deciso di suddividere in due attori i compiti di "sonar".
+#### Sonar -  Actor
+Sonar sarà l'attore che avrà come obbiettivo quello di effettuare misurazioni, quindi eseguirà lo script python indicato in precedenza per effettuare misurazioni, dovrà poi comunicare le misure effettuate all'attore **measure_handler**. 
+Abbiamo modellato l'attore sonar in questo modo:
+``` php
+QActor sonar context ctx_iodevices{ 
+		[# 
+		lateinit var reader : java.io.BufferedReader
+	    lateinit var p : Process	
+	    var Distance = 0
+		#]
+	
+	State start initial{
+		println("$name | start") 
+		
+	 	[#
+			p       = Runtime.getRuntime().exec("python3 /sprint2-1.0/bin/sonar.py")
+			reader  = java.io.BufferedReader(java.io.InputStreamReader(p.getInputStream()))	
+		#]	
+		delay 2000
+	}
+Goto measurement
+	
+	State measurement{
+		//println("nuova misurazione")
+		[# 
+			var data = reader.readLine()
+			if( data != null ){
+				try{ 
+					val vd = data.toFloat()
+					val v  = vd.toInt()
+					
+					// per evitare che misure a caso vengano considerate
+					if(v <= 100) 
+						Distance = v				
+					else 
+						Distance = 0
+				}catch(e: Exception){
+					CommUtils.outred("$name readSonarDataERROR: $e")
+				}
+			}
+			
+		#]	
+		//println("$data")
+		if [# Distance > 0 #] { 
+		    emitlocalstream sonardata: distance($Distance)	 
+		}
+		delay 300
+	}
+	Goto measurement
+}
+```
+#### Measure_handler -  Actor
+Measure_handler è l'attore che si occupa di gestire la comunicazione con cargoservice e l'analisi delle misurazione effettuate da sonar. Le misurazioni vengono lette dall'evento emit che viene generato dentro sonar. measure_handler si occuperà di effettuare poi di scatenare gli eventi che verranno catturato da Cargoservice. Gli eventi che scatena li abbiamo visti all'inzio dello sprint. 
+``` php
+QActor measure_handler context ctx_iodevices {
 
+	[# 
+		val DFREE = 20 
+		
+		//stati
+        val START = 0
+        val CONTAINER_PRESENTE = 1
+        val CONTAINER_ASSENTE = 2
+        val GUASTO = 3
+        
+		var Stato = START
+		var Stato_precedente = START
+		var CounterMisurazioni = 0
+		
+		var Guasto = false
+	#]	
+	
+	State s0 initial{
+		println("$name | start") 
+	 	subscribeTo sonar for sonardata
+	}
+	Goto waiting_for_measurement
 
+	
+	State waiting_for_measurement {
+		//println("$name | attendo") 
+	}
+	Transition t0
+		whenEvent sonardata -> handle_measurement
+		
+		
+	State handle_measurement {
+		onMsg(sonardata: distance(X)) {
+			[# 
+				val M = payloadArg(0).toInt()	
+				CounterMisurazioni++
+			#]
 
-## Architettura del Sistema
+			
+			if [#  M < DFREE/2 #] { 
+				[# 
+                    Stato = CONTAINER_PRESENTE
+                #]				
+			if [# Guasto #] {
+					println("$name | sonar ripristinato") color green
+					[# Guasto = false #]
+					emit problem_solved:problem_solved(CAUSA)
+				}
+				}
 
-## Test
+			
+			if [# M >= DFREE/2 && M <= DFREE #] { 
+				[# 
+                    Stato = CONTAINER_ASSENTE
+                #]
 
-## Sviluppo del Progetto 
-### SonarController Actor
-### Sonar Actor
-### LED Actor
+				if [# Guasto #] {
+					println("$name | sonar ripristinato") color green
+					[# Guasto = false #]
+					emitlocalstream led_off:led_off(yes)
+					emit problem_solved:problem_solved(CAUSA)
+				}
+			}
+			
+			if [# M > DFREE #] { 
+				[# 
+					Stato = GUASTO
+				#]
+				emitlocalstream led_on:led_on(yes)
+			} 
+			
+			[#
+				if(Stato == Stato_precedente &&
+                   Stato_precedente!=START)
+                {
+					when(Stato) {
+					    CONTAINER_PRESENTE -> {
+					        if(CounterMisurazioni == 3) {
+					        	CommUtils.outmagenta("Ho letto 3 volte una misura congruente quindi procedo a segnalare la presenza di un container")
+        						#]
+								emit container_trigger : container_trigger(1) 
+								[#
+					    		//CounterMisurazioni = 0 non voglio che arrivi più volte l'evento
+					    			}
+					    		}
+					    CONTAINER_ASSENTE -> {
+					    	if(CounterMisurazioni == 3) {
+					        	CommUtils.outmagenta("Ho letto 3 volte una misura congruente quindi non c'è più il container'")
+					    		//CounterMisurazioni = 0
+					    							}
+					    					}
+					    GUASTO -> {
+					    	if(CounterMisurazioni == 3) {
+								CommUtils.outred("Guasto")	
+								Guasto = true
+								#]
+								emit sonar_error:sonar_error(CAUSA)
+								[#
+								//CounterMisurazioni = 0			    		
+					    								}
+					    		}
+					    else -> {
+					    	println("Non posso entrare in questo stato, preoccupati")
+					    }
+					}
+				} 
+				else {
+					Stato_precedente = Stato
+					CounterMisurazioni = 1
+				}
+				
+			#]
+		}
+	}
+	Goto waiting_for_measurement
+}
+```
+### Led
+Led invece è l'attore che si ocupa di eseguire i componenti python che permettono l'accensione e lo spegnimento del led sul rasp. L'accensione e lo spegnimento è coordinata rispeto a certi eventi che emettiano all'interno di sonar. Dentro sonar emettiamo `Event sonar_error:sonar_error(CAUSA)` e `Event problem_solved:problem_solved(CAUSA)`. Questi due eventi permettono a questo attore di capire quando poter comandare l'accensione e lo spegnimento:
+``` php
+QActor led context ctx_iodevices{
+	
+	[# lateinit var p : Process #]
+	
+	State s0 initial{
+		println("$name : starting") color cyan
+		[#
+ 			p       = Runtime.getRuntime().exec("python3 /sprint2-1.0/bin/ledPython25On.py")	
+ 		#]
+		delay 1000
+		[#
+ 			p       = Runtime.getRuntime().exec("python3 /sprint2-1.0/bin/ledPython25Off.py")	
+ 		#
+		]
+		subscribeTo measure_handler for led_on
+		subscribeTo measure_handler for led_off
+ 	}
+ 	Goto wait
+ 	
+ 	State wait{
+ 		println("$name : waiting for interrupts") color cyan
+ 	}
+ 	
+ 	Transition t
+ 		whenEvent led_on -> led_on
+ 		whenEvent led_off -> led_off
+ 		
+ 	State led_on{
+ 		println("$name : acceso") color red
+ 		[#
+ 			p       = Runtime.getRuntime().exec("python3 ledPython25On.py")	
+ 		#
+ 		]
+ 		
+ 	}
+ 	Goto wait
+ 	
+ 	State led_off{
+ 		println("$name : spento") color green
+ 		[#
+ 			p       = Runtime.getRuntime().exec("python3 ledPython25Off.py")	
+ 		#
+ 		]
+ 	}
+ 	Goto wait
+}
+```
+## System Architecture
+```
+IMMAGINE DELL' ARCHIETTURA
+```
 ## Deployment e Considerazioni finali
+Per l'esecuzione del sistema abbiamo pensato di generare un'immagine docker per poter gestire in maniera automatica l'avvio e la build dell'applicativo. Avviabile all'interno del raspberry.
+
+Per il componente hardware è necessario collegare i dispositivi alla scheda nella seguente maniera:
+- LED (polo positivo): pin 25
+- Sonar – trigger: pin 17
+- Sonar – echo: pin 27
+- GND, VCC +5V, sono collegamenti che possono essere effettuati su qualunque pin disponibile

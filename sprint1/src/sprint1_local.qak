@@ -54,8 +54,8 @@ Event problem_solved:problem_solved(CAUSA)
 
        
 //contesti  
-Context ctx_productservice	ip [host="10.249.112.148" port=8111]
-Context ctx_basicrobot ip [host="10.249.112.148" port=8020] 
+Context ctx_productservice	ip [host="localhost" port=8111]
+Context ctx_basicrobot ip [host="localhost" port=8020] 
 Context ctx_cargo	ip [host="localhost" port=8000]
 
 
@@ -110,6 +110,7 @@ QActor cargorobot context ctx_cargo{
 	 State stop{
 	 	
 	 		emit alarm           		: alarm(X)
+	 		updateResource [#"Alarm(X)"#]
 	 		println("[$name] robot stopped")color yellow
 	 		
 	 } 
@@ -118,7 +119,7 @@ QActor cargorobot context ctx_cargo{
 	 whenEvent problem_solved -> resume
 	  
 	 	 State resume{
-	 	 			
+	 	 			updateResource [#"problem_solved(solved)"#]
 	 	 			forward basicrobot -m nextmove:nextmove(l)
 	 	 			//request basicrobot -m engage:engage($Myname,340)
 	 	 			
@@ -489,56 +490,64 @@ QActor producservice_test context ctx_cargo{
    
 } 
 
-//
-//QActor sonar_test context ctx_sonartest {
-//	[# var Counter = 1 #]
-//	
-//	State start initial {
-//		println("$name | started ") color green
-//		delay 2000 
-//		delay 30000
-//	}
-//	Goto simulate_container_arrival
-//	
-//	
-//	State simulate_container_arrival {
-//		println("$name | Simulo arrivo container") color green
-//		println("$name | $Counter | numero dell'iterazione di Sonar Test") color gray       
-//		emit container_trigger : container_trigger(1)
-//		// Sonar misura una distanza piu piccola e quindi c'è un container
-//		emit sonar_changed :sonar_changed(Container_Individuato)
-//		delay 10000
-//		
-//	}
-//	Goto simulate_container_absence
-//	
-//	
-//	State simulate_container_absence {
-//		if [# Counter % 5 == 0 #] {
-//			println("$name | Simulo sparizione container") color yellow
-//			emit container_absence : container_absence(no)
-//			//Sonar rileva DFREE e quindi non c'è niente e quindi è vuoto
-//			emit sonar_changed :sonar_changed(Container_Assente)
-//			delay 10000
-//		}
-//	}
-//	Goto maybe_fail
-//	
-//	
-//	State maybe_fail {
-//		[# Counter++ #]
-//		if [# Counter % 2 == 0 #] {
-//			println("$name | Guasto sonar!") color magenta
-//			emit sonar_error : sonar_error(errore)
-//			
-//			delay 4000
-//			println("$name | Sonar ripristinato!") color magenta
-//			emit problem_solved : problem_solved(solved)
-//		}
-//		delay 10000
-//	}
-//	Goto simulate_container_arrival
-//}
+
+QActor sonar_test context ctx_cargo {
+	[# var Counter = 1 #]
+	
+	State start initial {
+		println("$name | started ") color green
+		delay 2000 
+		delay 30000
+	}
+	Goto simulate_container_arrival
+	
+	
+	State simulate_container_arrival {
+		println("$name | Simulo arrivo container") color green
+		println("$name | $Counter | numero dell'iterazione di Sonar Test") color gray       
+		emit container_trigger : container_trigger(1)
+		// Sonar misura una distanza piu piccola e quindi c'è un container
+		emit sonar_changed :sonar_changed(Container_Individuato)
+		updateResource [#"slot_changed($Counter,true)"#]
+		updateResource [#"sonar_changed(Container_Individuato)"#]
+		delay 10000
+		
+	}
+	Goto simulate_container_absence
+	
+	
+	State simulate_container_absence {
+		if [# Counter % 5 == 0 #] {
+			println("$name | Simulo sparizione container") color yellow
+			emit container_absence : container_absence(no)
+			//Sonar rileva DFREE e quindi non c'è niente e quindi è vuoto
+			emit sonar_changed :sonar_changed(Container_Assente)
+			updateResource [#"slot_changed($Counter,false)"#]
+			updateResource [#"sonar_changed(Container_Assente)"#] 
+			delay 10000
+		}
+	}
+	Goto maybe_fail
+	
+	
+	State maybe_fail {
+		[# Counter++ #]
+		if [# Counter % 2 == 0 #] {
+			println("$name | Guasto sonar!") color magenta
+			emit sonar_error : sonar_error(errore)
+			updateResource [#"led_changed(Acceso)"#]
+	 		updateResource [#"alarm(X)"#]
+			
+			delay 4000
+			println("$name | Sonar ripristinato!") color magenta
+			emit problem_solved : problem_solved(solved)
+			updateResource [#"led_changed(Spento)"#]
+			updateResource [#"problem_solved(solved)"#]
+		}
+		delay 10000
+	}
+	Goto simulate_container_arrival
+}
 
 
 

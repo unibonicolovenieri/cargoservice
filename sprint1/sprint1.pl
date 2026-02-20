@@ -32,8 +32,8 @@ event( container_absence, container_absence(X) ).
 event( sonar_error, sonar_error(CAUSA) ).
 event( problem_solved, problem_solved(CAUSA) ).
 %====================================================================================
-context(ctx_productservice, "10.249.112.148",  "TCP", "8111").
-context(ctx_basicrobot, "10.249.112.148",  "TCP", "8020").
+context(ctx_productservice, "localhost",  "TCP", "8111").
+context(ctx_basicrobot, "localhost",  "TCP", "8020").
 context(ctx_cargo, "localhost",  "TCP", "8000").
  qactor( basicrobot, ctx_basicrobot, "external").
   qactor( productservice, ctx_productservice, "external").
@@ -43,3 +43,5 @@ context(ctx_cargo, "localhost",  "TCP", "8000").
  static(cargoservice).
   qactor( producservice_test, ctx_cargo, "it.unibo.producservice_test.Producservice_test").
  static(producservice_test).
+  qactor( sonar_test, ctx_cargo, "it.unibo.sonar_test.Sonar_test").
+ static(sonar_test).

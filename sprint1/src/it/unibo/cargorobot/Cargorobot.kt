@@ -71,6 +71,8 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				state("stop") { //this:State
 					action { //it:State
 						emit("alarm", "alarm(X)" ) 
+						updateResourceRep("Alarm(X)" 
+						)
 						CommUtils.outyellow("[$name] robot stopped")
 						//genTimer( actor, state )
 					}
@@ -81,6 +83,8 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				}	 
 				state("resume") { //this:State
 					action { //it:State
+						updateResourceRep("problem_solved(solved)" 
+						)
 						forward("nextmove", "nextmove(l)" ,"basicrobot" ) 
 						//genTimer( actor, state )
 					}

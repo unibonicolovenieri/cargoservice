@@ -49,6 +49,10 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						CommUtils.outgray("$name | $Counter | numero dell'iterazione di Sonar Test")
 						emit("container_trigger", "container_trigger(1)" ) 
 						emit("sonar_changed", "sonar_changed(Container_Individuato)" ) 
+						updateResourceRep("slot_changed($Counter,true)" 
+						)
+						updateResourceRep("sonar_changed(Container_Individuato)" 
+						)
 						delay(10000) 
 						//genTimer( actor, state )
 					}
@@ -63,6 +67,10 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						 ){CommUtils.outyellow("$name | Simulo sparizione container")
 						emit("container_absence", "container_absence(no)" ) 
 						emit("sonar_changed", "sonar_changed(Container_Assente)" ) 
+						updateResourceRep("slot_changed($Counter,false)" 
+						)
+						updateResourceRep("sonar_changed(Container_Assente)" 
+						)
 						delay(10000) 
 						}
 						//genTimer( actor, state )
@@ -78,9 +86,17 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						if(  Counter % 2 == 0  
 						 ){CommUtils.outmagenta("$name | Guasto sonar!")
 						emit("sonar_error", "sonar_error(errore)" ) 
+						updateResourceRep("led_changed(Acceso)" 
+						)
+						updateResourceRep("alarm(X)" 
+						)
 						delay(4000) 
 						CommUtils.outmagenta("$name | Sonar ripristinato!")
 						emit("problem_solved", "problem_solved(solved)" ) 
+						updateResourceRep("led_changed(Spento)" 
+						)
+						updateResourceRep("problem_solved(solved)" 
+						)
 						}
 						delay(10000) 
 						//genTimer( actor, state )

@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Osserva via CoAP le risorse esposte da QAktors (ctx_cargo porta 8000).
@@ -37,7 +39,13 @@ public class CoapObserverService {
     private static final Pattern WEIGHT        = Pattern.compile("\\bweight\\(\\s*(\\d+)\\s*\\)");
     private static final Pattern CURRENT_WEIGHT = Pattern.compile("current_weight\\(\\s*(\\d+)\\s*\\)");
 
+    // Pattern per la risposta iniziale completa da hold_observer
+    private static final Pattern HOLD_STATE = Pattern.compile(
+        "hold_state\\(slots:([^,]+),maxload:(\\d+),weight:(\\d+),sonar:(\\w+),led:(\\w+),robot:(\\w+)\\)"
+    );
+
     private final HoldStateService holdStateService;
+    private final HoldObserverInitService holdObserverInitService;
 
     @Value("${cargo.coap.host:localhost}")
     private String coapHost;
@@ -45,12 +53,18 @@ public class CoapObserverService {
     @Value("${cargo.coap.port:8000}")
     private int coapPort;
 
-    public CoapObserverService(HoldStateService holdStateService) {
+    public CoapObserverService(HoldStateService holdStateService,
+                               @org.springframework.context.annotation.Lazy HoldObserverInitService holdObserverInitService) {
         this.holdStateService = holdStateService;
+        this.holdObserverInitService = holdObserverInitService;
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void startObserving() {
+        // 1. Prima operazione: richiesta iniziale a hold_observer (bloccante fino a risposta)
+        holdObserverInitService.requestInitialState();
+
+        // 2. Solo dopo: avvio degli observer CoAP
         log.info("[CoAP] Avvio observe su " + coapHost + ":" + coapPort);
         observeResource("ctx_cargo/sonar_test");
         observeResource("ctx_cargo/cargorobot");
@@ -96,6 +110,30 @@ public class CoapObserverService {
         if (payload == null || payload.isBlank()) return;
 
         Matcher m;
+
+        // Risposta iniziale completa da hold_observer — gestita per prima
+        m = HOLD_STATE.matcher(payload);
+        if (m.find()) {
+            String slotsRaw  = m.group(1); // es: "1=false;2=false;3=true;4=false"
+            int    maxLoad   = Integer.parseInt(m.group(2));
+            int    weight    = Integer.parseInt(m.group(3));
+            String sonar     = m.group(4);
+            String led       = m.group(5);
+            String robot     = m.group(6);
+
+            // Parsing slot: "1=false;2=true;..."
+            Map<Integer, Boolean> slots = new HashMap<>();
+            for (String entry : slotsRaw.split(";")) {
+                String[] parts = entry.split("=");
+                if (parts.length == 2) {
+                    slots.put(Integer.parseInt(parts[0].trim()),
+                              Boolean.parseBoolean(parts[1].trim()));
+                }
+            }
+
+            holdStateService.onInitialState(slots, maxLoad, weight, sonar, led, robot);
+            return;
+        }
 
         m = SLOT_CHANGED.matcher(payload);
         if (m.find()) {

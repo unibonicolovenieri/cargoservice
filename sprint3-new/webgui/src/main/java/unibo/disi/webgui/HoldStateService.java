@@ -75,6 +75,25 @@ public class HoldStateService {
             log.warning("[STATE] Errore invio stato iniziale: " + e.getMessage());
         }
     }
+    
+    public void onMaxLoad(int maxLoad) {
+        log.info("[STATE] MaxLoad -> " + maxLoad);
+        holdState.setMaxLoad(maxLoad);
+        broadcast();
+    }
+
+    public void onWeightAdded(int weight) {
+        log.info("[STATE] Peso aggiunto -> " + weight);
+        holdState.addWeight(weight);
+        broadcast();
+    }
+
+    /** current_weight(X) — imposta il peso attuale sulla stiva in modo assoluto */
+    public void onCurrentWeight(int weight) {
+        log.info("[STATE] Peso corrente (assoluto) -> " + weight + " kg");
+        holdState.setCurrentWeight(weight);
+        broadcast();
+    }
 
     public HoldState getHoldState() { return holdState; }
 }

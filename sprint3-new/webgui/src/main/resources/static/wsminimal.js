@@ -96,7 +96,30 @@ function updateHoldUI(state) {
         card.classList.toggle("occupied", occ);
         label.textContent = occ ? "OCCUPATO" : "LIBERO";
     }
+	// Gestione peso
+	var maxLoad = state.maxLoad;
+	var currentWeight = state.currentWeight;
+	var weightEl  = document.getElementById("stat-weight");
+	var maxloadEl = document.getElementById("stat-maxload");
+	var weightBar = document.getElementById("weight-bar");
 
+	if (maxLoad === -1 || maxLoad === undefined) {
+	    // MaxLoad non ancora comunicato
+	    if (weightEl)  weightEl.textContent = (currentWeight > 0 ? currentWeight : "—") + " / —";
+	    if (maxloadEl) maxloadEl.textContent = "NON COMUNICATO";
+	    if (weightBar) weightBar.style.width = "0%";
+	} else {
+	    var perc = Math.min((currentWeight / maxLoad) * 100, 100);
+	    if (weightEl)  weightEl.textContent = currentWeight + " / " + maxLoad + " kg";
+	    if (maxloadEl) maxloadEl.textContent = maxLoad + " kg";
+	    if (weightBar) {
+	        weightBar.style.width = perc + "%";
+	        // Cambia colore in base alla percentuale
+	        weightBar.style.background = 
+	            perc >= 90 ? "var(--danger)" :
+	            perc >= 70 ? "var(--warn)" : "var(--ok)";
+	    }
+	}
     // Aggiorna sensori
     var sonarEl = document.getElementById("sensor-sonar");
     if (sonarEl) {

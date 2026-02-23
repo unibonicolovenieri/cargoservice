@@ -88,14 +88,10 @@ class Sonar_test ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						emit("sonar_error", "sonar_error(errore)" ) 
 						updateResourceRep("led_changed(Acceso)" 
 						)
-						updateResourceRep("alarm(X)" 
-						)
 						delay(4000) 
 						CommUtils.outmagenta("$name | Sonar ripristinato!")
 						emit("problem_solved", "problem_solved(solved)" ) 
 						updateResourceRep("led_changed(Spento)" 
-						)
-						updateResourceRep("problem_solved(solved)" 
 						)
 						}
 						delay(10000) 

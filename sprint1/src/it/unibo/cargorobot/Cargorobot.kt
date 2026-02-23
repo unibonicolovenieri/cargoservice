@@ -71,7 +71,7 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				state("stop") { //this:State
 					action { //it:State
 						emit("alarm", "alarm(X)" ) 
-						updateResourceRep("Alarm(X)" 
+						updateResourceRep("alarm(X)" 
 						)
 						CommUtils.outyellow("[$name] robot stopped")
 						//genTimer( actor, state )

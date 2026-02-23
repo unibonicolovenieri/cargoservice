@@ -2,7 +2,6 @@ package unibo.disi.webgui;
 
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapHandler;
-import org.eclipse.californium.core.CoapObserveRelation;
 import org.eclipse.californium.core.CoapResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -33,6 +32,10 @@ public class CoapObserverService {
     private static final Pattern SONAR_CHANGED = Pattern.compile("sonar_changed\\((\\w+)\\)");
     private static final Pattern LED_CHANGED   = Pattern.compile("led_changed\\((\\w+)\\)");
     private static final Pattern ALARM         = Pattern.compile("alarm\\((\\w+)\\)");
+    private static final Pattern MAXLOAD = Pattern.compile("maxload\\(\\s*(\\d+)\\s*\\)");
+    // "weight" usa \b (word boundary) per non matchare su "current_weight"
+    private static final Pattern WEIGHT        = Pattern.compile("\\bweight\\(\\s*(\\d+)\\s*\\)");
+    private static final Pattern CURRENT_WEIGHT = Pattern.compile("current_weight\\(\\s*(\\d+)\\s*\\)");
 
     private final HoldStateService holdStateService;
 
@@ -112,6 +115,15 @@ public class CoapObserverService {
         if (m.find()) { holdStateService.onAlarm(true); return; }
 
         if (payload.contains("problem_solved")) { holdStateService.onAlarm(false); return; }
+        
+        m = MAXLOAD.matcher(payload);
+        if (m.find()) { holdStateService.onMaxLoad(Integer.parseInt(m.group(1))); return; }
+
+        m = CURRENT_WEIGHT.matcher(payload);
+        if (m.find()) { holdStateService.onCurrentWeight(Integer.parseInt(m.group(1))); return; }
+
+        m = WEIGHT.matcher(payload);
+        if (m.find()) { holdStateService.onWeightAdded(Integer.parseInt(m.group(1))); return; }
 
         log.warning("[CoAP] L'HO SCRITTO PER TEST 6767676767667 Payload non riconosciuto: " + payload);
     }

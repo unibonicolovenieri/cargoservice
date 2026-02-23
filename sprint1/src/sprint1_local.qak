@@ -110,7 +110,7 @@ QActor cargorobot context ctx_cargo{
 	 State stop{
 	 	
 	 		emit alarm           		: alarm(X)
-	 		updateResource [#"Alarm(X)"#]
+	 		updateResource [#"alarm(X)"#]
 	 		println("[$name] robot stopped")color yellow
 	 		
 	 } 
@@ -536,13 +536,13 @@ QActor sonar_test context ctx_cargo {
 			println("$name | Guasto sonar!") color magenta
 			emit sonar_error : sonar_error(errore)
 			updateResource [#"led_changed(Acceso)"#]
-	 		updateResource [#"alarm(X)"#]
+	 		
 			
 			delay 4000
 			println("$name | Sonar ripristinato!") color magenta
 			emit problem_solved : problem_solved(solved)
 			updateResource [#"led_changed(Spento)"#]
-			updateResource [#"problem_solved(solved)"#]
+			
 		}
 		delay 10000
 	}

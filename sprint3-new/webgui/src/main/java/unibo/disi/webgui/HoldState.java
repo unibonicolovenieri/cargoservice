@@ -15,6 +15,24 @@ public class HoldState {
     private boolean ledOn = false;
     private boolean alarmActive = false;
     private String lastUpdate = LocalDateTime.now().toString();
+    private int maxLoad = -1;  // -1 = non comunicato
+    private int currentWeight = 0;
+
+    public int getMaxLoad() { return maxLoad; }
+    public void setMaxLoad(int maxLoad) { 
+        this.maxLoad = maxLoad; 
+        lastUpdate = LocalDateTime.now().toString(); 
+    }
+
+    public int getCurrentWeight() { return currentWeight; }
+    public void addWeight(int weight) { 
+        this.currentWeight += weight; 
+        lastUpdate = LocalDateTime.now().toString(); 
+    }
+    public void setCurrentWeight(int weight) {
+        this.currentWeight = weight;
+        lastUpdate = LocalDateTime.now().toString();
+    }
 
     public HoldState() {
         for (int i = 1; i <= 4; i++) slots.put(i, false);

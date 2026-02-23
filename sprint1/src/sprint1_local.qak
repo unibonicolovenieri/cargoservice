@@ -54,8 +54,8 @@ Event problem_solved:problem_solved(CAUSA)
 
        
 //contesti  
-Context ctx_productservice	ip [host="10.249.112.148" port=8111]
-Context ctx_basicrobot ip [host="10.249.112.148" port=8020] 
+Context ctx_productservice	ip [host="cargoserviceqak" port=8111]
+Context ctx_basicrobot ip [host="basicrobot24" port=8020] 
 Context ctx_cargo	ip [host="localhost" port=8000]
 
 
@@ -117,14 +117,17 @@ QActor cargorobot context ctx_cargo{
 	 whenEvent problem_solved -> resume
 	  
 	 	 State resume{
-	 	 			
+	 	 			println("$name riprendo")
 	 	 			forward basicrobot -m nextmove:nextmove(l)
 	 	 			//request basicrobot -m engage:engage($Myname,340)
 	 	 			
 	}
 	Transition t0 
+	whenReply moverobotdone -> reengage 
+	whenRequest move_product -> goto_IOPort
     whenReply moverobotfailed-> reengage
     whenReply engagedone -> reengage
+    
 	State reengage{
 		
 			println("$name reengage done")
@@ -364,7 +367,7 @@ QActor cargoservice context ctx_cargo{
 	 //emit resume:resume(ok) //dico al cargorobot di riprendere ciò che stava facendo
 	 //Il sonar si è fixato e quindi ora metto il led a spento
 	emit led_changed : led_changed(Spento)
-	 
+	 delay 5000
 	 }
 	 returnFromInterrupt //provo a toglierla ma occhio - 7 novembre alle 10:32
 	}
@@ -441,7 +444,7 @@ QActor cargoservice context ctx_cargo{
 			println("Load completata il robot è in home ")		
 		}
 	}
-	
+	 
 		
 	Goto waiting_for_request
 }

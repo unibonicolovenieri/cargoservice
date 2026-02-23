@@ -45,7 +45,7 @@ class Producservice_test ( name: String, scope: CoroutineScope, isconfined: Bool
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t029",targetState="createdProduct",cond=whenReply("createdProduct"))
+					 transition(edgeName="t031",targetState="createdProduct",cond=whenReply("createdProduct"))
 				}	 
 				state("createdProduct") { //this:State
 					action { //it:State
@@ -61,7 +61,7 @@ class Producservice_test ( name: String, scope: CoroutineScope, isconfined: Bool
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t030",targetState="moved",cond=whenReply("loadedProduct"))
+					 transition(edgeName="t032",targetState="moved",cond=whenReply("loadedProduct"))
 				}	 
 				state("moved") { //this:State
 					action { //it:State

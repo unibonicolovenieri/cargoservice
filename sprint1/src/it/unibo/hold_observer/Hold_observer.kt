@@ -134,10 +134,10 @@ class Hold_observer ( name: String, scope: CoroutineScope, isconfined: Boolean=f
 						
 									val Slot1 = Taken_slot[0]
 									val Slot2 = Taken_slot[1]
-									val Slot3 = "true"
+									val Slot3 = Taken_slot[2]
 									val Slot4 = Taken_slot[3]	
 									val Robot_state = "ok"
-						updateResourceRep("hold_state(slots:1=$Slot1;2=$Slot2;3=$Slot3;4=$Slot4,maxload:1000,weight:$CURRENT_LOAD,sonar:DFREE,led:$Led,robot:$Robot_state)" 
+						updateResourceRep("hold_state(slots:1=$Slot1;2=$Slot2;3=$Slot3;4=$Slot4,maxload:1000,weight:$CURRENT_LOAD,sonar:$Sonar,led:$Led,robot:$Robot_state)" 
 						)
 						//genTimer( actor, state )
 					}

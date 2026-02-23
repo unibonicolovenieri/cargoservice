@@ -190,6 +190,8 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 											
 								CommUtils.outgreen("[gotoslot] position received")
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
+								updateResourceRep("sonar_changed(DFREE)" 
+								)
 								delivering = true 
 								CommUtils.outgreen("gotoslot delivering: $delivering | position x: $X y: $Y")
 						}
@@ -212,6 +214,8 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						 ){forward("setdirection", "dir($Direction)" ,"basicrobot" ) 
 						CommUtils.outblue("Direction $Direction")
 						emit("slot_changed", "slot_changed($CurrentRequestSlot,true)" ) 
+						updateResourceRep("slot_changed($CurrentRequestSlot,true)" 
+						)
 						}
 						//genTimer( actor, state )
 					}

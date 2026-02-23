@@ -67,6 +67,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 								 val M=payloadArg(0) 
 								CommUtils.outyellow("[$name] sonar ha emesso un errore causa: $M")
 								emit("led_changed", "led_changed(Acceso)" ) 
+								updateResourceRep("led_changed(Acceso)" 
+								)
 						}
 						//genTimer( actor, state )
 					}
@@ -82,6 +84,10 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 								 val M=payloadArg(0) 
 								CommUtils.outyellow("[$name] sonar ha risolto l'errore causa: $M")
 								emit("led_changed", "led_changed(Spento)" ) 
+								updateResourceRep("led_changed(Spento)" 
+								)
+								updateResourceRep("sonar_changed(DFREE)" 
+								)
 						}
 						returnFromInterrupt(interruptedStateTransitions)
 						//genTimer( actor, state )
@@ -98,6 +104,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 								
 												val ID=payloadArg(0).toInt()
 								request("getProduct", "product($ID)" ,"productservice" )  
+								updateResourceRep("sonar_changed(DBUSY)" 
+								)
 						}
 						//genTimer( actor, state )
 					}
@@ -172,6 +180,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					action { //it:State
 						request("move_product", "product($Reserved_slot)" ,"cargorobot" )  
 						CommUtils.outyellow("[cargoservice] richiesta di move al cargo robot mandata")
+						updateResourceRep("current_weight($CURRENT_LOAD)" 
+						)
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

@@ -57,8 +57,8 @@ Event problem_solved:problem_solved(CAUSA)
 
        
 //contesti  
-Context ctx_productservice	ip [host="localhost" port=8111]
-Context ctx_basicrobot ip [host="localhost" port=8020] 
+Context ctx_productservice	ip [host="127.0.0.1" port=8111]
+Context ctx_basicrobot ip [host="127.0.0.1" port=8020] 
 Context ctx_cargo	ip [host="localhost" port=8000]
 Context ctx_webgui ip[host= "localhost" port= 6767]
 
@@ -208,6 +208,7 @@ QActor cargorobot context ctx_cargo{
 		#]
 		println("[gotoslot] position received") color green
 		request basicrobot -m moverobot:moverobot($X,$Y)
+		updateResource[#"sonar_changed(DFREE)"#]
 		[#delivering = true#]
 		println("gotoslot delivering: $delivering | position x: $X y: $Y") color green
 		}
@@ -231,7 +232,7 @@ QActor cargorobot context ctx_cargo{
 		println("Direction $Direction") color blue
 		//Si occupa lo slot quindi faccio una emit di cambio di stato (	Serve a WebGui)
 		emit slot_changed : slot_changed($CurrentRequestSlot,true)
-
+		updateResource[#"slot_changed($CurrentRequestSlot,true)"#]
 }
 		
 	}
@@ -355,6 +356,7 @@ QActor cargoservice context ctx_cargo{
 	 //emit stop:stop(si) //dico al cargorobot di fermarsi
 	 //Si rompe il sonar quindi emetto un segnale led 
 	 emit led_changed : led_changed(Acceso)
+	 updateResource[#"led_changed(Acceso)"#]
 	 }
 	}
 	
@@ -371,6 +373,8 @@ QActor cargoservice context ctx_cargo{
 	 //emit resume:resume(ok) //dico al cargorobot di riprendere ciò che stava facendo
 	 //Il sonar si è fixato e quindi ora metto il led a spento
 	emit led_changed : led_changed(Spento)
+	updateResource[#"led_changed(Spento)"#]
+	updateResource[#"sonar_changed(DFREE)"#]
 	 
 	 }
 	 returnFromInterrupt //provo a toglierla ma occhio - 7 novembre alle 10:32
@@ -387,6 +391,7 @@ QActor cargoservice context ctx_cargo{
 				val ID=payloadArg(0).toInt()
 			#]			
 			request productservice -m getProduct:product($ID)	
+			updateResource[#"sonar_changed(DBUSY)"#]
 		}
 		
 	}
@@ -437,6 +442,7 @@ QActor cargoservice context ctx_cargo{
 		State moveProduct{
 		request cargorobot -m move_product:product($Reserved_slot) 
 		println("[cargoservice] richiesta di move al cargo robot mandata") color yellow
+		updateResource[#"current_weight($CURRENT_LOAD)"#]
 	}
 		
 	Transition t0
@@ -641,12 +647,12 @@ QActor hold_observer context ctx_cargo{
 		[#
 			val Slot1 = Taken_slot[0]
 			val Slot2 = Taken_slot[1]
-			val Slot3 = "true"
+			val Slot3 = Taken_slot[2]
 			val Slot4 = Taken_slot[3]	
 			val Robot_state = "ok"
 		#
 		]
-		updateResource[#"hold_state(slots:1=$Slot1;2=$Slot2;3=$Slot3;4=$Slot4,maxload:1000,weight:$CURRENT_LOAD,sonar:DFREE,led:$Led,robot:$Robot_state)"#]
+		updateResource[#"hold_state(slots:1=$Slot1;2=$Slot2;3=$Slot3;4=$Slot4,maxload:1000,weight:$CURRENT_LOAD,sonar:$Sonar,led:$Led,robot:$Robot_state)"#]
 		//replyTo get_hold_state with send_hold_state: hold_state("Taken slot:$Taken_slot; Led:$Led; Sonar:$Sonar; CURRENT_LOAD:$CURRENT_LOAD")
 	}
 	Goto observe_hold

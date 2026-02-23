@@ -12,6 +12,9 @@ reply( loadedProduct, slot(SLOT) ).  %%for load_product
 event( slot_changed, slot_changed(ID,status) ).
 event( sonar_changed, sonar_changed(status) ).
 event( led_changed, led_changed(status) ).
+event( current_weight, current_weight(weight) ).
+request( get_hold_state, hold_state(JSonString) ).
+reply( send_hold_state, hold_state(JSonString) ).  %%for get_hold_state
 request( move_product, product(SLOT) ).
 reply( movedProduct, result(SLOT) ).  %%for move_product
 reply( moveProductFailed, fail(failed) ).  %%for move_product
@@ -35,8 +38,10 @@ event( problem_solved, problem_solved(CAUSA) ).
 context(ctx_productservice, "localhost",  "TCP", "8111").
 context(ctx_basicrobot, "localhost",  "TCP", "8020").
 context(ctx_cargo, "localhost",  "TCP", "8000").
+context(ctx_webgui, "localhost",  "TCP", "6767").
  qactor( basicrobot, ctx_basicrobot, "external").
   qactor( productservice, ctx_productservice, "external").
+  qactor( webgui, ctx_webgui, "external").
   qactor( cargorobot, ctx_cargo, "it.unibo.cargorobot.Cargorobot").
  static(cargorobot).
   qactor( cargoservice, ctx_cargo, "it.unibo.cargoservice.Cargoservice").
@@ -45,3 +50,5 @@ context(ctx_cargo, "localhost",  "TCP", "8000").
  static(producservice_test).
   qactor( sonar_test, ctx_cargo, "it.unibo.sonar_test.Sonar_test").
  static(sonar_test).
+  qactor( hold_observer, ctx_cargo, "it.unibo.hold_observer.Hold_observer").
+ static(hold_observer).

@@ -34,6 +34,9 @@ with Diagram('sprint1Arch', show=False, outformat='png', graph_attr=graphattr) a
           cargoservice=Custom('cargoservice','./qakicons/symActorWithobjSmall.png')
           producservice_test=Custom('producservice_test','./qakicons/symActorWithobjSmall.png')
           sonar_test=Custom('sonar_test','./qakicons/symActorWithobjSmall.png')
+          hold_observer=Custom('hold_observer','./qakicons/symActorWithobjSmall.png')
+     with Cluster('ctx_webgui', graph_attr=nodeattr):
+          webgui=Custom('webgui(ext)','./qakicons/externalQActor.png')
      cargorobot >> Edge( label='alarm', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sys >> Edge( label='problem_solved', **evattr, decorate='true', fontcolor='darkgreen') >> cargorobot
      cargorobot >> Edge( label='slot_changed', **eventedgeattr, decorate='true', fontcolor='red') >> sys
@@ -45,6 +48,10 @@ with Diagram('sprint1Arch', show=False, outformat='png', graph_attr=graphattr) a
      sonar_test >> Edge( label='container_absence', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sonar_test >> Edge( label='sonar_error', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sonar_test >> Edge( label='problem_solved', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+     sys >> Edge( label='slot_changed', **evattr, decorate='true', fontcolor='darkgreen') >> hold_observer
+     sys >> Edge( label='led_changed', **evattr, decorate='true', fontcolor='darkgreen') >> hold_observer
+     sys >> Edge( label='sonar_changed', **evattr, decorate='true', fontcolor='darkgreen') >> hold_observer
+     sys >> Edge( label='current_weight', **evattr, decorate='true', fontcolor='darkgreen') >> hold_observer
      cargorobot >> Edge(color='magenta', style='solid', decorate='true', label='<engage<font color="darkgreen"> engagedone engagerefused</font> &nbsp; moverobot<font color="darkgreen"> moverobotdone moverobotfailed</font> &nbsp; >',  fontcolor='magenta') >> basicrobot
      cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<getProduct<font color="darkgreen"> getProductAnswer</font> &nbsp; >',  fontcolor='magenta') >> productservice
      producservice_test >> Edge(color='magenta', style='solid', decorate='true', label='<createProduct<font color="darkgreen"> createdProduct</font> &nbsp; >',  fontcolor='magenta') >> productservice

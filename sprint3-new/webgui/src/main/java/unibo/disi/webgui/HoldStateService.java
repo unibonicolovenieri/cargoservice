@@ -55,6 +55,13 @@ public class HoldStateService {
         broadcast();
     }
 
+    /** hold_state(SNAPSHOT) — applicato solo la prima volta, poi ignorato */
+    public void onHoldStateSnapshot(String snapshotText) {
+        log.info("[STATE] Snapshot iniziale hold_state applicato");
+        holdState.applySnapshot(snapshotText);
+        broadcast();
+    }
+
     // ── Broadcast via WebSocket (come sendToAll del prof) ─────────
 
     private void broadcast() {

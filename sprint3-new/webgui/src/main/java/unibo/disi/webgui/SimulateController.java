@@ -35,4 +35,24 @@ public class SimulateController {
     public HoldState getState() {
         return holdStateService.getHoldState();
     }
+
+    /**
+     * Resetta il flag holdStateReceived, come se non fosse mai arrivata una hold_state.
+     * Utile nei test per ripetere il bootstrap senza riavviare l'applicazione.
+     * POST /simulate/reset-hold-state
+     */
+    @PostMapping("/simulate/reset-hold-state")
+    public Map<String, String> resetHoldStateFlag() {
+        coapObserverService.resetHoldStateFlag();
+        return Map.of("status", "ok", "message", "holdStateReceived flag reset");
+    }
+
+    /**
+     * Restituisce lo stato corrente del flag holdStateReceived.
+     * GET /simulate/hold-state-received
+     */
+    @GetMapping("/simulate/hold-state-received")
+    public Map<String, Object> isHoldStateReceived() {
+        return Map.of("holdStateReceived", coapObserverService.isHoldStateReceived());
+    }
 }

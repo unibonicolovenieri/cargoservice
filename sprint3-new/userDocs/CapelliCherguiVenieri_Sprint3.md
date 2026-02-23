@@ -13,6 +13,7 @@ In questo sprint viene realizzata una base architetturale della WebGUI, sulla qu
 Il sistema deve soddisfare il seguente requisito: deve fornire un’interfaccia grafica web che consenta agli utenti di visualizzare lo stato della hold.
 
 ## Analisi del problema
+
 ### Modellazione
 Dai requisiti emerge che la GUI deve essere:
 
@@ -44,6 +45,10 @@ La WebGUI segue un'architettura SpringBoot con chiare separazioni di responsabil
 5. REST API (`SimulateController`): Fornisce endpoint HTTP per i test ed integrazioni esterne senza richiedere una connessione CoAP in backend.
 6. User Interface (`HIControllerDemo`, `index.html`): Interfaccia grafica aggiornata in tempo reale. 
 
+## System Architecture
+
+![](../sprint3arch.png)
+
 ## Piano di Test
 La WebGUI dispone di una suite di test che copre tutti i componenti principali:
 
@@ -55,6 +60,7 @@ La WebGUI dispone di una suite di test che copre tutti i componenti principali:
 - Flusso end-to-end: Scenario multi-eventi che valida il flusso completo (parsing -> update -> broadcast).
 
 Ulteriori dettagli disponibili nel file [`WebguiApplicationTests.java`](../webgui/src/test/java/unibo/disi/webgui/WebguiApplicationTests.java).
+
 
 ## Deployment e considerazioni finali
 

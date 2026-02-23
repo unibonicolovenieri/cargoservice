@@ -10,7 +10,7 @@ Request getAllProducts : dummy( ID )
 Reply   getAllProductsAnswer: products(  String ) for getAllProducts 
 
 Request getProduct 		: product( ID )  
-Reply   getProductAnswer: product( JsonString ) for getProduct 
+Reply   getProductAnswer: product( JSonString ) for getProduct 
 
 
 //messaggi cargoservice
@@ -21,9 +21,9 @@ Reply   loadedProduct 		: slot( SLOT ) for load_product
 Event slot_changed : slot_changed(ID,status) 
 Event sonar_changed : sonar_changed(status)
 Event led_changed : led_changed(status)
-Event current_weight : current_weight(X)
-//Request get_hold_state: hold_state(JSonString)
-//Reply send_hold_state:hold_state(String) for get_hold_state
+Event current_weight : current_weight(weight)
+Request get_hold_state: hold_state(JSonString)
+Reply send_hold_state:hold_state(JSonString) for get_hold_state
 
 //messaggi tra cargoservice e cargorobot
 Request move_product 		: product(SLOT)  
@@ -198,7 +198,6 @@ QActor cargorobot context ctx_cargo{
 	
 	
 	State goto_slot{
-		updateResource[#"sonar_changed(DFREE)"#]
 		println("gotoslot") color yellow
 		delay 3000
 		onMsg(moverobotdone  :  moverobotdone(ok)){
@@ -354,8 +353,7 @@ QActor cargoservice context ctx_cargo{
 	
 	 println("[$name] sonar ha emesso un errore causa: $M")	color yellow
 	 //emit stop:stop(si) //dico al cargorobot di fermarsi
-	 //Si rompe il sonar quindi emetto un segnale led
-	 updateResource [#"led_changed(Acceso)"#] 
+	 //Si rompe il sonar quindi emetto un segnale led 
 	 emit led_changed : led_changed(Acceso)
 	 }
 	}
@@ -372,7 +370,6 @@ QActor cargoservice context ctx_cargo{
 	 println("[$name] sonar ha risolto l'errore causa: $M")	color yellow
 	 //emit resume:resume(ok) //dico al cargorobot di riprendere ciò che stava facendo
 	 //Il sonar si è fixato e quindi ora metto il led a spento
-	updateResource [#"led_changed(Spento)"#]
 	emit led_changed : led_changed(Spento)
 	 
 	 }
@@ -384,8 +381,7 @@ QActor cargoservice context ctx_cargo{
 	
 	State check_product{
 		
-		onMsg(container_trigger: container_trigger(X)){
-			updateResource [#"sonar_changed(DBUSY)"#]	
+		onMsg(container_trigger: container_trigger(X)){	
 			println("[cargoservice] check del prodotto")	
 			[#
 				val ID=payloadArg(0).toInt()
@@ -430,9 +426,6 @@ QActor cargoservice context ctx_cargo{
 			    }
 		    }
 		#]
-		emit current_weight : current_weight($CURRENT_LOAD)
-		updateResource[#"weight($CURRENT_LOAD
-		)"#]
 		}
 		Goto moveProduct if [#Reserved_slot!=0#] else slotEsauriti
 		
@@ -442,8 +435,7 @@ QActor cargoservice context ctx_cargo{
 		
 		
 		State moveProduct{
-		request cargorobot -m move_product:product($Reserved_slot)
-		updateResource [#"slot_changed($Reserved_slot,true)"#] 
+		request cargorobot -m move_product:product($Reserved_slot) 
 		println("[cargoservice] richiesta di move al cargo robot mandata") color yellow
 	}
 		
@@ -499,7 +491,7 @@ QActor producservice_test context ctx_cargo{
 			println("funzionamento")
 		}
 		
-		}
+		} 
    
 } 
 
@@ -564,102 +556,103 @@ QActor sonar_test context ctx_cargo {
 
 
 
-//QActor hold_observer context ctx_cargo{
-//	
-//	[#	
-//		var Slots=arrayListOf("false","false","false","false","true")
-//    	val ML=500
-//    	var CL=0
-//    	var Led = "Spento"
-//    	var Sonar = "DFREE"
-//    	var Robot_state = "ok"
-//    #]
-//    	
-//	State start initial{
-//		println("$name | start")
-//		delay 2000
-//	}
-//	Goto update_hold
-//	
-//	State observe_hold{
-//		println("$name | Observing hold")
-//	}
-//	
-//	
-//	Transition t0
-//	whenEvent slot_changed-> change_slot_status
-//	whenEvent led_changed -> change_led_status
-//	whenEvent sonar_changed -> change_sonar_status
-//	whenEvent current_weight -> change_weight
-//
-//	
-//	State change_slot_status{
-//		onMsg(slot_changed: slot_changed(ID,status)){
-//			[#
-//			val Slot = 	payloadArg(0).toInt()
-//			if (Slots[Slot]=="false") {
-//				    Slots[Slot]="true"		    	
-//			    }
-//			    else{
-//			    	Slots[Slot]="false"
-//			    }
-//			#]
-//			println("$name | ho ricevuto un cambio dello slot $Slot che ora vale $Slots[Slot]")
-//		}
-//	}
-//	Goto update_hold
-//	
-//	
-//	State change_led_status{
-//			[#
-//				if (Led=="Acceso") {
-//				    Led="Spento"		    	
-//			    }
-//			    else{
-//			    	Led="Acceso"
-//			    }
-//			#]
-//			println("$name | ho ricevuto un cambio dello stato del led che ora e' $Led")
-//	}
-//	Goto update_hold
-//	
-//	
-//	State change_sonar_status{
-//				onMsg(sonar_changed: sonar_changed(status)){
-//				[#
-//				Sonar = payloadArg(0)
-//				#]
-//				println("$name | ho ricevuto un cambio dello stato del sonar che ora vale $Sonar")
-//	}
-//	}
-//	Goto update_hold
-//	
-//	
-//	State change_weight{
-//		onMsg(current_weight: current_weight(X)){
-//			[#
-//			CL = 	payloadArg(0).toInt()
-//			#]
-//			println("$name | ho ricevuto un cambio del peso della stiva che ora pesa $CL")
-//		}
-//	}
-//	Goto update_hold
-//	
-//	State update_hold{
-//		[#
-//			val Slot1 = Slots[0]
-//			val Slot2 = Slots[1]
-//			val Slot3 = Slots[2]
-//			val Slot4 = Slots[3]
-//			val buchi = "1=$Slot1;2=$Slot2;3=$Slot3;4=$Slot4""
-//			
-//		#]
-//		updateResource[#"hold_state(slots,$buchi,maxload,500,weight,$CL,sonar,$Sonar,led,$Led,robot,$Robot_state)"#]
-//		}
-//	Goto observe_hold
-//}
-//
-//
+QActor hold_observer context ctx_cargo{
+	
+	[#	
+		var Taken_slot=arrayListOf("false","false","false","false","true")
+    	val MAX_LOAD=500
+    	var CURRENT_LOAD=0
+    	var Led = "Spento"
+    	var Sonar = "DFREE"
+    #]
+    	
+	State start initial{
+		println("$name | start")
+		delay 2000
+	}
+	Goto updateState
+	
+	State observe_hold{
+		println("$name | Observing hold")
+	}
+	
+	
+	Transition t0
+	whenEvent slot_changed-> change_slot_status
+	whenEvent led_changed -> change_led_status
+	whenEvent sonar_changed -> change_sonar_status
+	whenEvent current_weight -> change_weight
+	whenRequest get_hold_state -> updateState
+	
+	
+	State change_slot_status{
+		onMsg(slot_changed: slot_changed(ID,status)){
+			[#
+			val Slot = 	payloadArg(0).toInt()
+			if (Taken_slot[Slot]=="false") {
+				    Taken_slot[Slot]="true"		    	
+			    }
+			    else{
+			    	Taken_slot[Slot]="false"
+			    }
+			#]
+			println(" ho ricevuto un cambio dello slot $Slot che ora vale")
+		}
+	}
+	Goto updateState
+	
+	
+	State change_led_status{
+			[#
+			if (Led=="Acceso") {
+			    Led="Spento"		    	
+			    }
+			    else{
+			    	Led="Acceso"
+			    }
+			#]
+			println(" ho ricevuto un cambio dello stato del led che ora e' $Led")
+	}
+	Goto updateState
+	
+	
+	State change_sonar_status{
+				onMsg(sonar_changed: sonar_changed(status)){
+				[#
+				Sonar = payloadArg(0)
+				#]
+				println(" ho ricevuto un cambio dello stato del sonar che ora vale $Sonar")
+	}
+	}
+	Goto updateState
+	
+	
+	State change_weight{
+		onMsg(current_weight: current_weight(weight)){
+			[#
+			CURRENT_LOAD = 	payloadArg(0).toInt()
+			#]
+			println("ho ricevuto un cambio del peso della stiva che ora pesa $CURRENT_LOAD")
+		}
+	}
+	Goto updateState
+	
+	State updateState{
+		[#
+			val Slot1 = Taken_slot[0]
+			val Slot2 = Taken_slot[1]
+			val Slot3 = "true"
+			val Slot4 = Taken_slot[3]	
+			val Robot_state = "ok"
+		#
+		]
+		updateResource[#"hold_state(slots:1=$Slot1;2=$Slot2;3=$Slot3;4=$Slot4,maxload:1000,weight:$CURRENT_LOAD,sonar:DFREE,led:$Led,robot:$Robot_state)"#]
+		//replyTo get_hold_state with send_hold_state: hold_state("Taken slot:$Taken_slot; Led:$Led; Sonar:$Sonar; CURRENT_LOAD:$CURRENT_LOAD")
+	}
+	Goto observe_hold
+}
+
+
 
 
 

@@ -33,8 +33,8 @@ class Hold_observer ( name: String, scope: CoroutineScope, isconfined: Boolean=f
 				var Taken_slot=arrayListOf("false","false","false","false","true")
 		    	val MAX_LOAD=500
 		    	var CURRENT_LOAD=0
-		    	var Led = false
-		    	var Sonar = false
+		    	var Led = "Spento"
+		    	var Sonar = "DFREE"
 		return { //this:ActionBasciFsm
 				state("start") { //this:State
 					action { //it:State
@@ -45,7 +45,7 @@ class Hold_observer ( name: String, scope: CoroutineScope, isconfined: Boolean=f
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="observe_hold", cond=doswitch() )
+					 transition( edgeName="goto",targetState="updateState", cond=doswitch() )
 				}	 
 				state("observe_hold") { //this:State
 					action { //it:State
@@ -73,26 +73,31 @@ class Hold_observer ( name: String, scope: CoroutineScope, isconfined: Boolean=f
 											    else{
 											    	Taken_slot[Slot]="false"
 											    }
-								CommUtils.outblack("$name | ho ricevuto un cambio dello slot $Slot che ora vale $Taken_slot[Slot]")
+								CommUtils.outblack(" ho ricevuto un cambio dello slot $Slot che ora vale")
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="observe_hold", cond=doswitch() )
+					 transition( edgeName="goto",targetState="updateState", cond=doswitch() )
 				}	 
 				state("change_led_status") { //this:State
 					action { //it:State
 						
-										Led = !Led
-						CommUtils.outblack("$name | ho ricevuto un cambio dello stato del led che ora vale $Led")
+									if (Led=="Acceso") {
+									    Led="Spento"		    	
+									    }
+									    else{
+									    	Led="Acceso"
+									    }
+						CommUtils.outblack(" ho ricevuto un cambio dello stato del led che ora e' $Led")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="observe_hold", cond=doswitch() )
+					 transition( edgeName="goto",targetState="updateState", cond=doswitch() )
 				}	 
 				state("change_sonar_status") { //this:State
 					action { //it:State
@@ -100,14 +105,14 @@ class Hold_observer ( name: String, scope: CoroutineScope, isconfined: Boolean=f
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								
 												Sonar = payloadArg(0)
-								CommUtils.outblack("$name | ho ricevuto un cambio dello stato del sonar che ora vale $Sonar")
+								CommUtils.outblack(" ho ricevuto un cambio dello stato del sonar che ora vale $Sonar")
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="observe_hold", cond=doswitch() )
+					 transition( edgeName="goto",targetState="updateState", cond=doswitch() )
 				}	 
 				state("change_weight") { //this:State
 					action { //it:State
@@ -115,23 +120,31 @@ class Hold_observer ( name: String, scope: CoroutineScope, isconfined: Boolean=f
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								
 											CURRENT_LOAD = 	payloadArg(0).toInt()
-								CommUtils.outblack("$name | ho ricevuto un cambio del peso della stiva che ora pesa $CURRENT_LOAD")
+								CommUtils.outblack("ho ricevuto un cambio del peso della stiva che ora pesa $CURRENT_LOAD")
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="observe_hold", cond=doswitch() )
+					 transition( edgeName="goto",targetState="updateState", cond=doswitch() )
 				}	 
 				state("updateState") { //this:State
 					action { //it:State
-						answer("get_hold_state", "send_hold_state", "hold_state("Taken slot:$Taken_slot; Led:$Led; Sonar:$Sonar; CURRENT_LOAD:$CURRENT_LOAD")"   )  
+						
+									val Slot1 = Taken_slot[0]
+									val Slot2 = Taken_slot[1]
+									val Slot3 = "true"
+									val Slot4 = Taken_slot[3]	
+									val Robot_state = "ok"
+						updateResourceRep("hold_state(slots:1=$Slot1;2=$Slot2;3=$Slot3;4=$Slot4,maxload:1000,weight:$CURRENT_LOAD,sonar:DFREE,led:$Led,robot:$Robot_state)" 
+						)
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 transition( edgeName="goto",targetState="observe_hold", cond=doswitch() )
 				}	 
 			}
 		}

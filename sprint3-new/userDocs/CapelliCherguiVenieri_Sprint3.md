@@ -1,9 +1,4 @@
 # Sprint3
-- [Introduzione](#Introduzione)
-- [Analisi del problema](#Analisi-del-problema)
-- [Architettura Logica](#Architettura-Logica)
-- [Progettazione](#Progettazione)
-
 
 ## Introduzione
 Negli sprint precedenti è stato progettato e implementato il core business del sistema, basato su attori QAK cooperanti per la gestione del caricamento dei prodotti nella hold.
@@ -39,8 +34,15 @@ L'attore cargoservice, in esecuzione nel contesto ctx_cargo, contesto del corebu
 
 Si suggerisce di adottare l'ultima soluzione, in quanto coerente con le tecnologie già adottate nel sistema e con i paradigmi di comunicazione utilizzati, inoltre in fase di progettazione dell'attore qak cargoservice è già stato previsto l'aggiornamento di una risorsa CoAP, che contiene la descrizione dello stato della hold in formato JSON. 
 
-## Architettura Logica
-[immagine da mettere qua]
+## System Build
+La WebGUI segue un'architettura SpringBoot con chiare separazioni di responsabilità tra i seguenti layer:
+
+1. Modello dati (`HoldState`): Rappresentazione immutabile dello stato della stiva, stato del sensore, led e metriche sui pesi.
+2. Servizio (`HoldStateService`): Coordinatore centrale che mantiene lo stato e orchestra il broadcast ai client connessi.
+3. Origine eventi (`CoapObserverService`): Osserva le risorse CoAP dal backend qak usando Eclipse Californium. Estrae eventi strutturati eseguendo del parsing sui payload. Grazie al metodo `parseAndDispatch()` la GUI e le specifiche CoAP sono disaccoppiate, consentendo facilmente simulazioni e testing.
+4. Comunicazione (`WebSockerHandlerDemo`, `WebSocketConfig`): Gestione connessioni websocket e propagazione in tempo reale dello stato. Mantiene una lista delle sessioni attive e manda in broadcast lo stato serializzato in JSON a tutti i client connessi (quando lo stato cambia).
+5. REST API (`SimulateController`): Fornisce endpoint HTTP per i test ed integrazioni esterne senza richiedere una connessione CoAP in backend.
+6. User Interface (`HIControllerDemo`, `index.html`): Interfaccia grafica aggiornata in tempo reale. 
 
 ## Piano di Test
 La WebGUI dispone di una suite di test che copre tutti i componenti principali:
@@ -52,18 +54,8 @@ La WebGUI dispone di una suite di test che copre tutti i componenti principali:
 - WebSocket Handler: Gestione connessioni e instradamento dei messaggi.
 - Flusso end-to-end: Scenario multi-eventi che valida il flusso completo (parsing -> update -> broadcast).
 
-Ulteriori dettagli disponibili nel file [`WebguiApplicationTests.java`]('./webgui/src/test/WebguiApplicationTest.java').
+Ulteriori dettagli disponibili nel file [`WebguiApplicationTests.java`](../webgui/src/test/java/unibo/disi/webgui/WebguiApplicationTests.java).
 
-## Progettazione
-La WebGUI segue un'architettura SpringBoot con chiare separazioni di responsabilità tra i seguenti layer:
+## Deployment e considerazioni finali
 
-1. Modello dati (`HoldState`): Rappresentazione immutabile dello stato della stiva, stato del sensore, led e metriche sui pesi.
-2. Servizio (`HoldStateService`): Coordinatore centrale che mantiene lo stato e orchestra il broadcast ai client connessi.
-3. Origine eventi (`CoapObserverService`): Osserva le risorse CoAP dal backend qak usando Eclipse Californium. Estrae eventi strutturati eseguendo del parsing sui payload. Grazie al metodo `parseAndDispatch()` la GUI e le specifiche CoAP sono disaccoppiate, consentendo facilmente simulazioni e testing.
-4. Comunicazione (`WebSockerHandlerDemo`, `WebSocketConfig`): Gestione connessioni websocket e propagazione in tempo reale dello stato. Mantiene una lista delle sessioni attive e manda in broadcast lo stato serializzato in JSON a tutti i client connessi (quando lo stato cambia).
-5. REST API (`SimulateController`): Fornisce endpoint HTTP per i test ed integrazioni esterne senza richiedere una connessione CoAP in backend.
-6. User Interface (`HIControllerDemo`, `index.html`): Interfaccia grafica aggiornata in tempo reale. 
-
-
-
-
+Dopo aver avviato il sistema, è possibile visualizzare l'interfaccia grafica nel proprio browser scrivendo `localhost:6767`.

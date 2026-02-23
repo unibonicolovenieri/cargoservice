@@ -96,23 +96,4 @@ public class HoldStateService {
     }
 
     public HoldState getHoldState() { return holdState; }
-
-    /**
-     * Aggiornamento iniziale completo da hold_observer.
-     * Imposta tutto lo stato in una sola volta con un unico broadcast.
-     */
-    public void onInitialState(java.util.Map<Integer, Boolean> slots, int maxLoad,
-                               int weight, String sonar, String led, String robot) {
-        log.info("[STATE] Stato iniziale ricevuto da hold_observer");
-        slots.forEach((id, occupied) -> holdState.updateSlot(id, occupied));
-        holdState.setMaxLoad(maxLoad);
-        holdState.setCurrentWeight(weight);
-        holdState.setSonarStatus(sonar);
-        holdState.setLedOn("Acceso".equalsIgnoreCase(led));
-        holdState.setAlarmActive("alarm".equalsIgnoreCase(robot));
-        broadcast();
-        log.info("[STATE] Stato iniziale applicato: slots=" + slots
-                + " maxLoad=" + maxLoad + " weight=" + weight
-                + " sonar=" + sonar + " led=" + led + " robot=" + robot);
-    }
 }

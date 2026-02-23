@@ -21,12 +21,16 @@ public class HoldState {
     private int currentWeight = 0;
 
     // Pattern per il parsing dello snapshot hold_state(...)
-    private static final Pattern SNAP_SLOT    = Pattern.compile("slot_(\\d+)=(true|false)");
-    private static final Pattern SNAP_SONAR   = Pattern.compile("sonar=(\\w+)");
-    private static final Pattern SNAP_LED     = Pattern.compile("led=(\\w+)");
-    private static final Pattern SNAP_ALARM   = Pattern.compile("alarm=(true|false)");
-    private static final Pattern SNAP_MAXLOAD = Pattern.compile("maxload=(\\d+)");
-    private static final Pattern SNAP_WEIGHT  = Pattern.compile("weight=(\\d+)");
+    // Formato reale:
+    //   hold_state(slots:1=false;2=false;3=true;4=false,maxload:1000,weight:0,sonar:DFREE,led:Spento,robot:ok)
+    private static final Pattern SNAP_SLOTS_BLOCK = Pattern.compile("slots:([\\d=a-zA-Z;]+)");
+    private static final Pattern SNAP_SLOT_ENTRY  = Pattern.compile("(\\d+)=(true|false)");
+    private static final Pattern SNAP_MAXLOAD     = Pattern.compile("maxload:(\\d+)");
+    private static final Pattern SNAP_WEIGHT      = Pattern.compile("weight:(\\d+)");
+    private static final Pattern SNAP_SONAR       = Pattern.compile("sonar:(\\w+)");
+    private static final Pattern SNAP_LED         = Pattern.compile("led:(\\w+)");
+    private static final Pattern SNAP_ROBOT       = Pattern.compile("robot:(\\w+)");
+    private static final Pattern SNAP_ALARM       = Pattern.compile("alarm:(\\w+)");
 
     public int getMaxLoad() { return maxLoad; }
     public void setMaxLoad(int maxLoad) { 
@@ -65,19 +69,30 @@ public class HoldState {
 
     /**
      * Applica uno snapshot completo della stiva ricevuto tramite hold_state(TESTO).
-     * Il testo è nella forma:
-     *   slot_1=true,slot_2=false,slot_3=false,slot_4=true,sonar=DFREE,led=Acceso,alarm=false,maxload=500,weight=120
+     * Formato atteso:
+     *   slots:1=false;2=false;3=true;4=false,maxload:1000,weight:0,sonar:DFREE,led:Spento,robot:ok
      * Ogni campo è opzionale: se assente viene lasciato al valore corrente.
      */
     public void applySnapshot(String snapshotText) {
         Matcher m;
 
-        m = SNAP_SLOT.matcher(snapshotText);
-        while (m.find()) {
-            int id  = Integer.parseInt(m.group(1));
-            boolean occ = Boolean.parseBoolean(m.group(2));
-            slots.put(id, occ);
+        // slots:1=false;2=true;3=false;4=false
+        m = SNAP_SLOTS_BLOCK.matcher(snapshotText);
+        if (m.find()) {
+            String block = m.group(1);          // es. "1=false;2=false;3=true;4=false"
+            Matcher entry = SNAP_SLOT_ENTRY.matcher(block);
+            while (entry.find()) {
+                int id   = Integer.parseInt(entry.group(1));
+                boolean occ = Boolean.parseBoolean(entry.group(2));
+                slots.put(id, occ);
+            }
         }
+
+        m = SNAP_MAXLOAD.matcher(snapshotText);
+        if (m.find()) maxLoad = Integer.parseInt(m.group(1));
+
+        m = SNAP_WEIGHT.matcher(snapshotText);
+        if (m.find()) currentWeight = Integer.parseInt(m.group(1));
 
         m = SNAP_SONAR.matcher(snapshotText);
         if (m.find()) sonarStatus = m.group(1);
@@ -86,13 +101,15 @@ public class HoldState {
         if (m.find()) ledOn = "acceso".equalsIgnoreCase(m.group(1)) || "true".equalsIgnoreCase(m.group(1));
 
         m = SNAP_ALARM.matcher(snapshotText);
-        if (m.find()) alarmActive = Boolean.parseBoolean(m.group(1));
+        if (m.find()) alarmActive = "true".equalsIgnoreCase(m.group(1)) || "active".equalsIgnoreCase(m.group(1));
 
-        m = SNAP_MAXLOAD.matcher(snapshotText);
-        if (m.find()) maxLoad = Integer.parseInt(m.group(1));
-
-        m = SNAP_WEIGHT.matcher(snapshotText);
-        if (m.find()) currentWeight = Integer.parseInt(m.group(1));
+        // robot:ok — campo informativo, loggato ma non ancora modellato in HoldState
+        m = SNAP_ROBOT.matcher(snapshotText);
+        if (m.find()) {
+            String robotStatus = m.group(1);
+            java.util.logging.Logger.getLogger(HoldState.class.getName())
+                .info("[HoldState] robot status da snapshot: " + robotStatus);
+        }
 
         lastUpdate = LocalDateTime.now().toString();
     }

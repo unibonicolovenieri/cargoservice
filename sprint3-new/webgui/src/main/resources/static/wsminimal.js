@@ -30,13 +30,11 @@ function connect() {
 
     ws.onmessage = function (event) {
         var data = event.data;
-        // Prova a parsare come JSON (aggiornamento stato stiva)
         try {
             var state = JSON.parse(data);
             updateHoldUI(state);
         } catch (e) {
-            // Messaggio testuale semplice (echo, log)
-            appendToOutput(data);
+            console.log("[wsminimal] Messaggio non JSON: " + data);
         }
     };
 
@@ -77,13 +75,6 @@ function updateConnectionStatus(connected) {
     label.textContent = connected ? "CONNESSO" : "DISCONNESSO";
 }
 
-function appendToOutput(text) {
-    var area = document.getElementById("messageArea");
-    if (!area) return;
-    area.value += text + "\n";
-    area.scrollTop = area.scrollHeight;
-}
-
 function updateHoldUI(state) {
     if (!state || !state.slots) return;
 
@@ -103,8 +94,7 @@ function updateHoldUI(state) {
 	var maxloadEl = document.getElementById("stat-maxload");
 	var weightBar = document.getElementById("weight-bar");
 
-	if (maxLoad === -1 || maxLoad === undefined) {
-	    // MaxLoad non ancora comunicato
+	if (maxLoad === undefined || maxLoad === null) {
 	    if (weightEl)  weightEl.textContent = (currentWeight > 0 ? currentWeight : "—") + " / —";
 	    if (maxloadEl) maxloadEl.textContent = "NON COMUNICATO";
 	    if (weightBar) weightBar.style.width = "0%";
@@ -179,4 +169,12 @@ function addLog(msg) {
 document.addEventListener("DOMContentLoaded", function () {
     var btn = document.getElementById("sendMessage");
     if (btn) btn.addEventListener("click", sendMessage);
+
+    // Inizializza UI peso con valori di default (maxLoad = 500, currentWeight = 0)
+    var weightEl  = document.getElementById("stat-weight");
+    var maxloadEl = document.getElementById("stat-maxload");
+    var weightBar = document.getElementById("weight-bar");
+    if (weightEl)  weightEl.textContent  = "0 / 500 kg";
+    if (maxloadEl) maxloadEl.textContent = "500 kg (default)";
+    if (weightBar) weightBar.style.width = "0%";
 });

@@ -67,7 +67,7 @@ public class CoapObserverService {
     public void startObserving() {
         log.info("[CoAP] Avvio observe su " + coapHost + ":" + coapPort);
         // Risorsa hold_observer: invia sporadicamente lo snapshot completo
-        observeResource("ctx_cargoservice/hold_observer");
+        observeResource("ctx_cargo/hold_observer");
         // Risorse incrementali già esistenti
         observeResource("ctx_cargo/cargoservice");
         observeResource("ctx_cargo/cargorobot");

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CapelliVenieriChergui_Sprint2.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="sprint-2">Sprint 2</h1>
+<h2 id="introduzione">Introduzione</h2>
+<p>In questo Sprint l'obbiettivo prefissato è quello di analizzare e comprendere le caratteristiche del componente Sensor. Si procederà poi con lo sviluppoo di un'implementazione funzionante che si andrà ad integrare con il restate core-buisness del sistema.</p>
+<h2 id="requisiti">Requisiti</h2>
+<p>Vanno completati i seguenti requisiti:</p>
+<ul>
+<li>Implementazione di un sistema che attraverso un sensore, posizionato di fronte all'IO-PORT in grado di rilevare la presenza di un oggetto, sia in grado di comunicare al sistema che è presente un container. La rilevazione avviene quando il sonar misura una distanza <strong>D tale che D &lt; DFREE/2</strong> per un tempo continuativo di almeno 3 secondi.</li>
+<li>Quando il sonar misura una distanza <strong>D &gt;= DFREE/2</strong> per un tempo continuativo di almeno 3 secondi, il sistema deve interrompere le proprie attività e inoltre si deve scatenare l'accensione di un LED rosso (per comunicare un malfunzionamento del sonar).</li>
+<li>Nel momento in cui la distanza misurata torna ad essere <strong>D &lt;= DFREE</strong> il sistema deve riprendere le proprie attività e il LED rosso deve spegnersi.</li>
+</ul>
+<h2 id="analisi-del-problema">Analisi del Problema</h2>
+<p>Analizzando i requisiti del problema, siamo in grado di identificare inanzitutto due componenti Hardware <strong>Sonar</strong> fisico e un <strong>LED</strong>. I quali saranno implementati su un sistema RaspberryPI.</p>
+<h3 id="modellazione-del-sensore">Modellazione del Sensore</h3>
+<p>Il problema iniziale che ci sorge è quello di poter permettere ai Componenti Hardware (E dei relativi componenti software) di poter comunicare ed interagire con il core-buisness del sistema. Per fare ciò, le soluzioni possibili sono due:</p>
+<ul>
+<li>Implementare sensor come <strong>componente</strong> che gestisca sonar e led modellati come classi <strong>POJO</strong></li>
+<li>Implementare un <strong>contesto (sonar)</strong> che contiene al suo interno due <strong>attori</strong> <strong>Sonar</strong>  e <strong>LED</strong>.</li>
+</ul>
+<p>La prima opzione può essere presa in considerazione per la comodità di avere un unico componente di gestione, risultà però essere meno flessibile in quanto non permette ai componenti di comunicare direttamente con il corebuisness e inoltre non rispetta il Single Responsability Principle. La seconda opzione invece permette la comunicazione con il corebuisness da parte dei singoli attori e inoltre mantiene valido il principio preceentemente citato.</p>
+<h3 id="sonar">Sonar</h3>
+<p>Il sonar si deve interfacciare con il core-buisness sarà quindi necessario comunicare ogni evento scatenato <strong>utile</strong> alla modifica dello stato del sistema ( E quindi non comunicare ogni singola misurazione effettuata). Si evidenzia in questa fase la necessità di prendere una decisione archietturale in seguito ad una problematica che evidenziamo. Vogliamo comunicare al cargoservice solo informazioni utili alla modifica dello stato del robot. Pertanto, tutte le misurazioni non saranno necessarie al robot, cosi come non sarà necessario che lo stesso attore oltre al compito di comunicare al cargoservice (scatenando eventi) abbia anche il compito di leggere le misurazioni costantemente. Indi per cui la decisione è stata quella di separare queste due logiche. Permettendoci di rispettare il SingleResponsabilityPrinciple. Dunque avremo sonar_edge che sarà l'attore che avrà come compito quello di leggere tutte le misurazioni effettuate e di decidere quali saranno comunicate al secondo attore che chiameremo sonar_handler.</p>
+<p>Le comunicazioni che il sonar_handler avrà con il resto del sistema sono le seguenti:</p>
+<pre class="hljs"><code><div>Event container_trigger : container_trigger(X)    
+Event sonar_error:sonar_error(CAUSA) 
+Event problem_solved:problem_solved(CAUSA)
+</div></code></pre>
+<ul>
+<li>L'evento <strong>container_trigger</strong> si scatena se D &lt; DFREE/2 per 3 secondi</li>
+<li>L'evento <strong>sonar_error</strong> si scatena se D &gt; DFREE per 3 secondi</li>
+<li>L'evento <strong>problem_solved</strong> si scatena se D &lt; DFREE in seguito ad un evento che ha evidenziato un problema con il sonar</li>
+</ul>
+<h4 id="componente-fisico">Componente Fisico</h4>
+<p>Per l'interazione tra il componente software e il componente hardware sfrutteremo il codice python fornito dal committente che eseguirà sul RaspberryPI.</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># Sonar Controller</span>
+<span class="hljs-comment"># File: sonar.py</span>
+<span class="hljs-keyword">import</span> RPi.GPIO <span class="hljs-keyword">as</span> GPIO
+<span class="hljs-keyword">import</span> time
+<span class="hljs-keyword">import</span> sys
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(<span class="hljs-literal">False</span>)
+TRIG = <span class="hljs-number">17</span>
+ECHO = <span class="hljs-number">27</span>
+
+GPIO.setup(TRIG, GPIO.OUT)
+GPIO.setup(ECHO, GPIO.IN)
+GPIO.output(TRIG, <span class="hljs-literal">False</span>)   <span class="hljs-comment"># TRIG parte LOW</span>
+
+<span class="hljs-keyword">print</span> (<span class="hljs-string">'Waiting a few seconds for the sensor to settle'</span>)
+time.sleep(<span class="hljs-number">2</span>)
+
+<span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+  GPIO.output(TRIG, <span class="hljs-literal">True</span>)    <span class="hljs-comment">#invia impulso TRIG</span>
+  time.sleep(<span class="hljs-number">0.00001</span>)
+  GPIO.output(TRIG, <span class="hljs-literal">False</span>)
+
+  pulse_start = time.time()
+  <span class="hljs-comment">#attendi che ECHO parta e memorizza tempo</span>
+  <span class="hljs-keyword">while</span> GPIO.input(ECHO)==<span class="hljs-number">0</span>:
+      pulse_start = time.time()
+  <span class="hljs-comment"># register the last timestamp at which the receiver detects the signal.</span>
+  <span class="hljs-keyword">while</span> GPIO.input(ECHO)==<span class="hljs-number">1</span>:
+      pulse_end = time.time()
+  pulse_duration = pulse_end - pulse_start
+
+  <span class="hljs-comment"># velocità del suono ~= 340m/s </span>
+  <span class="hljs-comment"># distanza = v*t </span>
+  <span class="hljs-comment"># il tempo ottenuto misura un roundtrip -&gt; distanza = v*t/2</span>
+  distance = pulse_duration * <span class="hljs-number">17165</span>
+  distance = round(distance, <span class="hljs-number">1</span>)
+  <span class="hljs-keyword">print</span> (<span class="hljs-string">'Distance:'</span>, distance,<span class="hljs-string">'cm'</span>)
+  sys.stdout.flush()
+  time.sleep(<span class="hljs-number">1</span>)
+</div></code></pre>
+<h3 id="led">LED</h3>
+<p>Il led è un componente hardware che permette di segnalare visivamente lo stato del sistema. Abbiamo la necessità di rilevare lo stato del sonar per poi poter comandare lo stato del led (acceso/spento). Il led dunque, dovrà intercettare gli eventi inviati dal sonar a cargoservice (relativi al led) e accendersi o spegnersi in base a quest'ultimi. Vogliamo modellare il led come un componente autonomo non dipendente da altre componenti.</p>
+<h4 id="componente-fisico">Componente Fisico</h4>
+<p>Anche per il led sfrutteremo il codice python fornito dal committente per interagire con il RaspberryPI.</p>
+<pre class="hljs"><code><div><span class="hljs-comment">#ACCENSIONE LED</span>
+<span class="hljs-comment">#file ledPython25On.py</span>
+<span class="hljs-keyword">import</span> RPi.GPIO <span class="hljs-keyword">as</span> GPIO 
+<span class="hljs-keyword">import</span> time
+
+<span class="hljs-string">'''
+----------------------------------
+CONFIGURATION
+
+'''</span>
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(<span class="hljs-number">25</span>,GPIO.OUT)
+
+<span class="hljs-string">'''
+----------------------------------
+main activity
+----------------------------------
+'''</span>
+GPIO.output(<span class="hljs-number">25</span>,GPIO.HIGH)
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment">#SPEGNIMENTO LED</span>
+<span class="hljs-comment">#file ledPython25Off.py</span>
+<span class="hljs-comment"># -------------------------------------------------------------</span>
+<span class="hljs-comment">#</span>
+<span class="hljs-comment"># -------------------------------------------------------------</span>
+<span class="hljs-keyword">import</span> RPi.GPIO <span class="hljs-keyword">as</span> GPIO 
+<span class="hljs-keyword">import</span> time
+
+<span class="hljs-string">'''
+----------------------------------
+CONFIGURATION
+----------------------------------
+'''</span>
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(<span class="hljs-number">25</span>,GPIO.OUT)
+
+<span class="hljs-string">'''
+----------------------------------
+main activity
+----------------------------------
+'''</span>
+
+GPIO.output(<span class="hljs-number">25</span>,GPIO.LOW)
+</div></code></pre>
+<h2 id="system-build">System Build</h2>
+<p>Come detto in precedenza il nostro obbiettivo è quello di seguire il single responsability principle ed è per questo motivo che abbiamo deciso di suddividere gli attori in base al loro compito.</p>
+<h3 id="sonar">Sonar</h3>
+<p>Il componente software che andremo a sviluppare avrà come obbiettivi quello di interfacciarsi con il raspberry per reperire le distanze misurate e quello di comunicare tali distanze al cargoservice. Tuttavia come detto in precedenza non abbiamo intenzione di comunicare tutte le misurazioni effettuate, solamente quelle necessarie. Per questo motivo sorge la necessità inanzitutto di un filtro e successivamente anche quella di gestire la comunicazione con cargoservice.
+Per gestire questi due obbiettivi e seperare le responsabilità abbiamo deciso di suddividere in due attori i compiti di &quot;sonar&quot;.</p>
+<h4 id="sonar---actor">Sonar -  Actor</h4>
+<p>Sonar sarà l'attore che avrà come obbiettivo quello di effettuare misurazioni, quindi eseguirà lo script python indicato in precedenza per effettuare misurazioni, dovrà poi comunicare le misure effettuate all'attore <strong>measure_handler</strong>.
+Abbiamo modellato l'attore sonar in questo modo:</p>
+<pre class="hljs"><code><div>QActor sonar context ctx_iodevices{ 
+		[<span class="hljs-comment"># </span>
+		lateinit <span class="hljs-keyword">var</span> reader : java.io.BufferedReader
+	    lateinit <span class="hljs-keyword">var</span> p : Process	
+	    <span class="hljs-keyword">var</span> Distance = <span class="hljs-number">0</span>
+		<span class="hljs-comment">#]</span>
+	
+	State start initial{
+		println(<span class="hljs-string">"$name | start"</span>) 
+		
+	 	[<span class="hljs-comment">#</span>
+			p       = Runtime.getRuntime().exec(<span class="hljs-string">"python3 /sprint2-1.0/bin/sonar.py"</span>)
+			reader  = java.io.BufferedReader(java.io.InputStreamReader(p.getInputStream()))	
+		<span class="hljs-comment">#]	</span>
+		delay <span class="hljs-number">2000</span>
+	}
+<span class="hljs-keyword">Goto</span> measurement
+	
+	State measurement{
+		<span class="hljs-comment">//println("nuova misurazione")</span>
+		[<span class="hljs-comment"># </span>
+			<span class="hljs-keyword">var</span> data = reader.readLine()
+			<span class="hljs-keyword">if</span>( data != <span class="hljs-keyword">null</span> ){
+				<span class="hljs-keyword">try</span>{ 
+					val vd = data.toFloat()
+					val v  = vd.toInt()
+					
+					<span class="hljs-comment">// per evitare che misure a caso vengano considerate</span>
+					<span class="hljs-keyword">if</span>(v &lt;= <span class="hljs-number">100</span>) 
+						Distance = v				
+					<span class="hljs-keyword">else</span> 
+						Distance = <span class="hljs-number">0</span>
+				}<span class="hljs-keyword">catch</span>(e: <span class="hljs-keyword">Exception</span>){
+					CommUtils.outred(<span class="hljs-string">"$name readSonarDataERROR: $e"</span>)
+				}
+			}
+			
+		<span class="hljs-comment">#]	</span>
+		<span class="hljs-comment">//println("$data")</span>
+		<span class="hljs-keyword">if</span> [<span class="hljs-comment"># Distance &gt; 0 #] { </span>
+		    emitlocalstream sonardata: distance($Distance)	 
+		}
+		delay <span class="hljs-number">300</span>
+	}
+	<span class="hljs-keyword">Goto</span> measurement
+}
+</div></code></pre>
+<h4 id="measurehandler---actor">Measure_handler -  Actor</h4>
+<p>Measure_handler è l'attore che si occupa di gestire la comunicazione con cargoservice e l'analisi delle misurazione effettuate da sonar. Le misurazioni vengono lette dall'evento emit che viene generato dentro sonar. measure_handler si occuperà di effettuare poi di scatenare gli eventi che verranno catturato da Cargoservice. Gli eventi che scatena li abbiamo visti all'inzio dello sprint.</p>
+<pre class="hljs"><code><div>QActor measure_handler context ctx_iodevices {
+
+	[<span class="hljs-comment"># </span>
+		val DFREE = <span class="hljs-number">20</span> 
+		
+		<span class="hljs-comment">//stati</span>
+        val START = <span class="hljs-number">0</span>
+        val CONTAINER_PRESENTE = <span class="hljs-number">1</span>
+        val CONTAINER_ASSENTE = <span class="hljs-number">2</span>
+        val GUASTO = <span class="hljs-number">3</span>
+        
+		<span class="hljs-keyword">var</span> Stato = START
+		<span class="hljs-keyword">var</span> Stato_precedente = START
+		<span class="hljs-keyword">var</span> CounterMisurazioni = <span class="hljs-number">0</span>
+		
+		<span class="hljs-keyword">var</span> Guasto = <span class="hljs-keyword">false</span>
+	<span class="hljs-comment">#]	</span>
+	
+	State s0 initial{
+		println(<span class="hljs-string">"$name | start"</span>) 
+	 	subscribeTo sonar <span class="hljs-keyword">for</span> sonardata
+	}
+	<span class="hljs-keyword">Goto</span> waiting_for_measurement
+
+	
+	State waiting_for_measurement {
+		<span class="hljs-comment">//println("$name | attendo") </span>
+	}
+	Transition t0
+		whenEvent sonardata -&gt; handle_measurement
+		
+		
+	State handle_measurement {
+		onMsg(sonardata: distance(X)) {
+			[<span class="hljs-comment"># </span>
+				val M = payloadArg(<span class="hljs-number">0</span>).toInt()	
+				CounterMisurazioni++
+			<span class="hljs-comment">#]</span>
+
+			
+			<span class="hljs-keyword">if</span> [<span class="hljs-comment">#  M &lt; DFREE/2 #] { </span>
+				[<span class="hljs-comment"># </span>
+                    Stato = CONTAINER_PRESENTE
+                <span class="hljs-comment">#]				</span>
+			<span class="hljs-keyword">if</span> [<span class="hljs-comment"># Guasto #] {</span>
+					println(<span class="hljs-string">"$name | sonar ripristinato"</span>) color green
+					[<span class="hljs-comment"># Guasto = false #]</span>
+					emit problem_solved:problem_solved(CAUSA)
+				}
+				}
+
+			
+			<span class="hljs-keyword">if</span> [<span class="hljs-comment"># M &gt;= DFREE/2 &amp;&amp; M &lt;= DFREE #] { </span>
+				[<span class="hljs-comment"># </span>
+                    Stato = CONTAINER_ASSENTE
+                <span class="hljs-comment">#]</span>
+
+				<span class="hljs-keyword">if</span> [<span class="hljs-comment"># Guasto #] {</span>
+					println(<span class="hljs-string">"$name | sonar ripristinato"</span>) color green
+					[<span class="hljs-comment"># Guasto = false #]</span>
+					emitlocalstream led_off:led_off(yes)
+					emit problem_solved:problem_solved(CAUSA)
+				}
+			}
+			
+			<span class="hljs-keyword">if</span> [<span class="hljs-comment"># M &gt; DFREE #] { </span>
+				[<span class="hljs-comment"># </span>
+					Stato = GUASTO
+				<span class="hljs-comment">#]</span>
+				emitlocalstream led_on:led_on(yes)
+			} 
+			
+			[<span class="hljs-comment">#</span>
+				<span class="hljs-keyword">if</span>(Stato == Stato_precedente &amp;&amp;
+                   Stato_precedente!=START)
+                {
+					when(Stato) {
+					    CONTAINER_PRESENTE -&gt; {
+					        <span class="hljs-keyword">if</span>(CounterMisurazioni == <span class="hljs-number">3</span>) {
+					        	CommUtils.outmagenta(<span class="hljs-string">"Ho letto 3 volte una misura congruente quindi procedo a segnalare la presenza di un container"</span>)
+        						<span class="hljs-comment">#]</span>
+								emit container_trigger : container_trigger(<span class="hljs-number">1</span>) 
+								[<span class="hljs-comment">#</span>
+					    		<span class="hljs-comment">//CounterMisurazioni = 0 non voglio che arrivi più volte l'evento</span>
+					    			}
+					    		}
+					    CONTAINER_ASSENTE -&gt; {
+					    	<span class="hljs-keyword">if</span>(CounterMisurazioni == <span class="hljs-number">3</span>) {
+					        	CommUtils.outmagenta(<span class="hljs-string">"Ho letto 3 volte una misura congruente quindi non c'è più il container'"</span>)
+					    		<span class="hljs-comment">//CounterMisurazioni = 0</span>
+					    							}
+					    					}
+					    GUASTO -&gt; {
+					    	<span class="hljs-keyword">if</span>(CounterMisurazioni == <span class="hljs-number">3</span>) {
+								CommUtils.outred(<span class="hljs-string">"Guasto"</span>)	
+								Guasto = <span class="hljs-keyword">true</span>
+								<span class="hljs-comment">#]</span>
+								emit sonar_error:sonar_error(CAUSA)
+								[<span class="hljs-comment">#</span>
+								<span class="hljs-comment">//CounterMisurazioni = 0			    		</span>
+					    								}
+					    		}
+					    <span class="hljs-keyword">else</span> -&gt; {
+					    	println(<span class="hljs-string">"Non posso entrare in questo stato, preoccupati"</span>)
+					    }
+					}
+				} 
+				<span class="hljs-keyword">else</span> {
+					Stato_precedente = Stato
+					CounterMisurazioni = <span class="hljs-number">1</span>
+				}
+				
+			<span class="hljs-comment">#]</span>
+		}
+	}
+	<span class="hljs-keyword">Goto</span> waiting_for_measurement
+}
+</div></code></pre>
+<h3 id="led">Led</h3>
+<p>Led invece è l'attore che si ocupa di eseguire i componenti python che permettono l'accensione e lo spegnimento del led sul rasp. L'accensione e lo spegnimento è coordinata rispeto a certi eventi che emettiano all'interno di sonar. Dentro sonar emettiamo <code>Event sonar_error:sonar_error(CAUSA)</code> e <code>Event problem_solved:problem_solved(CAUSA)</code>. Questi due eventi permettono a questo attore di capire quando poter comandare l'accensione e lo spegnimento:</p>
+<pre class="hljs"><code><div>QActor led context ctx_iodevices{
+	
+	[<span class="hljs-comment"># lateinit var p : Process #]</span>
+	
+	State s0 initial{
+		println(<span class="hljs-string">"$name : starting"</span>) color cyan
+		[<span class="hljs-comment">#</span>
+ 			p       = Runtime.getRuntime().exec(<span class="hljs-string">"python3 /sprint2-1.0/bin/ledPython25On.py"</span>)	
+ 		<span class="hljs-comment">#]</span>
+		delay <span class="hljs-number">1000</span>
+		[<span class="hljs-comment">#</span>
+ 			p       = Runtime.getRuntime().exec(<span class="hljs-string">"python3 /sprint2-1.0/bin/ledPython25Off.py"</span>)	
+ 		<span class="hljs-comment">#</span>
+		]
+		subscribeTo measure_handler <span class="hljs-keyword">for</span> led_on
+		subscribeTo measure_handler <span class="hljs-keyword">for</span> led_off
+ 	}
+ 	<span class="hljs-keyword">Goto</span> wait
+ 	
+ 	State wait{
+ 		println(<span class="hljs-string">"$name : waiting for interrupts"</span>) color cyan
+ 	}
+ 	
+ 	Transition t
+ 		whenEvent led_on -&gt; led_on
+ 		whenEvent led_off -&gt; led_off
+ 		
+ 	State led_on{
+ 		println(<span class="hljs-string">"$name : acceso"</span>) color red
+ 		[<span class="hljs-comment">#</span>
+ 			p       = Runtime.getRuntime().exec(<span class="hljs-string">"python3 ledPython25On.py"</span>)	
+ 		<span class="hljs-comment">#</span>
+ 		]
+ 		
+ 	}
+ 	<span class="hljs-keyword">Goto</span> wait
+ 	
+ 	State led_off{
+ 		println(<span class="hljs-string">"$name : spento"</span>) color green
+ 		[<span class="hljs-comment">#</span>
+ 			p       = Runtime.getRuntime().exec(<span class="hljs-string">"python3 ledPython25Off.py"</span>)	
+ 		<span class="hljs-comment">#</span>
+ 		]
+ 	}
+ 	<span class="hljs-keyword">Goto</span> wait
+}
+</div></code></pre>
+<h2 id="system-architecture">System Architecture</h2>
+<p style="text-align: center;"><img src="../../images/sprint2arch.png" alt=""></p>
+<h2 id="deployment-e-considerazioni-finali">Deployment e Considerazioni finali</h2>
+<p>Per l'esecuzione del sistema abbiamo pensato di generare un'immagine docker per poter gestire in maniera automatica l'avvio e la build dell'applicativo. Avviabile all'interno del raspberry.</p>
+<p>Per il componente hardware è necessario collegare i dispositivi alla scheda nella seguente maniera:</p>
+<ul>
+<li>LED (polo positivo): pin 25</li>
+<li>Sonar – trigger: pin 17</li>
+<li>Sonar – echo: pin 27</li>
+<li>GND, VCC +5V, sono collegamenti che possono essere effettuati su qualunque pin disponibile</li>
+</ul>
+
+</body>
+</html>

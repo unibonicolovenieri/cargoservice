@@ -358,9 +358,8 @@ QActor led context ctx_iodevices{
 }
 ```
 ## System Architecture
-```
-IMMAGINE DELL' ARCHIETTURA
-```
+![](../../images/sprint2arch.png)
+
 ## Deployment e Considerazioni finali
 Per l'esecuzione del sistema abbiamo pensato di generare un'immagine docker per poter gestire in maniera automatica l'avvio e la build dell'applicativo. Avviabile all'interno del raspberry.
 

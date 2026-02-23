@@ -15,7 +15,7 @@ public class HoldState {
     private boolean ledOn = false;
     private boolean alarmActive = false;
     private String lastUpdate = LocalDateTime.now().toString();
-    private int maxLoad = -1;  // -1 = non comunicato
+    private int maxLoad = 500;  // default 500 se non comunicato dal server
     private int currentWeight = 0;
 
     public int getMaxLoad() { return maxLoad; }

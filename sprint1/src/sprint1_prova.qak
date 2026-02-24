@@ -61,6 +61,7 @@ Context ctx_productservice	ip [host="127.0.0.1" port=8111]
 Context ctx_basicrobot ip [host="127.0.0.1" port=8020] 
 Context ctx_cargo	ip [host="localhost" port=8000]
 Context ctx_webgui ip[host= "localhost" port= 6767]
+Context ctx_iodevices ip[host= "10.249.112.91" port=7777]
 
 
 
@@ -69,6 +70,7 @@ Context ctx_webgui ip[host= "localhost" port= 6767]
 ExternalQActor basicrobot context ctx_basicrobot
 ExternalQActor productservice context ctx_productservice
 ExternalQActor webgui context ctx_webgui
+ExternalQActor sonar context ctx_iodevices
 
 
 
@@ -502,64 +504,64 @@ QActor producservice_test context ctx_cargo{
 } 
 
 
-QActor sonar_test context ctx_cargo {
-	[# var Counter = 1 #]
-	
-	State start initial {
-		println("$name | started ") color green
-		delay 2000 
-		delay 30000
-	}
-	Goto simulate_container_arrival
-	
-	
-	State simulate_container_arrival {
-		println("$name | Simulo arrivo container") color green
-		println("$name | $Counter | numero dell'iterazione di Sonar Test") color gray       
-		emit container_trigger : container_trigger(1)
-		// Sonar misura una distanza piu piccola e quindi c'è un container
-		emit sonar_changed :sonar_changed(Container_Individuato)
-		//updateResource [#"slot_changed($Counter,true)"#]
-		//updateResource [#"sonar_changed(Container_Individuato)"#]
-		delay 10000
-		
-	}
-	Goto simulate_container_absence
-	
-	
-	State simulate_container_absence {
-		if [# Counter % 5 == 0 #] {
-			println("$name | Simulo sparizione container") color yellow
-			emit container_absence : container_absence(no)
-			//Sonar rileva DFREE e quindi non c'è niente e quindi è vuoto
-			emit sonar_changed :sonar_changed(Container_Assente)
-			//updateResource [#"slot_changed($Counter,false)"#]
-			//updateResource [#"sonar_changed(Container_Assente)"#] 
-			delay 10000
-		}
-	}
-	Goto maybe_fail
-	
-	
-	State maybe_fail {
-		[# Counter++ #]
-		if [# Counter % 2 == 0 #] {
-			println("$name | Guasto sonar!") color magenta
-			emit sonar_error : sonar_error(errore)
-			//updateResource [#"led_changed(Acceso)"#]
-	 		
-			
-			delay 4000
-			println("$name | Sonar ripristinato!") color magenta
-			emit problem_solved : problem_solved(solved)
-			//updateResource [#"led_changed(Spento)"#]
-			
-		}
-		delay 10000
-	}
-	Goto simulate_container_arrival
-}
-
+//QActor sonar_test context ctx_cargo {
+//	[# var Counter = 1 #]
+//	
+//	State start initial {
+//		println("$name | started ") color green
+//		delay 2000 
+//		delay 30000
+//	}
+//	Goto simulate_container_arrival
+//	
+//	
+//	State simulate_container_arrival {
+//		println("$name | Simulo arrivo container") color green
+//		println("$name | $Counter | numero dell'iterazione di Sonar Test") color gray       
+//		emit container_trigger : container_trigger(1)
+//		// Sonar misura una distanza piu piccola e quindi c'è un container
+//		emit sonar_changed :sonar_changed(Container_Individuato)
+//		//updateResource [#"slot_changed($Counter,true)"#]
+//		//updateResource [#"sonar_changed(Container_Individuato)"#]
+//		delay 10000
+//		
+//	}
+//	Goto simulate_container_absence
+//	
+//	
+//	State simulate_container_absence {
+//		if [# Counter % 5 == 0 #] {
+//			println("$name | Simulo sparizione container") color yellow
+//			//emit container_absence : container_absence(no)
+//			//Sonar rileva DFREE e quindi non c'è niente e quindi è vuoto
+//			emit sonar_changed :sonar_changed(Container_Assente)
+//			//updateResource [#"slot_changed($Counter,false)"#]
+//			//updateResource [#"sonar_changed(Container_Assente)"#] 
+//			delay 10000
+//		}
+//	}
+//	Goto maybe_fail
+//	
+//	
+//	State maybe_fail {
+//		[# Counter++ #]
+//		if [# Counter % 2 == 0 #] {
+//			println("$name | Guasto sonar!") color magenta
+//			emit sonar_error : sonar_error(errore)
+//			//updateResource [#"led_changed(Acceso)"#]
+//	 		
+//			
+//			delay 4000
+//			println("$name | Sonar ripristinato!") color magenta
+//			emit problem_solved : problem_solved(solved)
+//			//updateResource [#"led_changed(Spento)"#]
+//			
+//		}
+//		delay 10000
+//	}
+//	Goto simulate_container_arrival
+//}
+//
 
 
 QActor hold_observer context ctx_cargo{
@@ -653,8 +655,7 @@ QActor hold_observer context ctx_cargo{
 		#
 		]
 		updateResource[#"hold_state(slots:1=$Slot1;2=$Slot2;3=$Slot3;4=$Slot4,maxload:1000,weight:$CURRENT_LOAD,sonar:$Sonar,led:$Led,robot:$Robot_state)"#]
-		//replyTo get_hold_state with send_hold_state: hold_state("Taken slot:$Taken_slot; Led:$Led; Sonar:$Sonar; CURRENT_LOAD:$CURRENT_LOAD")
-	}
+		}
 	Goto observe_hold
 }
 

@@ -39,16 +39,16 @@ context(ctx_productservice, "127.0.0.1",  "TCP", "8111").
 context(ctx_basicrobot, "127.0.0.1",  "TCP", "8020").
 context(ctx_cargo, "localhost",  "TCP", "8000").
 context(ctx_webgui, "localhost",  "TCP", "6767").
+context(ctx_iodevices, "10.249.112.91",  "TCP", "7777").
  qactor( basicrobot, ctx_basicrobot, "external").
   qactor( productservice, ctx_productservice, "external").
   qactor( webgui, ctx_webgui, "external").
+  qactor( sonar, ctx_iodevices, "external").
   qactor( cargorobot, ctx_cargo, "it.unibo.cargorobot.Cargorobot").
  static(cargorobot).
   qactor( cargoservice, ctx_cargo, "it.unibo.cargoservice.Cargoservice").
  static(cargoservice).
   qactor( producservice_test, ctx_cargo, "it.unibo.producservice_test.Producservice_test").
  static(producservice_test).
-  qactor( sonar_test, ctx_cargo, "it.unibo.sonar_test.Sonar_test").
- static(sonar_test).
   qactor( hold_observer, ctx_cargo, "it.unibo.hold_observer.Hold_observer").
  static(hold_observer).

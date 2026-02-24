@@ -115,7 +115,7 @@ services:
        - "8085:8085"
      environment:
        - VIRTUAL_ENV=wenv                         #Used by uniborobots.robotSupport.create
-       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://localhost:8761/eureka/
        - SERVICE_HOST=127.0.0.1     #basicrobot24 per app che usano basicrobot in docker
        - SERVICE_IP=127.0.0.1
        - MQTTBROKER=mosquitto
@@ -130,6 +130,7 @@ services:
     mem_limit: 512m
     environment:
       - SERVICE_HOST=127.0.0.1
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://localhost:8761/eureka/
       - SERVICE_IP=127.0.0.1
     ports:
       - "8000:8000"
@@ -151,6 +152,7 @@ services:
     mem_limit: 512m
     environment:
       - SERVICE_HOST=127.0.0.1
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://localhost:8761/eureka/
       - SERVICE_IP=127.0.0.1
     ports:
       - "6767:6767"

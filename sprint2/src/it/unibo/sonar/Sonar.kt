@@ -40,7 +40,7 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false, is
 						
 									p       = Runtime.getRuntime().exec("python3 /sprint2-1.0/bin/sonar.py")
 									reader  = java.io.BufferedReader(java.io.InputStreamReader(p.getInputStream()))	
-						delay(2000) 
+						delay(2100) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -70,7 +70,7 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false, is
 						if(  Distance > 0  
 						 ){emitLocalStreamEvent("sonardata", "distance($Distance)" ) 
 						}
-						delay(300) 
+						delay(1000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

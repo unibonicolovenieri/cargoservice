@@ -56,9 +56,9 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t023",targetState="check_product",cond=whenRequest("load_product"))
-					interrupthandle(edgeName="t024",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
-					transition(edgeName="t025",targetState="check_product",cond=whenEvent("container_trigger"))
+					 transition(edgeName="t019",targetState="check_product",cond=whenRequest("load_product"))
+					interrupthandle(edgeName="t020",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+					transition(edgeName="t021",targetState="check_product",cond=whenEvent("container_trigger"))
 				}	 
 				state("stop") { //this:State
 					action { //it:State
@@ -75,7 +75,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t026",targetState="resume",cond=whenEvent("problem_solved"))
+					 transition(edgeName="t022",targetState="resume",cond=whenEvent("problem_solved"))
 				}	 
 				state("resume") { //this:State
 					action { //it:State
@@ -111,8 +111,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t027",targetState="check_load",cond=whenReply("getProductAnswer"))
-					interrupthandle(edgeName="t028",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+					 transition(edgeName="t023",targetState="check_load",cond=whenReply("getProductAnswer"))
+					interrupthandle(edgeName="t024",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
 				}	 
 				state("check_load") { //this:State
 					action { //it:State
@@ -186,14 +186,15 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t029",targetState="load_finished",cond=whenReply("movedProduct"))
-					interrupthandle(edgeName="t030",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+					 transition(edgeName="t025",targetState="load_finished",cond=whenReply("movedProduct"))
+					interrupthandle(edgeName="t026",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
 				}	 
 				state("load_finished") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("result(SLOT)"), Term.createTerm("result(SLOT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outblack("Load completata il robot è in home ")
+								//Taken_slot[Reserved_slot]="true"	 
 						}
 						//genTimer( actor, state )
 					}

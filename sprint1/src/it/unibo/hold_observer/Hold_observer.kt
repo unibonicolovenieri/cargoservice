@@ -55,10 +55,10 @@ class Hold_observer ( name: String, scope: CoroutineScope, isconfined: Boolean=f
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t033",targetState="change_slot_status",cond=whenEvent("slot_changed"))
-					transition(edgeName="t034",targetState="change_led_status",cond=whenEvent("led_changed"))
-					transition(edgeName="t035",targetState="change_sonar_status",cond=whenEvent("sonar_changed"))
-					transition(edgeName="t036",targetState="change_weight",cond=whenEvent("current_weight"))
+					 transition(edgeName="t029",targetState="change_slot_status",cond=whenEvent("slot_changed"))
+					transition(edgeName="t030",targetState="change_led_status",cond=whenEvent("led_changed"))
+					transition(edgeName="t031",targetState="change_sonar_status",cond=whenEvent("sonar_changed"))
+					transition(edgeName="t032",targetState="change_weight",cond=whenEvent("current_weight"))
 				}	 
 				state("change_slot_status") { //this:State
 					action { //it:State

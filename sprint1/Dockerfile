@@ -20,18 +20,18 @@ CMD ["bash", "sprint1"]
 
 ## 0) docker rmi sprin1:1.0
 ## 1) gradlew distTar
-## 2) docker build -t sprin1:1.0 .
+## 2) docker build -t sprint1:1.0 .
 ## OCCORRE APRIRE UDP PER PERMETTERE COAP
 ## docker run -it --rm --name basicrobot24 -p8020:8020/tcp -p8020:8020/udp  --privileged basicrobot24:3.0  /bin/bash
 ## MODIFICA DEL FILE DI CONFIGURAZIONE
 # docker cp basicrobotConfig.json 89193dba02a2:/basicrobot24-1.0/bin/basicrobotConfig.json
 # docker cp stepTimeConfig.json cab3aa29f8eb:/basicrobot24-1.0/bin/stepTimeConfig.json
 
-# docker tag sprin1:1.0 lucacapelli/sprin1:1.0
+# docker tag sprint1:1.0 lucacapelli/sprint1:1.0
 
 #type docker_password.txt | docker login --username natbodocker --password-stdin
 #docker login --username natbodocker --password xyz
-# docker push lucacapelli/sprin1:1.0
+# docker push lucacapelli/sprint1:1.0
 
 
 # docker-compose -f sprint1.yaml  up

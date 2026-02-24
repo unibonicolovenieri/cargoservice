@@ -45,14 +45,13 @@ class Producservice_test ( name: String, scope: CoroutineScope, isconfined: Bool
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t029",targetState="createdProduct",cond=whenReply("createdProduct"))
+					 transition(edgeName="t027",targetState="createdProduct",cond=whenReply("createdProduct"))
 				}	 
 				state("createdProduct") { //this:State
 					action { //it:State
-						CommUtils.outyellow("[test]aaaaaaaaaaaaaaaaaa richiesta")
+						CommUtils.outyellow("[test] richiesta registrazione prodotto")
 						if( checkMsgContent( Term.createTerm("productid(ID)"), Term.createTerm("productid(ID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								CommUtils.outyellow("[test]aaaaaaaaaaaaaaaaaa richiesta")
 								 val ID=payloadArg(0).toInt()  
 								CommUtils.outyellow("[test] prodotto creato ID: $ID")
 								delay(50000) 
@@ -62,7 +61,7 @@ class Producservice_test ( name: String, scope: CoroutineScope, isconfined: Bool
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t030",targetState="moved",cond=whenReply("loadedProduct"))
+					 transition(edgeName="t028",targetState="moved",cond=whenReply("loadedProduct"))
 				}	 
 				state("moved") { //this:State
 					action { //it:State

@@ -56,9 +56,9 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t021",targetState="check_product",cond=whenRequest("load_product"))
-					interrupthandle(edgeName="t022",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
-					transition(edgeName="t023",targetState="check_product",cond=whenEvent("container_trigger"))
+					 transition(edgeName="t019",targetState="check_product",cond=whenRequest("load_product"))
+					interrupthandle(edgeName="t020",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+					transition(edgeName="t021",targetState="check_product",cond=whenEvent("container_trigger"))
 				}	 
 				state("stop") { //this:State
 					action { //it:State
@@ -67,22 +67,27 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 								 val M=payloadArg(0) 
 								CommUtils.outyellow("[$name] sonar ha emesso un errore causa: $M")
 								emit("led_changed", "led_changed(Acceso)" ) 
+								updateResourceRep("led_changed(Acceso)" 
+								)
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t024",targetState="resume",cond=whenEvent("problem_solved"))
+					 transition(edgeName="t022",targetState="resume",cond=whenEvent("problem_solved"))
 				}	 
 				state("resume") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("problem_solved(CAUSA)"), Term.createTerm("problem_solved(CAUSA)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								 val M=payloadArg(0) 
-								CommUtils.outyellow("[$name] sonar ha risolto l'errore causa: $M")
-								emit("led_changed", "led_changed(Spento)" ) 
-						}
+						 val M=payloadArg(0) 
+						CommUtils.outyellow("[$name] sonar ha risolto l'errore causa: $M")
+						emit("problem_solved", "problem_solved(CAUSA)" ) 
+						emit("led_changed", "led_changed(Spento)" ) 
+						updateResourceRep("led_changed(Spento)" 
+						)
+						updateResourceRep("sonar_changed(DFREE)" 
+						)
+						delay(5000) 
 						returnFromInterrupt(interruptedStateTransitions)
 						//genTimer( actor, state )
 					}
@@ -98,14 +103,16 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 								
 												val ID=payloadArg(0).toInt()
 								request("getProduct", "product($ID)" ,"productservice" )  
+								updateResourceRep("sonar_changed(DBUSY)" 
+								)
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t025",targetState="check_load",cond=whenReply("getProductAnswer"))
-					interrupthandle(edgeName="t026",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+					 transition(edgeName="t023",targetState="check_load",cond=whenReply("getProductAnswer"))
+					interrupthandle(edgeName="t024",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
 				}	 
 				state("check_load") { //this:State
 					action { //it:State
@@ -172,19 +179,22 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					action { //it:State
 						request("move_product", "product($Reserved_slot)" ,"cargorobot" )  
 						CommUtils.outyellow("[cargoservice] richiesta di move al cargo robot mandata")
+						updateResourceRep("current_weight($CURRENT_LOAD)" 
+						)
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t027",targetState="load_finished",cond=whenReply("movedProduct"))
-					interrupthandle(edgeName="t028",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
+					 transition(edgeName="t025",targetState="load_finished",cond=whenReply("movedProduct"))
+					interrupthandle(edgeName="t026",targetState="stop",cond=whenEvent("sonar_error"),interruptedStateTransitions)
 				}	 
 				state("load_finished") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("result(SLOT)"), Term.createTerm("result(SLOT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outblack("Load completata il robot è in home ")
+								//Taken_slot[Reserved_slot]="true"	 
 						}
 						//genTimer( actor, state )
 					}

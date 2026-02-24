@@ -40,7 +40,7 @@ QActor sonar context ctx_iodevices{
 			p       = Runtime.getRuntime().exec("python3 /sprint2-1.0/bin/sonar.py")
 			reader  = java.io.BufferedReader(java.io.InputStreamReader(p.getInputStream()))	
 		#]	
-		delay 2000
+		delay 2100
 	}
 Goto measurement
 	
@@ -68,7 +68,7 @@ Goto measurement
 		if [# Distance > 0 #] { 
 		    emitlocalstream sonardata: distance($Distance)	 
 		}
-		delay 300
+		delay 1000
 	}
 	Goto measurement
 }

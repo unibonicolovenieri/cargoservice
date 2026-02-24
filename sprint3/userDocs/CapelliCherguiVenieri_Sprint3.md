@@ -1,7 +1,7 @@
 # Sprint3
 
 ## Introduzione
-Nello sprint precedente ci siamo concentrati nella progettazione del sistema di misurazione e rilevazione L’obiettivo in questo sprint è introdurre un'interfaccia grafica web (WebGUI) che consenta all’utente finale di monitorare lo stato della hold, fornendo una visione chiara e aggiornata del sistema, senza interferire con la logica applicativa.
+L’obiettivo in questo sprint è introdurre un'interfaccia grafica web (WebGUI) che consenta all’utente finale di monitorare lo stato della hold, fornendo una visione chiara e aggiornata del sistema, senza interferire con la logica applicativa.
 
 In questo sprint viene realizzata una base architetturale della WebGUI, sulla quale sarà possibile costruire e completare le funzionalità di integrazione.
 

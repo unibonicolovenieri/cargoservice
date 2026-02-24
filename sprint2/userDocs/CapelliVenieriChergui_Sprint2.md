@@ -1,25 +1,35 @@
 # Sprint 2
 
 ## Introduzione
-In questo Sprint l'obbiettivo prefissato è quello di analizzare e comprendere le caratteristiche del componente Sensor. Si procederà poi con lo sviluppoo di un'implementazione funzionante che si andrà ad integrare con il restate core-buisness del sistema. 
+In questo Sprint l'obbiettivo prefissato è quello di progettare e prototipizzare le caratteristiche degli "IO_devices" la cui necessità è emersa in fase di analisi (sprint 0). Si procederà con lo sviluppo di un prototipo funzionante che si andrà ad integrare con gli altri microservizi. 
 
 ## Requisiti
-Vanno completati i seguenti requisiti:
+Vanno soddisfatti i seguenti requisiti:
 - Implementazione di un sistema che attraverso un sensore, posizionato di fronte all'IO-PORT in grado di rilevare la presenza di un oggetto, sia in grado di comunicare al sistema che è presente un container. La rilevazione avviene quando il sonar misura una distanza **D tale che D < DFREE/2** per un tempo continuativo di almeno 3 secondi.
-- Quando il sonar misura una distanza **D >= DFREE/2** per un tempo continuativo di almeno 3 secondi, il sistema deve interrompere le proprie attività e inoltre si deve scatenare l'accensione di un LED rosso (per comunicare un malfunzionamento del sonar).
+- Quando il sonar misura una distanza **D >= DFREE** per un tempo continuativo di almeno 3 secondi, il sistema deve interrompere le proprie attività e inoltre si deve scatenare l'accensione di un LED rosso (per comunicare un malfunzionamento del sonar).
 - Nel momento in cui la distanza misurata torna ad essere **D <= DFREE** il sistema deve riprendere le proprie attività e il LED rosso deve spegnersi.
 ## Analisi del Problema
-Analizzando i requisiti del problema, siamo in grado di identificare inanzitutto due componenti Hardware **Sonar** fisico e un **LED**. I quali saranno implementati su un sistema RaspberryPI.
+Analizzando i requisiti del problema, siamo in grado di identificare inanzitutto due componenti Hardware **Sonar** e **LED**. I quali saranno montati su un sistema RaspberryPI ai fini del prototipo.
 ### Modellazione del Sensore
 Il problema iniziale che ci sorge è quello di poter permettere ai Componenti Hardware (E dei relativi componenti software) di poter comunicare ed interagire con il core-buisness del sistema. Per fare ciò, le soluzioni possibili sono due:
-- Implementare sensor come **componente** che gestisca sonar e led modellati come classi **POJO**
-- Implementare un **contesto (sonar)** che contiene al suo interno due **attori** **Sonar**  e **LED**.
+- Implementare il gestore come **componente** che comunichi con sonar e led modellati come **POJO**
+- Implementare un **contesto (IO_devices)** che contiene al suo interno due **attori** **Sonar**  e **LED**.
 
-La prima opzione può essere presa in considerazione per la comodità di avere un unico componente di gestione, risultà però essere meno flessibile in quanto non permette ai componenti di comunicare direttamente con il corebuisness e inoltre non rispetta il Single Responsability Principle. La seconda opzione invece permette la comunicazione con il corebuisness da parte dei singoli attori e inoltre mantiene valido il principio preceentemente citato. 
+La prima opzione può essere presa in considerazione per la comodità di avere un unico componente di gestione, risultà però essere meno flessibile in quanto non permette ai componenti di comunicare direttamente con il corebusiness e inoltre non rispetta il Single Responsability Principle. La seconda opzione invece permette la comunicazione con il corebusiness tramite messaggi da parte dei singoli attori e inoltre mantiene valido il principio precentemente citato. 
+In breve faremo riferimento a questa architettura:
+
+``` bash
+Context ctx_iodevices
+Context ctx_cargo //il contesto che contiene i microservizi cargoservice e cargorobot con cui sonar e led vogliono comunicare riferito in questo documento come "core business"
+QActor sonar context ctx_iodevices{...}
+QActor led context ctx_iodevices{...}
+ExternalQActor sprint1 context ctx_cargo
+
+```
 ### Sonar
-Il sonar si deve interfacciare con il core-buisness sarà quindi necessario comunicare ogni evento scatenato **utile** alla modifica dello stato del sistema ( E quindi non comunicare ogni singola misurazione effettuata). Si evidenzia in questa fase la necessità di prendere una decisione archietturale in seguito ad una problematica che evidenziamo. Vogliamo comunicare al cargoservice solo informazioni utili alla modifica dello stato del robot. Pertanto, tutte le misurazioni non saranno necessarie al robot, cosi come non sarà necessario che lo stesso attore oltre al compito di comunicare al cargoservice (scatenando eventi) abbia anche il compito di leggere le misurazioni costantemente. Indi per cui la decisione è stata quella di separare queste due logiche. Permettendoci di rispettare il SingleResponsabilityPrinciple. Dunque avremo sonar_edge che sarà l'attore che avrà come compito quello di leggere tutte le misurazioni effettuate e di decidere quali saranno comunicate al secondo attore che chiameremo sonar_handler.
+Il sonar si deve interfacciare con il core-business sarà quindi necessario comunicare ogni evento scatenato **utile** alla modifica dello stato del sistema ( E quindi non comunicare ogni singola misurazione effettuata). Si evidenzia in questa fase la necessità di prendere una decisione archietturale in seguito ad una problematica che evidenziamo. Vogliamo comunicare al cargoservice solo informazioni utili alla modifica dello stato del robot. Pertanto, tutte le misurazioni non saranno necessarie al robot, cosi come non sarà necessario che lo stesso attore oltre al compito di comunicare al cargoservice (scatenando eventi) abbia anche il compito di leggere le misurazioni costantemente. Indi per cui la decisione è stata quella di separare queste due logiche. Permettendoci di rispettare il SingleResponsabilityPrinciple. Dunque avremo sonar_edge che sarà l'attore che avrà come compito quello di leggere tutte le misurazioni effettuate e di decidere quali saranno comunicate al secondo attore che chiameremo sonar_handler.
 
-Le comunicazioni che il sonar_handler avrà con il resto del sistema sono le seguenti: 
+Le comunicazioni che il sonar_handler avrà con il contesto "cargo" sono le seguenti: 
 
 ```
 Event container_trigger : container_trigger(X)    
@@ -27,13 +37,13 @@ Event sonar_error:sonar_error(CAUSA)
 Event problem_solved:problem_solved(CAUSA)
 ```
 
-- L'evento **container_trigger** si scatena se D < DFREE/2 per 3 secondi
-- L'evento **sonar_error** si scatena se D > DFREE per 3 secondi
-- L'evento **problem_solved** si scatena se D < DFREE in seguito ad un evento che ha evidenziato un problema con il sonar
+- L'evento **container_trigger** si scatena se D < DFREE/2 per 3 secondi, dice al cargoservice che è arrivato un container e quindi di gestire la richiesta come visto nello sprint1 (controllo del peso, slot disponibile e comunicazione al cargorobot)
+- L'evento **sonar_error** si scatena se D > DFREE per 3 secondi, comunica al cargorobot di fermare ogni attività(andrare in stato "stop")
+- L'evento **problem_solved** si scatena se D < DFREE in seguito ad un evento che ha evidenziato un problema con il sonar, il cargorobot lo riceve e riprende le sue attività (stato "resume")
 
 
 #### Componente Fisico
-Per l'interazione tra il componente software e il componente hardware sfrutteremo il codice python fornito dal committente che eseguirà sul RaspberryPI.
+Per l'interazione tra il nostro attore e il componente hardware sfrutteremo il codice python fornito dal committente che eseguirà sul RaspberryPI.
 
 ``` python
 # Sonar Controller
@@ -79,7 +89,7 @@ while True:
 ```
 
 ### LED
-Il led è un componente hardware che permette di segnalare visivamente lo stato del sistema. Abbiamo la necessità di rilevare lo stato del sonar per poi poter comandare lo stato del led (acceso/spento). Il led dunque, dovrà intercettare gli eventi inviati dal sonar a cargoservice (relativi al led) e accendersi o spegnersi in base a quest'ultimi. Vogliamo modellare il led come un componente autonomo non dipendente da altre componenti.
+Il led è un componente che permette di segnalare visivamente lo stato del sistema. Abbiamo la necessità di rilevare lo stato del sonar per poi poter comandare lo stato del led (acceso/spento). Il led dunque, dovrà attendere i messaggi emessi dal sonar e accendersi o spegnersi in base a quest'ultimi. Vogliamo modellare il led come un componente autonomo non dipendente da altre componenti.
 #### Componente Fisico
 Anche per il led sfrutteremo il codice python fornito dal committente per interagire con il RaspberryPI.
 
@@ -133,10 +143,9 @@ GPIO.output(25,GPIO.LOW)
 ## System Build
 Come detto in precedenza il nostro obbiettivo è quello di seguire il single responsability principle ed è per questo motivo che abbiamo deciso di suddividere gli attori in base al loro compito.
 ### Sonar
-Il componente software che andremo a sviluppare avrà come obbiettivi quello di interfacciarsi con il raspberry per reperire le distanze misurate e quello di comunicare tali distanze al cargoservice. Tuttavia come detto in precedenza non abbiamo intenzione di comunicare tutte le misurazioni effettuate, solamente quelle necessarie. Per questo motivo sorge la necessità inanzitutto di un filtro e successivamente anche quella di gestire la comunicazione con cargoservice. 
-Per gestire questi due obbiettivi e seperare le responsabilità abbiamo deciso di suddividere in due attori i compiti di "sonar".
+Il componente software che andremo a sviluppare avrà come obiettivo quello di leggere i dati dal sonar.py e comunicare i messaggi al cargoservice seguendo i requisiti del committente specificati all'inizio del documento. 
+Abbiamo deciso di suddividere in due attori i compiti di "sonar": sonar si occupa della lettura dei dati e measure_handler dell'invio dei messaggi.
 #### Sonar -  Actor
-Sonar sarà l'attore che avrà come obbiettivo quello di effettuare misurazioni, quindi eseguirà lo script python indicato in precedenza per effettuare misurazioni, dovrà poi comunicare le misure effettuate all'attore **measure_handler**. 
 Abbiamo modellato l'attore sonar in questo modo:
 ``` php
 QActor sonar context ctx_iodevices{ 
@@ -187,7 +196,7 @@ Goto measurement
 }
 ```
 #### Measure_handler -  Actor
-Measure_handler è l'attore che si occupa di gestire la comunicazione con cargoservice e l'analisi delle misurazione effettuate da sonar. Le misurazioni vengono lette dall'evento emit che viene generato dentro sonar. measure_handler si occuperà di effettuare poi di scatenare gli eventi che verranno catturato da Cargoservice. Gli eventi che scatena li abbiamo visti all'inzio dello sprint. 
+Measure_handler intercetta l'emitlocalstream e come mostrato genera i messaggi.
 ``` php
 QActor measure_handler context ctx_iodevices {
 
@@ -308,7 +317,7 @@ QActor measure_handler context ctx_iodevices {
 }
 ```
 ### Led
-Led invece è l'attore che si ocupa di eseguire i componenti python che permettono l'accensione e lo spegnimento del led sul rasp. L'accensione e lo spegnimento è coordinata rispeto a certi eventi che emettiano all'interno di sonar. Dentro sonar emettiamo `Event sonar_error:sonar_error(CAUSA)` e `Event problem_solved:problem_solved(CAUSA)`. Questi due eventi permettono a questo attore di capire quando poter comandare l'accensione e lo spegnimento:
+Dentro sonar emettiamo `Event sonar_error:sonar_error(CAUSA)` e `Event problem_solved:problem_solved(CAUSA)`. Questi due eventi permettono a questo attore di capire quando comandare l'accensione e lo spegnimento:
 ``` php
 QActor led context ctx_iodevices{
 	

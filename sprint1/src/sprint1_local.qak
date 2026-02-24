@@ -57,8 +57,8 @@ Event problem_solved:problem_solved(CAUSA)
 //contesti  
 //Context ctx_productservice	ip [host="cargoserviceqak" port=8111]
 //Context ctx_basicrobot ip [host="basicrobot24" port=8020] 
-Context ctx_productservice	ip [host="127.0.0.1" port=8111]
-Context ctx_basicrobot ip [host="127.0.0.1" port=8020] 
+Context ctx_productservice	ip [host="cargoserviceqak" port=8111]
+Context ctx_basicrobot ip [host="basicrobot24" port=8020] 
 Context ctx_cargo	ip [host="localhost" port=8000]
 //Context ctx_webgui ip[host= "localhost" port= 6767]
 //Context ctx_iodevices ip[host= "10.249.112.91" port=7777]

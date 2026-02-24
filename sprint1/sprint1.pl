@@ -33,8 +33,8 @@ event( container_absence, container_absence(X) ).
 event( sonar_error, sonar_error(CAUSA) ).
 event( problem_solved, problem_solved(CAUSA) ).
 %====================================================================================
-context(ctx_productservice, "127.0.0.1",  "TCP", "8111").
-context(ctx_basicrobot, "127.0.0.1",  "TCP", "8020").
+context(ctx_productservice, "cargoserviceqak",  "TCP", "8111").
+context(ctx_basicrobot, "basicrobot24",  "TCP", "8020").
 context(ctx_cargo, "localhost",  "TCP", "8000").
  qactor( basicrobot, ctx_basicrobot, "external").
   qactor( productservice, ctx_productservice, "external").

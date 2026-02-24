@@ -6,7 +6,7 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 // "Configurazione con WebSocketConfigurer" - struttura del prof
-// Il prof usa path "socket" -> ws://localhost:8085/socket
+// Il prof usa path "socket" -> ws://sprint1:8085/socket
 // (il wsminimal.js costruisce l'URL come: "ws://" + host + pathname + "socket")
 @Configuration
 @EnableWebSocket

@@ -3,7 +3,7 @@
 //
 // L'URL della WebSocket è costruito dinamicamente:
 //   "ws://" + host + pathname + "socket"
-// -> ws://localhost:8085/socket
+// -> ws://sprint1:8085/socket
 //    (corrisponde al path registrato in WebSocketConfig)
 
 var socket = connect();

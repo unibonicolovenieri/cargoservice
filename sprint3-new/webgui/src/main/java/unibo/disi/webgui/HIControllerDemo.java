@@ -14,7 +14,7 @@ public class HIControllerDemo {
     String appName;
 
     // Serve la pagina welcome.html (Thymeleaf template)
-    // Accessibile su: http://localhost:8085/
+    // Accessibile su: http://sprint1:8085/
     @GetMapping("/")
     public String homePage(Model model) {
         model.addAttribute("arg", appName);
@@ -22,6 +22,6 @@ public class HIControllerDemo {
     }
 
     // Serve direttamente index.html (WebSocket GUI)
-    // Accessibile su: http://localhost:8085/index.html
+    // Accessibile su: http://sprint1:8085/index.html
     // (quando il controller è attivo, Spring non usa automaticamente static/index.html)
 }

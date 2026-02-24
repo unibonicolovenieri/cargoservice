@@ -141,19 +141,19 @@ dover avere QAktors attivo:
 Inietta direttamente un payload nel parser CoAP.
 
 ```bash
-curl -X POST http://localhost:8085/simulate \
+curl -X POST http://sprint1:8085/simulate \
      -H "Content-Type: application/json" \
      -d '{"payload": "current_weight(120)"}'
 ```
 
 ```bash
-curl -X POST http://localhost:8085/simulate \
+curl -X POST http://sprint1:8085/simulate \
      -H "Content-Type: application/json" \
      -d '{"payload": "maxload(500)"}'
 ```
 
 ```bash
-curl -X POST http://localhost:8085/simulate \
+curl -X POST http://sprint1:8085/simulate \
      -H "Content-Type: application/json" \
      -d '{"payload": "slot_changed(2,true)"}'
 ```
@@ -162,7 +162,7 @@ curl -X POST http://localhost:8085/simulate \
 Restituisce lo stato JSON corrente della stiva.
 
 ```bash
-curl http://localhost:8085/state
+curl http://sprint1:8085/state
 ```
 
 Risposta esempio:

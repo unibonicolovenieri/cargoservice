@@ -53,7 +53,7 @@ public class CoapObserverService {
 
     private final HoldStateService holdStateService;
 
-    @Value("${cargo.coap.host:localhost}")
+    @Value("${cargo.coap.host:sprint1}")
     private String coapHost;
 
     @Value("${cargo.coap.port:8000}")

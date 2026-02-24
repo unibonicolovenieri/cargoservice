@@ -34,16 +34,12 @@ with Diagram('sprint1Arch', show=False, outformat='png', graph_attr=graphattr) a
           cargoservice=Custom('cargoservice','./qakicons/symActorWithobjSmall.png')
           producservice_test=Custom('producservice_test','./qakicons/symActorWithobjSmall.png')
           hold_observer=Custom('hold_observer','./qakicons/symActorWithobjSmall.png')
-     with Cluster('ctx_webgui', graph_attr=nodeattr):
-          webgui=Custom('webgui(ext)','./qakicons/externalQActor.png')
-     with Cluster('ctx_iodevices', graph_attr=nodeattr):
-          sonar=Custom('sonar(ext)','./qakicons/externalQActor.png')
      cargorobot >> Edge( label='alarm', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sys >> Edge( label='problem_solved', **evattr, decorate='true', fontcolor='darkgreen') >> cargorobot
      cargorobot >> Edge( label='slot_changed', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sys >> Edge( label='container_trigger', **evattr, decorate='true', fontcolor='darkgreen') >> cargoservice
      cargoservice >> Edge( label='led_changed', **eventedgeattr, decorate='true', fontcolor='red') >> sys
-     sys >> Edge( label='problem_solved', **evattr, decorate='true', fontcolor='darkgreen') >> cargoservice
+     cargoservice >> Edge( label='problem_solved', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sys >> Edge( label='slot_changed', **evattr, decorate='true', fontcolor='darkgreen') >> hold_observer
      sys >> Edge( label='led_changed', **evattr, decorate='true', fontcolor='darkgreen') >> hold_observer
      sys >> Edge( label='sonar_changed', **evattr, decorate='true', fontcolor='darkgreen') >> hold_observer

@@ -13,8 +13,6 @@ event( slot_changed, slot_changed(ID,status) ).
 event( sonar_changed, sonar_changed(status) ).
 event( led_changed, led_changed(status) ).
 event( current_weight, current_weight(weight) ).
-request( get_hold_state, hold_state(JSonString) ).
-reply( send_hold_state, hold_state(JSonString) ).  %%for get_hold_state
 request( move_product, product(SLOT) ).
 reply( movedProduct, result(SLOT) ).  %%for move_product
 reply( moveProductFailed, fail(failed) ).  %%for move_product

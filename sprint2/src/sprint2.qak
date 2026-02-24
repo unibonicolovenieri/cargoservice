@@ -37,7 +37,7 @@ QActor sonar context ctx_iodevices{
 		println("$name | start") 
 		
 	 	[#
-			p       = Runtime.getRuntime().exec("python sonar.py")
+			p       = Runtime.getRuntime().exec("python3 /sprint2-1.0/bin/sonar.py")
 			reader  = java.io.BufferedReader(java.io.InputStreamReader(p.getInputStream()))	
 		#]	
 		delay 2000
@@ -198,11 +198,11 @@ QActor led context ctx_iodevices{
 	State s0 initial{
 		println("$name : starting") color cyan
 		[#
- 			p       = Runtime.getRuntime().exec("python ledPython25On.py")	
+ 			p       = Runtime.getRuntime().exec("python3 /sprint2-1.0/bin/ledPython25On.py")	
  		#]
 		delay 1000
 		[#
- 			p       = Runtime.getRuntime().exec("python ledPython25Off.py")	
+ 			p       = Runtime.getRuntime().exec("python3 /sprint2-1.0/bin/ledPython25Off.py")	
  		#
 		]
 		subscribeTo measure_handler for led_on
@@ -221,7 +221,7 @@ QActor led context ctx_iodevices{
  	State led_on{
  		println("$name : acceso") color red
  		[#
- 			p       = Runtime.getRuntime().exec("python ledPython25On.py")	
+ 			p       = Runtime.getRuntime().exec("python3 ledPython25On.py")	
  		#
  		]
  		
@@ -231,7 +231,7 @@ QActor led context ctx_iodevices{
  	State led_off{
  		println("$name : spento") color green
  		[#
- 			p       = Runtime.getRuntime().exec("python ledPython25Off.py")	
+ 			p       = Runtime.getRuntime().exec("python3 ledPython25Off.py")	
  		#
  		]
  	}

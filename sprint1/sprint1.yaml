@@ -126,7 +126,7 @@ services:
        - iss-network
 
   sprint1:
-    image: lucacapelli/sprin1:1.0
+    image: lucacapelli/sprint1:1.0
     mem_limit: 512m
     environment:
       - SERVICE_HOST=127.0.0.1

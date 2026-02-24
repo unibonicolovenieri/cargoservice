@@ -35,10 +35,10 @@ class Led ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdy
 					action { //it:State
 						CommUtils.outcyan("$name : starting")
 						
-						 			p       = Runtime.getRuntime().exec("python ledPython25On.py")	
+						 			p       = Runtime.getRuntime().exec("python3 /sprint2-1.0/bin/ledPython25On.py")	
 						delay(1000) 
 						
-						 			p       = Runtime.getRuntime().exec("python ledPython25Off.py")	
+						 			p       = Runtime.getRuntime().exec("python3 /sprint2-1.0/bin/ledPython25Off.py")	
 						subscribeToLocalActor("measure_handler") 
 						subscribeToLocalActor("measure_handler") 
 						//genTimer( actor, state )
@@ -63,7 +63,7 @@ class Led ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdy
 					action { //it:State
 						CommUtils.outred("$name : acceso")
 						
-						 			p       = Runtime.getRuntime().exec("python ledPython25On.py")	
+						 			p       = Runtime.getRuntime().exec("python3 ledPython25On.py")	
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -75,7 +75,7 @@ class Led ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdy
 					action { //it:State
 						CommUtils.outgreen("$name : spento")
 						
-						 			p       = Runtime.getRuntime().exec("python ledPython25Off.py")	
+						 			p       = Runtime.getRuntime().exec("python3 ledPython25Off.py")	
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

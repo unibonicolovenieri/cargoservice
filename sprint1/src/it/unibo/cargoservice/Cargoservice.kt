@@ -67,6 +67,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 								 val M=payloadArg(0) 
 								CommUtils.outyellow("[$name] sonar ha emesso un errore causa: $M")
 								emit("led_changed", "led_changed(Acceso)" ) 
+								updateResourceRep("led_changed(Acceso)" 
+								)
 						}
 						//genTimer( actor, state )
 					}
@@ -77,13 +79,15 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 				}	 
 				state("resume") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("problem_solved(CAUSA)"), Term.createTerm("problem_solved(CAUSA)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								 val M=payloadArg(0) 
-								CommUtils.outyellow("[$name] sonar ha risolto l'errore causa: $M")
-								emit("led_changed", "led_changed(Spento)" ) 
-								delay(5000) 
-						}
+						 val M=payloadArg(0) 
+						CommUtils.outyellow("[$name] sonar ha risolto l'errore causa: $M")
+						emit("problem_solved", "problem_solved(CAUSA)" ) 
+						emit("led_changed", "led_changed(Spento)" ) 
+						updateResourceRep("led_changed(Spento)" 
+						)
+						updateResourceRep("sonar_changed(DFREE)" 
+						)
+						delay(5000) 
 						returnFromInterrupt(interruptedStateTransitions)
 						//genTimer( actor, state )
 					}
@@ -99,6 +103,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 								
 												val ID=payloadArg(0).toInt()
 								request("getProduct", "product($ID)" ,"productservice" )  
+								updateResourceRep("sonar_changed(DBUSY)" 
+								)
 						}
 						//genTimer( actor, state )
 					}
@@ -173,6 +179,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					action { //it:State
 						request("move_product", "product($Reserved_slot)" ,"cargorobot" )  
 						CommUtils.outyellow("[cargoservice] richiesta di move al cargo robot mandata")
+						updateResourceRep("current_weight($CURRENT_LOAD)" 
+						)
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

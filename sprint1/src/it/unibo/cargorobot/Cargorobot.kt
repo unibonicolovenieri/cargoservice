@@ -72,6 +72,8 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					action { //it:State
 						emit("alarm", "alarm(X)" ) 
 						CommUtils.outyellow("[$name] robot stopped")
+						updateResourceRep("alarm(X)" 
+						)
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -81,8 +83,13 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				}	 
 				state("resume") { //this:State
 					action { //it:State
-						CommUtils.outblack("$name riprendo")
-						forward("nextmove", "nextmove(l)" ,"basicrobot" ) 
+						if( checkMsgContent( Term.createTerm("problem_solved(CAUSA)"), Term.createTerm("problem_solved(CAUSA)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								CommUtils.outblack("$name riprendo")
+								updateResourceRep("problem_solved(solved)" 
+								)
+								forward("nextmove", "nextmove(l)" ,"basicrobot" ) 
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -142,10 +149,7 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				state("waiting_for_request") { //this:State
 					action { //it:State
 						delivering = false 
-						if( checkMsgContent( Term.createTerm("engagedone(ARG)"), Term.createTerm("engagedone(ARG)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								CommUtils.outyellow("[cargorobot] waiting for request")
-						}
+						CommUtils.outyellow("[cargorobot] waiting for request")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -189,6 +193,8 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 											
 								CommUtils.outgreen("[gotoslot] position received")
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
+								updateResourceRep("sonar_changed(DFREE)" 
+								)
 								delivering = true 
 								CommUtils.outgreen("gotoslot delivering: $delivering | position x: $X y: $Y")
 						}
@@ -211,6 +217,8 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						 ){forward("setdirection", "dir($Direction)" ,"basicrobot" ) 
 						CommUtils.outblue("Direction $Direction")
 						emit("slot_changed", "slot_changed($CurrentRequestSlot,true)" ) 
+						updateResourceRep("slot_changed($CurrentRequestSlot,true)" 
+						)
 						}
 						//genTimer( actor, state )
 					}

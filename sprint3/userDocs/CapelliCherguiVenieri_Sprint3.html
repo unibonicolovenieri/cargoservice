@@ -367,7 +367,7 @@ code {
   </script>
 <h1 id="sprint3">Sprint3</h1>
 <h2 id="introduzione">Introduzione</h2>
-<p>Nello sprint precedente ci siamo concentrati nella progettazione del sistema di misurazione e rilevazione L’obiettivo in questo sprint è introdurre un'interfaccia grafica web (WebGUI) che consenta all’utente finale di monitorare lo stato della hold, fornendo una visione chiara e aggiornata del sistema, senza interferire con la logica applicativa.</p>
+<p>L’obiettivo in questo sprint è introdurre un'interfaccia grafica web (WebGUI) che consenta all’utente finale di monitorare lo stato della hold, fornendo una visione chiara e aggiornata del sistema, senza interferire con la logica applicativa.</p>
 <p>In questo sprint viene realizzata una base architetturale della WebGUI, sulla quale sarà possibile costruire e completare le funzionalità di integrazione.</p>
 <h3 id="requisiti">Requisiti</h3>
 <p>Il committente ha come requisito quello di poter avere un interfaccia web consultabile che permetta la rappresentazione in tempo reale dello stato della Hold.</p>
@@ -391,7 +391,105 @@ code {
 <p>Si suggerisce di adottare l'ultima soluzione, in quanto coerente con le tecnologie già adottate nel sistema e con i paradigmi di comunicazione utilizzati, inoltre in fase di progettazione dell'attore qak cargoservice è già stato previsto l'aggiornamento di una risorsa CoAP. Tramite questa scelta ci sarà permesso di rimanere comunque nel concetto di sistema distribuito e non solo, sarà necessario (e lo vedremo in fase di deisgn) un sistema che permetta di recuperare lo stato attuale della hold per poi aggiornarlo in maniera incrementale in base agli avvenimenti. In questo modo WebGui non avrà la necessità di ricevere comunicazioni contenenti interamente tutti i parametri di hold ma solo quelli modificati.</p>
 <h2 id="system-build">System Build</h2>
 <p>Per realizzare un applicativo web come da requisiti suggeriamo l'utilizzo della tecnologia springboot che permette di realizzare una semplice logica per la gestione di pagine web dinamiche.
-Si pone un secondo problema strutturale, come possiamo gestire lo stato della hold se gli aggiornamenti che provengono dal cargoservice sono incrementali? (Ogni Attore è anche una risorsa CoAP che fornisce aggiornamenti incrementali). Abbiamo pensato di risolvere questo problema implementando un primo messaggio contente tutto lo stato completo della Hold e qual'ora quel messaggio sia gia stato inviato (Flag memorizzata su webgui) i successivi messaggi vengono droppati. Dunque qual'ora una seconda webgui venisse aperta su un browser differente, riceverebbe sia gli aggiornamenti incrementali che un messaggio informativo iniziale contente lo stato attuale della hold, consentendo a due webgui separate di poter essere &quot;sincronizzate&quot; con il resto del sistema.</p>
+Si pone un secondo problema strutturale, come possiamo gestire lo stato della hold se gli aggiornamenti che provengono dal cargoservice sono incrementali?
+Non vogliamo che la webgui sia un microservizio dipendente dal cargoservice, bensì deve entrare in funzione in un qualunque momento che può essere distinto dall'avvio del resto del sistema. Abbiamo pensato di risolvere questo problema implementando un primo messaggio che informa su tutto lo stato completo della Hold e qual'ora quel messaggio sia gia stato inviato (Flag memorizzata su webgui) i successivi messaggi vengono ignorati. Dunque qual'ora una seconda webgui venisse aperta su un browser differente, riceverebbe sia gli aggiornamenti incrementali che un messaggio informativo iniziale contente lo stato attuale della hold, consentendo a due webgui separate di poter essere &quot;sincronizzate&quot; con il resto del sistema.</p>
+<p>Questo comportamento è spiegato dal seguente attore &quot;hold_observer&quot; che intercetta gli eventi del cargoservice(vive nel suo contesto o un qualsiasi contesto noto al cargoservice in modo da ricevere le sue &quot;emit&quot;). Contiene una modellazione della hold semplificata che viene modificata conseguentemente agli eventi emessi dal cargoservice e si occupa :</p>
+<pre class="hljs"><code><div>QActor hold_observer context ctx_cargo{
+	
+	[<span class="hljs-comment">#	</span>
+		<span class="hljs-keyword">var</span> Taken_slot=arrayListOf(<span class="hljs-string">"false"</span>,<span class="hljs-string">"false"</span>,<span class="hljs-string">"false"</span>,<span class="hljs-string">"false"</span>,<span class="hljs-string">"true"</span>)
+    	val MAX_LOAD=<span class="hljs-number">500</span>
+    	<span class="hljs-keyword">var</span> CURRENT_LOAD=<span class="hljs-number">0</span>
+    	<span class="hljs-keyword">var</span> Led = <span class="hljs-string">"Spento"</span>
+    	<span class="hljs-keyword">var</span> Sonar = <span class="hljs-string">"DFREE"</span>
+    <span class="hljs-comment">#]</span>
+    	
+	State start initial{
+		println(<span class="hljs-string">"$name | start"</span>)
+		delay <span class="hljs-number">2000</span>
+	}
+	<span class="hljs-keyword">Goto</span> updateState
+	
+	State observe_hold{
+		println(<span class="hljs-string">"$name | Observing hold"</span>)
+	}
+	
+	
+	Transition t0
+	whenEvent slot_changed-&gt; change_slot_status
+	whenEvent led_changed -&gt; change_led_status
+	whenEvent sonar_changed -&gt; change_sonar_status
+	whenEvent current_weight -&gt; change_weight
+	whenRequest get_hold_state -&gt; updateState
+	
+	
+	State change_slot_status{
+		onMsg(slot_changed: slot_changed(ID,status)){
+			[<span class="hljs-comment">#</span>
+			val Slot = 	payloadArg(<span class="hljs-number">0</span>).toInt()
+			<span class="hljs-keyword">if</span> (Taken_slot[Slot]==<span class="hljs-string">"false"</span>) {
+				    Taken_slot[Slot]=<span class="hljs-string">"true"</span>		    	
+			    }
+			    <span class="hljs-keyword">else</span>{
+			    	Taken_slot[Slot]=<span class="hljs-string">"false"</span>
+			    }
+			<span class="hljs-comment">#]</span>
+			println(<span class="hljs-string">" ho ricevuto un cambio dello slot $Slot che ora vale"</span>)
+		}
+	}
+	<span class="hljs-keyword">Goto</span> updateState
+	
+	
+	State change_led_status{
+			[<span class="hljs-comment">#</span>
+			<span class="hljs-keyword">if</span> (Led==<span class="hljs-string">"Acceso"</span>) {
+			    Led=<span class="hljs-string">"Spento"</span>		    	
+			    }
+			    <span class="hljs-keyword">else</span>{
+			    	Led=<span class="hljs-string">"Acceso"</span>
+			    }
+			<span class="hljs-comment">#]</span>
+			println(<span class="hljs-string">" ho ricevuto un cambio dello stato del led che ora e' $Led"</span>)
+	}
+	<span class="hljs-keyword">Goto</span> updateState
+	
+	
+	State change_sonar_status{
+				onMsg(sonar_changed: sonar_changed(status)){
+				[<span class="hljs-comment">#</span>
+				Sonar = payloadArg(<span class="hljs-number">0</span>)
+				<span class="hljs-comment">#]</span>
+				println(<span class="hljs-string">" ho ricevuto un cambio dello stato del sonar che ora vale $Sonar"</span>)
+	}
+	}
+	<span class="hljs-keyword">Goto</span> updateState
+	
+	
+	State change_weight{
+		onMsg(current_weight: current_weight(weight)){
+			[<span class="hljs-comment">#</span>
+			CURRENT_LOAD = 	payloadArg(<span class="hljs-number">0</span>).toInt()
+			<span class="hljs-comment">#]</span>
+			println(<span class="hljs-string">"ho ricevuto un cambio del peso della stiva che ora pesa $CURRENT_LOAD"</span>)
+		}
+	}
+	<span class="hljs-keyword">Goto</span> updateState
+	
+	State updateState{
+		[<span class="hljs-comment">#</span>
+			val Slot1 = Taken_slot[<span class="hljs-number">0</span>]
+			val Slot2 = Taken_slot[<span class="hljs-number">1</span>]
+			val Slot3 = Taken_slot[<span class="hljs-number">2</span>]
+			val Slot4 = Taken_slot[<span class="hljs-number">3</span>]	
+			val Robot_state = <span class="hljs-string">"ok"</span>
+		<span class="hljs-comment">#</span>
+		]
+		updateResource[<span class="hljs-comment">#"hold_state(slots:1=$Slot1;2=$Slot2;3=$Slot3;4=$Slot4,maxload:1000,weight:$CURRENT_LOAD,sonar:$Sonar,led:$Led,robot:$Robot_state)"#]</span>
+		}
+	<span class="hljs-keyword">Goto</span> observe_hold
+}
+</div></code></pre>
+<p>Questo attore serve per aggiornare le nuove webgui sullo stato attuale dell'hold. I cambiamenti incrementali erano già previsti nello sprint1 per cui sono a carico dell'attore cargoservice.</p>
 <h3 id="dati-mostrati">Dati mostrati</h3>
 <p>All'interno dell'applicativo web sono visualizzati:</p>
 <ul>
@@ -410,7 +508,7 @@ Si pone un secondo problema strutturale, come possiamo gestire lo stato della ho
 <li>User Interface (<code>HIControllerDemo</code>, <code>index.html</code>): Interfaccia grafica aggiornata in tempo reale.</li>
 </ol>
 <h2 id="system-architecture">System Architecture</h2>
-<p style="text-align: center;"><img src="../../images/sprint3arch.png" alt=""></p>
+<p><img src="../../images/sprint3arch.png" alt=""></p>
 <h2 id="piano-di-test">Piano di Test</h2>
 <p>La WebGUI dispone di una suite di test che copre tutti i componenti principali:</p>
 <ul>

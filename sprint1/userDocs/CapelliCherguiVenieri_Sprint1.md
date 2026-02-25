@@ -73,6 +73,134 @@ In caso di mancanza di una delle due condizioni verrà segnalato il relativo err
 
 Per aggiornare la webgui sullo stato dell'hold, ad ogni cambiamento di stato( slot_changed, led_changed, sonar_changed) viene aggiornata la risorsa Coap associata. Prevediamo che la webgui si connetterà e leggerà gli update in modo da avere un comportamento passivo e ininfluente per il nostro cargoservice.
 
+```
+QActor cargoservice context ctx_cargo{
+      
+	State start initial{
+		println("[cargoservice] STARTED ") color yellow
+	}
+	Goto waiting_for_request
+	 
+	 
+	 State waiting_for_request{
+	 	
+	 	println("[cargoservice] waiting for request") color yellow
+	 }
+	 
+	Transition t0
+	whenRequest load_product -> check_product
+	whenInterruptEvent sonar_error -> stop
+	whenEvent container_trigger -> check_product
+	
+	
+	
+	State stop{
+	onMsg(sonar_error:sonar_error(CAUSA)){
+	 println("[$name] sonar ha emesso un errore causa: $M")	color yellow
+	 emit led_changed : led_changed(Acceso)
+	 updateResource[#"led_changed(Acceso)"#]
+	 }
+	}
+	
+	
+	Transition t0 
+	whenEvent problem_solved -> resume
+	
+	 
+	State resume{
+	onMsg(problem_solved:problem_solved(CAUSA)){
+	[# val M=payloadArg(0)#]	
+	println("[$name] sonar ha risolto l'errore causa: $M")	color yellow
+	//Il sonar si è fixato e quindi ora metto il led a spento
+    emit led_changed : led_changed(Spento)
+	updateResource[#"led_changed(Spento)"#]
+	updateResource[#"sonar_changed(DFREE)"#]
+	 }
+	 returnFromInterrupt
+	}
+	
+	
+	
+	
+	State check_product{
+		
+		onMsg(container_trigger: container_trigger(X)){	
+			println("[cargoservice] check del prodotto")	
+			[#
+				val ID=payloadArg(0).toInt()
+			#]			
+			request productservice -m getProduct:product($ID)	
+			updateResource[#"sonar_changed(DBUSY)"#]
+		}
+		
+	}
+	Transition t0
+	whenReply getProductAnswer -> check_load
+	whenInterruptEvent sonar_error -> stop
+	
+	
+	State check_load{
+	
+		onMsg(getProductAnswer: product(JsonString)){
+			println("[cargoservice] arrivato peso")
+			[#
+				val Product=payloadArg(0)					
+				Product_weight = main.java.Product.getJsonInt(Product, "weight")
+			#]
+		}
+	}
+	
+	Goto checkSlot if [#CURRENT_LOAD+ Product_weight <= MAX_LOAD #] else too_much_weight
+	
+	State too_much_weight{
+		println("Il carico eccederebbe maxload, non è possibile eseguire la load") color yellow
+	}
+	Goto waiting_for_request
+	
+	State checkSlot{
+		println("[cargoservice] ingresso move product") color yellow
+		[# 
+			CURRENT_LOAD += Product_weight		      
+		    Reserved_slot=0   
+		    for(i in 0..4){
+			    if (Taken_slot[i]=="false") {
+				    Reserved_slot = i+1
+				    Taken_slot[i]="true"
+				    break;		    	
+			    }
+		    }
+		#]
+		}
+		Goto moveProduct if [#Reserved_slot!=0#] else slotEsauriti
+		
+		State slotEsauriti{
+			println("[$name] slot esauriti") color yellow
+		}
+		
+		
+		State moveProduct{
+		request cargorobot -m move_product:product($Reserved_slot) 
+		println("[cargoservice] richiesta di move al cargo robot mandata") color yellow
+		updateResource[#"current_weight($CURRENT_LOAD)"#]
+	}
+		
+	Transition t0
+	whenReply movedProduct -> load_finished
+	whenInterruptEvent sonar_error -> stop
+	
+	State load_finished{
+		onMsg(movedProduct:result( SLOT )){
+			println("Load completata il robot è in home ")		
+		}
+	}
+	
+		
+	Goto waiting_for_request
+}
+
+```
+
+
 #### Considerazioni Aggiuntive (Cargoservice)
 In caso di evento scatenato dal Sonar (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Sonar in questo sprint sarà un mock.
 
@@ -116,6 +244,220 @@ La modellazione del cargorobot sarà la seguente:
 
 Il movimento del robot viene gestito tramite funzionalità messe a disposizione da basicrobot24. Cargorobot si occuperà di inviare i comandi di movimento tramite messaggi e di gestire le risposte che riceverà da basicrobot. Tramite il messaggio `moverobot(X,Y)` sarà possibile definire la coordinata di destinazione del robot, basicrobot si occuperà di calcolare il percorso e di muovere il robot. Cargorobot attenderà la risposta di basicrobot per sapere se l'operazione è andata a buon fine o se è fallita (es. ostacolo imprevisto).
 Le coordinate di posizionamento del robot sono memorizzate all'interno di basicrobot(disponibili tramite messaggio), mentre il posizionamento del degli slot e dell'IOport sono memorizzate all'interno di cargorobot.
+
+```
+QActor cargorobot context ctx_cargo{
+	
+	State start initial{
+		delay 30000
+		println("[cargorobot] STARTED ") color yellow
+		request basicrobot -m engage:engage($Myname,340) 
+	}
+
+	 Transition t0 
+	 whenReply engagedone -> waiting_for_request
+	 whenReply engagerefused -> engage_refused
+	 whenInterruptEvent sonar_error -> stop
+	 State stop{
+	 	
+	 		emit alarm           		: alarm(X)
+	 		updateResource [#"alarm(X)"#]
+	 		println("[$name] robot stopped")color yellow
+	 		
+	 } 
+	 Transition t0 
+	 //whenReply moverobotfailed-> resume
+	 whenEvent problem_solved -> resume
+	  
+	 	 State resume{
+	 	 			updateResource [#"problem_solved(solved)"#]
+	 	 			forward basicrobot -m nextmove:nextmove(l)
+	 	 			//request basicrobot -m engage:engage($Myname,340)
+	 	 			
+	}
+	Transition t0 
+    whenReply moverobotfailed-> reengage
+    whenReply engagedone -> reengage
+	State reengage{
+		
+			println("$name reengage done")
+			
+		
+		
+	}
+	 Goto riprendocosaprecedente
+	 State riprendocosaprecedente{
+	 	
+	 	println("[$name] robot stava consegnando e ora riprenderà il lavoro")color yellow
+		request basicrobot -m moverobot:moverobot($X,$Y)
+	 	
+	 	println("[$name] robot rinizia il lavoro")color yellow
+	 	returnFromInterrupt
+	 }
+	 Transition t0
+	 whenReply moverobotdone-> continuaJob
+	 State continuaJob{
+	 	println("non sto facendo niente torno al mio lavoro")color yellow
+	 	returnFromInterrupt
+	 }
+	 
+	 State engage_refused{
+	 	onMsg(engagerefused:engagerefused(ARG)){
+		 	[#val Msg=payloadArg(0)#]
+		 	println("[cargorobot] Engage refused motivo:$Msg")
+	 	}
+	 	
+	 }
+	 
+	 State waiting_for_request{
+		[#delivering = false#]
+	 	onMsg(engagedone:engagedone(ARG)){
+	 		println("[cargorobot] waiting for request") color yellow
+	 		
+	 	}
+	 }
+	 
+	Transition t0
+	whenRequest move_product -> goto_IOPort
+	whenInterruptEvent sonar_error -> stop
+	
+	State goto_IOPort{
+		onMsg(move_product: product(SLOT)){
+            [# CurrentRequestSlot = payloadArg(0).toInt()
+            	X = posizione["IOport"]!![0]!!
+				Y = posizione["IOport"]!![1]!!
+            #]
+            println("[cargorobot] Ricevuto move_product, slot richiesto: $CurrentRequestSlot") color yellow
+            println("Posizione X: $X Y: $Y") color yellow
+            request basicrobot -m moverobot:moverobot($X,$Y)
+            [#delivering = true
+            	
+            #]
+            println("sent ") color yellow
+        }
+	}
+	
+	Transition t0
+	whenReply moverobotfailed-> return_home_anyway
+	whenReply moverobotdone -> goto_slot
+	whenInterruptEvent sonar_error -> stop
+	
+	
+	State goto_slot{
+		println("gotoslot") color yellow
+		delay 3000
+		onMsg(moverobotdone  :  moverobotdone(ok)){
+		[#
+			X = posizione[CurrentRequestSlot.toString()]!![0]!!
+			Y = posizione[CurrentRequestSlot.toString()]!![1]!!
+			
+		#]
+		println("[gotoslot] position received") color green
+		request basicrobot -m moverobot:moverobot($X,$Y)
+		updateResource[#"sonar_changed(DFREE)"#]
+		[#delivering = true#]
+		println("gotoslot delivering: $delivering | position x: $X y: $Y") color green
+		}
+	}
+	
+	
+	Transition t0
+	whenReply moverobotdone -> arrived_at_slot
+	whenReply moverobotfailed-> return_home_anyway
+	whenInterruptEvent sonar_error -> stop
+	
+	State arrived_at_slot{
+		println("Arrived at slot $CurrentRequestSlot")
+		println("Direction") color blue
+		[#
+			var Direction = orientamento[CurrentRequestSlot.toString()]!!
+			#
+		]
+		if [#CurrentRequestSlot != 3 && CurrentRequestSlot != 4#]{
+			forward basicrobot -m setdirection : dir($Direction)
+		println("Direction $Direction") color blue
+		//Si occupa lo slot quindi faccio una emit di cambio di stato (	Serve a WebGui)
+		emit slot_changed : slot_changed($CurrentRequestSlot,true)
+		updateResource[#"slot_changed($CurrentRequestSlot,true)"#]
+}
+		
+	}
+	
+	Goto return_home
+
+	
+	
+	State return_home{
+		delay 3000
+		//onMsg(moverobotdone  :  moverobotdone(ok)){
+		[#
+			X = posizione["HOME"]!![0]!!
+			Y = posizione["HOME"]!![1]!!
+			
+		#]
+		request basicrobot -m moverobot:moverobot($X,$Y)
+		[#delivering = true#]
+		
+		}
+		Transition t0
+		whenReply moverobotdone -> arrived_at_home
+		whenReply moverobotfailed-> load_failed
+		whenInterruptEvent sonar_error -> stop
+		
+		State arrived_at_home{
+		println("Arrived at home")
+		println("Direction") color blue
+		[#
+			var Direction = orientamento["HOME"]!!
+			#
+		]
+		forward basicrobot -m setdirection : dir($Direction)
+		println("Direction $Direction") color blue
+		
+	}
+		Goto load_completed
+		
+		State return_home_anyway{
+			println("returnhomeanyway")
+			delay 3000
+			onMsg(moverobotfailed:fail(PLANDONE)){
+				[#
+				X = posizione["HOME"]!![0]!!
+				Y = posizione["HOME"]!![1]!!
+				#]
+				request basicrobot -m moverobot:moverobot($X,$Y)
+				 [#delivering = true#]
+			}
+			
+		}
+		
+		
+		Transition t0
+		whenReply moverobotdone -> load_failed //????? Chiedi con Luca
+		whenReply moverobotfailed-> load_failed
+		whenInterruptEvent sonar_error -> stop	
+		 
+		
+		State load_completed{
+			println("[$name] load completed")
+			replyTo  move_product with movedProduct:result(ok)
+		}
+		
+		
+		Goto waiting_for_request
+		
+		
+		State load_failed{
+			println("[$name] load failed")
+			replyTo  move_product with moveProductFailed:fail(failed)
+		}
+		
+		
+		Goto waiting_for_request
+		
+	}
+
+```
 
 ### Considerazioni Aggiuntive (Cargorobot)
 #### Stato del Robot e ripresa attività

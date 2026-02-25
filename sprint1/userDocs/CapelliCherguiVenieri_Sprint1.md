@@ -71,6 +71,7 @@ In caso di mancanza di una delle due condizioni verrà segnalato il relativo err
 6. Il cargoservice attende che il cargorobot ritorni alla HOME (posizione 0,0 dell'hold).La risposta può essere una load_completed o una load_failed in base all'esito del caricamento.
 7. cargoservice riceve in risposta l'esito della load dal cargorobot, aggiorna lo stato della stiva(peso,numero di slot liberi), emette gli eventi per aggiornare la web-gui ed è pronto per gestire nuove richieste.
 
+Per aggiornare la webgui sullo stato dell'hold, ad ogni cambiamento di stato( slot_changed, led_changed, sonar_changed) viene aggiornata la risorsa Coap associata. Prevediamo che la webgui si connetterà e leggerà gli update in modo da avere un comportamento passivo e ininfluente per il nostro cargoservice.
 
 #### Considerazioni Aggiuntive (Cargoservice)
 In caso di evento scatenato dal Sonar (es. malfunzionamento, emergenza) il cargoservice deve interrompere ogni attività in corso e attendere ulteriori istruzioni. Sonar in questo sprint sarà un mock.

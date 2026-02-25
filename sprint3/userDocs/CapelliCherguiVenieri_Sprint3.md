@@ -32,7 +32,109 @@ Si suggerisce di adottare l'ultima soluzione, in quanto coerente con le tecnolog
 
 ## System Build
 Per realizzare un applicativo web come da requisiti suggeriamo l'utilizzo della tecnologia springboot che permette di realizzare una semplice logica per la gestione di pagine web dinamiche.
-Si pone un secondo problema strutturale, come possiamo gestire lo stato della hold se gli aggiornamenti che provengono dal cargoservice sono incrementali? (Ogni Attore è anche una risorsa CoAP che fornisce aggiornamenti incrementali). Abbiamo pensato di risolvere questo problema implementando un primo messaggio contente tutto lo stato completo della Hold e qual'ora quel messaggio sia gia stato inviato (Flag memorizzata su webgui) i successivi messaggi vengono droppati. Dunque qual'ora una seconda webgui venisse aperta su un browser differente, riceverebbe sia gli aggiornamenti incrementali che un messaggio informativo iniziale contente lo stato attuale della hold, consentendo a due webgui separate di poter essere "sincronizzate" con il resto del sistema.
+Si pone un secondo problema strutturale, come possiamo gestire lo stato della hold se gli aggiornamenti che provengono dal cargoservice sono incrementali?
+Non vogliamo che la webgui sia un microservizio dipendente dal cargoservice, bensì deve entrare in funzione in un qualunque momento che può essere distinto dall'avvio del resto del sistema. Abbiamo pensato di risolvere questo problema implementando un primo messaggio che informa su tutto lo stato completo della Hold e qual'ora quel messaggio sia gia stato inviato (Flag memorizzata su webgui) i successivi messaggi vengono ignorati. Dunque qual'ora una seconda webgui venisse aperta su un browser differente, riceverebbe sia gli aggiornamenti incrementali che un messaggio informativo iniziale contente lo stato attuale della hold, consentendo a due webgui separate di poter essere "sincronizzate" con il resto del sistema.
+
+Questo comportamento è spiegato dal seguente attore "hold_observer" che intercetta gli eventi del cargoservice(vive nel suo contesto o un qualsiasi contesto noto al cargoservice in modo da ricevere le sue "emit"). Contiene una modellazione della hold semplificata che viene modificata conseguentemente agli eventi emessi dal cargoservice e si occupa :
+
+``` php
+QActor hold_observer context ctx_cargo{
+	
+	[#	
+		var Taken_slot=arrayListOf("false","false","false","false","true")
+    	val MAX_LOAD=500
+    	var CURRENT_LOAD=0
+    	var Led = "Spento"
+    	var Sonar = "DFREE"
+    #]
+    	
+	State start initial{
+		println("$name | start")
+		delay 2000
+	}
+	Goto updateState
+	
+	State observe_hold{
+		println("$name | Observing hold")
+	}
+	
+	
+	Transition t0
+	whenEvent slot_changed-> change_slot_status
+	whenEvent led_changed -> change_led_status
+	whenEvent sonar_changed -> change_sonar_status
+	whenEvent current_weight -> change_weight
+	whenRequest get_hold_state -> updateState
+	
+	
+	State change_slot_status{
+		onMsg(slot_changed: slot_changed(ID,status)){
+			[#
+			val Slot = 	payloadArg(0).toInt()
+			if (Taken_slot[Slot]=="false") {
+				    Taken_slot[Slot]="true"		    	
+			    }
+			    else{
+			    	Taken_slot[Slot]="false"
+			    }
+			#]
+			println(" ho ricevuto un cambio dello slot $Slot che ora vale")
+		}
+	}
+	Goto updateState
+	
+	
+	State change_led_status{
+			[#
+			if (Led=="Acceso") {
+			    Led="Spento"		    	
+			    }
+			    else{
+			    	Led="Acceso"
+			    }
+			#]
+			println(" ho ricevuto un cambio dello stato del led che ora e' $Led")
+	}
+	Goto updateState
+	
+	
+	State change_sonar_status{
+				onMsg(sonar_changed: sonar_changed(status)){
+				[#
+				Sonar = payloadArg(0)
+				#]
+				println(" ho ricevuto un cambio dello stato del sonar che ora vale $Sonar")
+	}
+	}
+	Goto updateState
+	
+	
+	State change_weight{
+		onMsg(current_weight: current_weight(weight)){
+			[#
+			CURRENT_LOAD = 	payloadArg(0).toInt()
+			#]
+			println("ho ricevuto un cambio del peso della stiva che ora pesa $CURRENT_LOAD")
+		}
+	}
+	Goto updateState
+	
+	State updateState{
+		[#
+			val Slot1 = Taken_slot[0]
+			val Slot2 = Taken_slot[1]
+			val Slot3 = Taken_slot[2]
+			val Slot4 = Taken_slot[3]	
+			val Robot_state = "ok"
+		#
+		]
+		updateResource[#"hold_state(slots:1=$Slot1;2=$Slot2;3=$Slot3;4=$Slot4,maxload:1000,weight:$CURRENT_LOAD,sonar:$Sonar,led:$Led,robot:$Robot_state)"#]
+		}
+	Goto observe_hold
+}
+```
+
+Questo attore serve per aggiornare le nuove webgui sullo stato attuale dell'hold. I cambiamenti incrementali erano già previsti nello sprint1 per cui sono a carico dell'attore cargoservice.
 
 ### Dati mostrati
 All'interno dell'applicativo web sono visualizzati:

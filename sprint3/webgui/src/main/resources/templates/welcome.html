@@ -1,0 +1,17 @@
+<!-- Passo "Verso una prima applicazione" del prof:
+     templates/welcome.html con Thymeleaf -->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Welcome - Cargo Hold</title>
+    <style>
+        body { font-family: monospace; background: #0a0c0f; color: #c8d6e5; text-align: center; padding: 60px; }
+        h1 { color: #00e5ff; letter-spacing: 4px; }
+        a { color: #00e5ff; }
+    </style>
+</head>
+<body>
+<h1>Welcome (in templates)</h1>
+<p>Applicazione: <b><span th:text="${arg}">appName</span></b></p>
+<p><a href="/index.html">→ Apri il Monitor della Stiva</a></p>
+</body>
+</html>
